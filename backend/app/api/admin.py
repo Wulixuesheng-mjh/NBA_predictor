@@ -375,3 +375,117 @@ async def manual_game_result(
         game_id=new_game.id,
         message=f"Game {payload.nba_game_id} created: {payload.home_score}-{payload.away_score} ({season})",
     )
+
+
+# ── Bulk Injury Import ────────────────────────────────────────
+
+
+class BulkInjuryItem(BaseModel):
+    """Single injury item for bulk import."""
+
+    player_id: int = Field(..., description="Internal player ID")
+    injury_status: str = Field(default="Out", description="Out / Doubtful / Questionable / Probable")
+    injury_type: str = Field(..., description="e.g. 'Ankle', 'Knee', 'Groin'")
+    description: str | None = Field(None, description="Optional detail")
+
+
+class BulkInjuryRequest(BaseModel):
+    """Bulk injury import request."""
+
+    injuries: list[BulkInjuryItem] = Field(..., min_length=1, max_length=100)
+    replace_existing: bool = Field(
+        default=False,
+        description="If True, deactivate all current active injuries before import"
+    )
+
+
+class BulkInjuryResponse(BaseModel):
+    status: str
+    created: int
+    skipped: int
+    deactivated: int = 0
+    message: str
+
+
+@router.post(
+    "/bulk-injuries",
+    response_model=BulkInjuryResponse,
+    responses={400: {"model": ErrorResponse}},
+)
+async def bulk_import_injuries(
+    payload: BulkInjuryRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Bulk import injury records for multiple players at once.
+
+    Useful when:
+      - Kaggle has no injury data and BallDontLie All-Star tier isn't enabled
+      - You want to manually sync injuries from an external source (ESPN, etc.)
+      - You need to batch-update the entire league's injury report
+
+    Set `replace_existing=True` to deactivate all current active injuries
+    before importing the new batch (full refresh mode).
+    """
+    from app.models.player_injuries import PlayerInjury
+
+    deactivated = 0
+
+    # Optional: deactivate all current injuries before import
+    if payload.replace_existing:
+        result = await db.execute(
+            select(PlayerInjury).where(PlayerInjury.is_active == True)
+        )
+        active = result.scalars().all()
+        for injury in active:
+            injury.is_active = False
+            injury.updated_at = datetime.now(timezone.utc)
+        deactivated = len(active)
+
+    created = 0
+    skipped = 0
+    now = datetime.now(timezone.utc)
+
+    for item in payload.injuries:
+        # Check if player exists
+        player_result = await db.execute(
+            select(Player.id).where(Player.id == item.player_id)
+        )
+        if not player_result.scalar_one_or_none():
+            skipped += 1
+            continue
+
+        # Check for duplicate active injury of same type
+        dup = await db.execute(
+            select(PlayerInjury).where(
+                PlayerInjury.player_id == item.player_id,
+                PlayerInjury.is_active == True,
+                PlayerInjury.injury_type == item.injury_type,
+            )
+        )
+        if dup.scalar_one_or_none():
+            skipped += 1
+            continue
+
+        new_injury = PlayerInjury(
+            player_id=item.player_id,
+            source="manual",
+            confirmation="confirmed",
+            injury_status=item.injury_status,
+            injury_type=item.injury_type,
+            description=item.description or "",
+            reported_date=now,
+            is_active=True,
+        )
+        db.add(new_injury)
+        created += 1
+
+    await db.commit()
+
+    return BulkInjuryResponse(
+        status="success",
+        created=created,
+        skipped=skipped,
+        deactivated=deactivated,
+        message=f"Created {created} injuries, skipped {skipped}"
+        + (f", deactivated {deactivated} existing" if deactivated else ""),
+    )

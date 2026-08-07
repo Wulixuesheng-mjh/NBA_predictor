@@ -30,7 +30,9 @@ from app.collector.base import BaseCollector, CollectionResult
 from app.database import async_session_factory
 from app.models.team import Team
 from app.models.game import Game
+from app.models.player import Player
 from app.models.game_player_stats import GamePlayerStats
+from app.models.player_injuries import PlayerInjury
 from app.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -93,8 +95,9 @@ class BallDontLieCollector(BaseCollector):
 
         try:
             count = await self.sync_today_scores()
+            injury_count = await self.sync_injuries()
             result.status = "success"
-            result.records_collected = count
+            result.records_collected = count + injury_count
 
             # Trigger retraining if enough new games
             if count >= 3:
@@ -450,6 +453,111 @@ class BallDontLieCollector(BaseCollector):
                 row[0].upper(): row[1] for row in result.all() if row[0]
             }
         return self._team_map
+
+    # ── Injury Sync (BallDontLie All-Star tier only) ───────────
+
+    async def sync_injuries(self) -> int:
+        """Sync active NBA injuries from BallDontLie.
+
+        Requires ALL-STAR tier or higher ($9.99/mo).
+        Free tier will receive HTTP 402 Payment Required.
+
+        Returns:
+            Number of new injury records created.
+        """
+        url = f"{BALLDONTLIE_BASE_URL}/nba/player_injuries"
+        headers = {
+            "Authorization": self._api_key,
+            "Accept": "application/json",
+        }
+        count = 0
+
+        try:
+            async with httpx.AsyncClient(timeout=30) as client:
+                # Fetch first page of active injuries
+                resp = await client.get(url, headers=headers, params={"per_page": 100})
+                resp.raise_for_status()
+                data = resp.json()
+
+                injuries_list = data.get("data", [])
+                if not injuries_list:
+                    logger.debug("BallDontLie: no active injuries found")
+                    return 0
+
+                async with self.db_session_factory() as session:
+                    # Build player ID mapping: balldontlie player ID → internal player.id
+                    player_result = await session.execute(
+                        select(Player.nba_player_id, Player.id)
+                    )
+                    player_map = {
+                        str(row[0]): row[1] for row in player_result.all()
+                    }
+
+                    seen = set()
+                    now = datetime.now(timezone.utc)
+
+                    for injury in injuries_list:
+                        player_bdl = injury.get("player", {})
+                        player_id = player_bdl.get("id")
+                        if player_id is None:
+                            continue
+
+                        db_player_id = player_map.get(str(player_id))
+                        if not db_player_id:
+                            continue
+
+                        status = injury.get("status", "Out")
+                        injury_type = injury.get("comment") or injury.get("type") or "Unknown"
+
+                        # Dedup: skip if same player + same status already active
+                        dedup_key = (db_player_id, status)
+                        if dedup_key in seen:
+                            continue
+                        seen.add(dedup_key)
+
+                        # Check if an active injury already exists for this player
+                        existing = await session.execute(
+                            select(PlayerInjury).where(
+                                PlayerInjury.player_id == db_player_id,
+                                PlayerInjury.is_active == True,
+                                PlayerInjury.injury_status == status,
+                            )
+                        )
+                        if existing.scalar_one_or_none():
+                            continue
+
+                        # Create new injury record
+                        new_injury = PlayerInjury(
+                            player_id=db_player_id,
+                            source="balldontlie",
+                            confirmation="pending",
+                            injury_status=status,
+                            injury_type=injury_type,
+                            description=injury.get("comment") or "",
+                            reported_date=now,
+                            is_active=True,
+                        )
+                        session.add(new_injury)
+                        count += 1
+
+                    if count > 0:
+                        await session.commit()
+                        logger.info("BallDontLie: imported %d new injury records", count)
+
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 402:
+                logger.debug(
+                    "BallDontLie injuries skipped: requires All-Star tier ($9.99/mo). "
+                    "Upgrade at https://app.balldontlie.io"
+                )
+            else:
+                logger.warning("BallDontLie injury API error: HTTP %s", e.response.status_code)
+        except httpx.RequestError as e:
+            logger.debug("BallDontLie injury fetch failed (network): %s", e)
+        except Exception as e:
+            logger.warning("BallDontLie injury sync failed: %s", e)
+
+        return count
 
     # ── Helpers ─────────────────────────────────────────────────
 
