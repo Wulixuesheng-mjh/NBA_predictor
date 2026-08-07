@@ -1,0 +1,57 @@
+# ── Secrets & Environment ──────────────────────────
+.env
+*.env.local
+*.env.production
+
+# ── Python ─────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# ── Virtual Environment ────────────────────────────
+venv/
+.venv/
+env/
+
+# ── IDE ────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ── Docker ─────────────────────────────────────────
+docker-compose.override.yml
+
+# ── Model files (large binaries) ───────────────────
+ml/saved_models/xgboost/*
+ml/saved_models/mlp/*
+!ml/saved_models/xgboost/.gitkeep
+!ml/saved_models/mlp/.gitkeep
+*.pkl
+*.pt
+*.db
+*.sqlite3
+
+# ── Node / Frontend ────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/build/
+.vite/
+*.tsbuildinfo
+
+# ── Logs ───────────────────────────────────────────
+*.log
+logs/
+
+# ── OS ─────────────────────────────────────────────
+Thumbs.db
+Desktop.ini

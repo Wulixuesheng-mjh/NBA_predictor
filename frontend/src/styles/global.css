@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-100 antialiased;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-6;
+  }
+
+  .card-header {
+    @apply text-lg font-semibold text-gray-100 mb-4 pb-3 border-b border-gray-800;
+  }
+
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg
+           transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-800 hover:bg-gray-700 text-gray-200 font-medium py-2 px-6 rounded-lg
+           border border-gray-700 transition-colors duration-200;
+  }
+
+  .stat-value {
+    @apply text-2xl font-bold;
+  }
+
+  .stat-label {
+    @apply text-sm text-gray-400;
+  }
+
+  .badge-win {
+    @apply bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-loss {
+    @apply bg-red-500/20 text-red-400 px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-pending {
+    @apply bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-confirmed {
+    @apply bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-xs font-medium;
+  }
+}

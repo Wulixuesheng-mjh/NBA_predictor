@@ -1,0 +1,146 @@
+name: nba-predictor
+
+services:
+  # ── PostgreSQL ────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: nba-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-nba_predictor}
+      POSTGRES_USER: ${DB_USER:-nba_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-nba_predictor_2024}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-nba_admin} -d ${DB_NAME:-nba_predictor}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    networks:
+      - nba-network
+
+  # ── Backend API + Scheduler ───────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nba-backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-nba_admin}:${DB_PASSWORD:-nba_predictor_2024}@postgres:5432/${DB_NAME:-nba_predictor}
+      DATABASE_URL_SYNC: postgresql://${DB_USER:-nba_admin}:${DB_PASSWORD:-nba_predictor_2024}@postgres:5432/${DB_NAME:-nba_predictor}
+      MODEL_PATH: /app/ml/saved_models
+      SCHEDULER_ENABLED: "${SCHEDULER_ENABLED:-true}"
+      COLLECTION_INTERVAL_MINUTES: "${COLLECTION_INTERVAL_MINUTES:-360}"
+      BALLDONTLIE_API_KEY: "${BALLDONTLIE_API_KEY:-}"
+      BALLDONTLIE_INTERVAL_MINUTES: "${BALLDONTLIE_INTERVAL_MINUTES:-30}"
+      ADMIN_API_KEY: "${ADMIN_API_KEY:-}"
+      DEBUG: "${DEBUG:-false}"
+      NBA_API_TIMEOUT: "${NBA_API_TIMEOUT:-30}"
+    volumes:
+      - model_data:/app/ml/saved_models
+      - ./ml/src:/app/ml/src:ro
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+    networks:
+      - nba-network
+
+  # ── React Frontend (Nginx) ────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nba-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+    networks:
+      - nba-network
+
+  # ── ML Model Trainer (manual, one-off) ────────────────
+  # Run with: docker compose --profile trainer run --rm trainer
+  trainer:
+    profiles:
+      - trainer
+    build:
+      context: .
+      dockerfile: ml/Dockerfile
+    container_name: nba-trainer
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-nba_admin}:${DB_PASSWORD:-nba_predictor_2024}@postgres:5432/${DB_NAME:-nba_predictor}
+      DATABASE_URL_SYNC: postgresql://${DB_USER:-nba_admin}:${DB_PASSWORD:-nba_predictor_2024}@postgres:5432/${DB_NAME:-nba_predictor}
+    volumes:
+      - model_data:/app/ml/saved_models
+      - ./ml/src:/app/ml/src:ro
+      - ./backend/app:/app/backend/app:ro
+      - ./scripts:/app/scripts:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nba-network
+    command: ${TRAINER_ARGS:---lookback 10}
+
+volumes:
+  postgres_data:
+    name: nba-postgres-data
+  model_data:
+    name: nba-model-data
+
+networks:
+  nba-network:
+    name: nba-network
+    driver: bridge
