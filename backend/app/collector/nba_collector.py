@@ -86,7 +86,7 @@ class NBACollector(BaseCollector):
             total_records += await self.sync_players()
             total_records += await self.sync_schedule()
             total_records += await self.sync_game_results()
-            total_records += await self.sync_injuries()
+            # Injuries are collected manually (see frontend InjuryEntry).
 
             result.status = "success"
             result.records_collected = total_records

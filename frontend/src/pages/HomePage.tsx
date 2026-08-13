@@ -4,6 +4,7 @@ import { useState } from "react";
 import TeamSelector from "../components/common/TeamSelector";
 import LookbackSlider from "../components/common/LookbackSlider";
 import { PredictionCard, ConsensusBadge, ExplanationSection, CoverOverSection } from "../components/prediction";
+import InjuryEntry from "../components/InjuryEntry";
 import InjuryPanel from "../components/InjuryPanel";
 import TeamComparisonChart from "../components/charts/TeamComparisonChart";
 import RecentForm from "../components/teams/RecentForm";
@@ -150,6 +151,14 @@ export default function HomePage() {
           </div>
         )}
       </div>
+
+      {/* Manual injury entry (near team selection) */}
+      <InjuryEntry
+        homeTeamId={homeTeamId}
+        awayTeamId={awayTeamId}
+        homeName={homeName}
+        awayName={awayName}
+      />
 
       {/* Prediction Results */}
       {(result || loading || extraLoading) && (

@@ -95,9 +95,8 @@ class BallDontLieCollector(BaseCollector):
 
         try:
             count = await self.sync_today_scores()
-            injury_count = await self.sync_injuries()
             result.status = "success"
-            result.records_collected = count + injury_count
+            result.records_collected = count
 
             # Trigger retraining if enough new games
             if count >= 3:
