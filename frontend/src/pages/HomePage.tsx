@@ -3,7 +3,7 @@
 import { useState } from "react";
 import TeamSelector from "../components/common/TeamSelector";
 import LookbackSlider from "../components/common/LookbackSlider";
-import { PredictionCard, ConsensusBadge, ExplanationSection } from "../components/prediction";
+import { PredictionCard, ConsensusBadge, ExplanationSection, CoverOverSection } from "../components/prediction";
 import InjuryPanel from "../components/InjuryPanel";
 import TeamComparisonChart from "../components/charts/TeamComparisonChart";
 import RecentForm from "../components/teams/RecentForm";
@@ -18,6 +18,8 @@ export default function HomePage() {
   const [homeTeamId, setHomeTeamId] = useState<number | null>(null);
   const [awayTeamId, setAwayTeamId] = useState<number | null>(null);
   const [lookback, setLookback] = useState(10);
+  const [spreadLine, setSpreadLine] = useState("");
+  const [totalLine, setTotalLine] = useState("");
 
   const { result, loading, error, predict } = usePrediction();
   const { teams } = useTeams();
@@ -34,10 +36,17 @@ export default function HomePage() {
   const handlePredict = async () => {
     if (!homeTeamId || !awayTeamId) return;
 
+    // Both lines must be present (and valid) to enable 盘口 prediction
+    const spread = spreadLine.trim() === "" ? undefined : Number(spreadLine);
+    const total = totalLine.trim() === "" ? undefined : Number(totalLine);
+    const hasLines =
+      spread !== undefined && total !== undefined && !Number.isNaN(spread) && !Number.isNaN(total);
+
     const predictionResult = await predict({
       home_team_id: homeTeamId,
       away_team_id: awayTeamId,
       lookback_games: lookback,
+      ...(hasLines ? { spread_line: spread as number, total_line: total as number } : {}),
     });
 
     if (!predictionResult) return;
@@ -103,6 +112,38 @@ export default function HomePage() {
           </button>
         </div>
 
+        {/* 盘口录入 (可选) — 用于让分胜负 / 大小分二分类预测 */}
+        <div className="mt-4 p-3 bg-gray-800/40 rounded-lg border border-gray-700/50">
+          <p className="text-xs text-gray-400 mb-2">
+            盘口录入（可选，两项都填才启用让分胜负 / 大小分预测）
+          </p>
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-400 whitespace-nowrap">让分盘口</label>
+              <input
+                type="number"
+                step="0.5"
+                placeholder="如 +3.5"
+                value={spreadLine}
+                onChange={(e) => setSpreadLine(e.target.value)}
+                className="w-28 px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-700 text-sm text-gray-200 focus:outline-none focus:border-purple-500"
+              />
+              <span className="text-xs text-gray-600">主队为正</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-400 whitespace-nowrap">大小分盘口</label>
+              <input
+                type="number"
+                step="0.5"
+                placeholder="如 220.5"
+                value={totalLine}
+                onChange={(e) => setTotalLine(e.target.value)}
+                className="w-28 px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-700 text-sm text-gray-200 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+          </div>
+        </div>
+
         {error && (
           <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400">
             {error}
@@ -138,6 +179,7 @@ export default function HomePage() {
                       modelLabel="XGBoost"
                       prediction={result.xgboost}
                       recommended={result.recommended === "xgboost"}
+                      confidence={result.confidence}
                     />
                   )}
                   {result.mlp && (
@@ -146,15 +188,33 @@ export default function HomePage() {
                       modelLabel="MLP"
                       prediction={result.mlp}
                       recommended={result.recommended === "mlp"}
+                      confidence={result.confidence}
                     />
                   )}
                 </div>
+
+                {result.confidence && result.confidence.level === "not_recommended" && (
+                  <div className="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                    <p className="text-sm text-red-400 font-medium">⚠️ 不建议参考此预测</p>
+                    <p className="text-xs text-red-400/70 mt-1">
+                      置信度评分仅 {result.confidence.score.toFixed(0)}/100。
+                      {result.actual_games_home < 5 || result.actual_games_away < 5
+                        ? " 可用比赛数据不足（至少需要5场），建议等待更多比赛后再预测。"
+                        : " 模型对此预测信心较低，预测结果仅供参考。"}
+                    </p>
+                  </div>
+                )}
 
                 {result.consensus && <ConsensusBadge consensus={result.consensus} />}
 
                 {/* SHAP Explanation */}
                 {result.explanation && (
                   <ExplanationSection explanation={result.explanation} />
+                )}
+
+                {/* Cover/over (盘口) binary prediction */}
+                {result.cover_over && (
+                  <CoverOverSection coverOver={result.cover_over} />
                 )}
 
                 {/* Data quality warnings */}

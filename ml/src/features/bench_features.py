@@ -166,7 +166,7 @@ class BenchFeatures:
         if bench_ppg > 0:
             starters_vs_bench_ratio = starter_ppg / bench_ppg
         else:
-            starters_vs_bench_ratio = 999.0  # All minutes are starter minutes
+            starters_vs_bench_ratio = 2.0  # No bench data → typical starter/bench ratio
 
         # Sixth man scoring (highest PPG among bench)
         sixth_man_ppg = max((p["ppg"] for p in bench.values()), default=0.0)

@@ -29,12 +29,14 @@ import csv
 import os
 from datetime import datetime, timezone
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Optional
 
 import kagglehub
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
+from app.collector.advanced_stats import derive_game_advanced_stats, REGULATION_MINUTES
 from app.collector.base import BaseCollector, CollectionResult
 from app.database import async_session_factory
 from app.models.team import Team
@@ -367,6 +369,7 @@ class KaggleCollector(BaseCollector):
 
         async with self.db_session_factory() as session:
             team_map = await self._get_team_map(session)
+            game_team_rows: dict[int, dict[bool, dict]] = {}
 
             # Process TeamStatistics.csv
             team_stats_path = os.path.join(data_dir, "TeamStatistics.csv")
@@ -385,6 +388,7 @@ class KaggleCollector(BaseCollector):
                             continue
 
                         is_home = row.get("home", "").strip() == "1"
+                        game_team_rows.setdefault(game_db_id, {})[is_home] = row
 
                         def _int(v, default=0):
                             try:
@@ -422,6 +426,15 @@ class KaggleCollector(BaseCollector):
                             count_team += 1
 
             await session.commit()
+
+            # Derive advanced stats (pace/off_rtg/def_rtg/ts_pct/efg_pct/tov_pct/ast_pct)
+            # from the basic box scores just imported — Kaggle ships no advanced file.
+            if game_team_rows:
+                count_adv = await self._derive_advanced_stats(
+                    session, team_map, game_team_rows
+                )
+                logger.info("Derived advanced stats for %d team rows", count_adv)
+                await session.commit()
 
             # Process PlayerStatistics.csv
             player_stats_path = os.path.join(data_dir, "PlayerStatistics.csv")
@@ -507,6 +520,75 @@ class KaggleCollector(BaseCollector):
             count_player,
         )
         return count_team + count_player
+
+    # ── Advanced Stats Derivation ───────────────────────────────
+
+    @staticmethod
+    def _row_to_box(row: dict) -> SimpleNamespace:
+        """Convert a TeamStatistics.csv row into the numeric box namespace."""
+        def _num(v, default=0.0):
+            try:
+                return float(v) if v not in (None, "") else default
+            except (ValueError, TypeError):
+                return default
+
+        return SimpleNamespace(
+            pts=_num(row.get("teamScore")),
+            fgm=_num(row.get("fieldGoalsMade")),
+            fga=_num(row.get("fieldGoalsAttempted")),
+            fg3m=_num(row.get("threePointersMade")),
+            fta=_num(row.get("freeThrowsAttempted")),
+            tov=_num(row.get("turnovers")),
+            reb=_num(row.get("reboundsTotal")),
+            ast=_num(row.get("assists")),
+        )
+
+    async def _derive_advanced_stats(
+        self,
+        session,
+        team_map: dict[str, int],
+        game_team_rows: dict[int, dict[bool, dict]],
+    ) -> int:
+        """Derive advanced stats for imported team box scores and UPDATE rows."""
+        updated = 0
+        for game_db_id, sides in game_team_rows.items():
+            home = sides.get(True)
+            away = sides.get(False)
+            if not home or not away:
+                continue
+
+            home_box = self._row_to_box(home)
+            away_box = self._row_to_box(away)
+
+            # team numMinutes = 5 x game minutes (240 regulation, higher in OT)
+            def _game_minutes(row):
+                try:
+                    v = float(row.get("numMinutes") or 0)
+                except (ValueError, TypeError):
+                    v = 0.0
+                return v / 5.0 if v > 0 else REGULATION_MINUTES
+
+            home_adv, away_adv = derive_game_advanced_stats(
+                home_box, away_box, _game_minutes(home)
+            )
+
+            for is_home, adv in ((True, home_adv), (False, away_adv)):
+                row = home if is_home else away
+                team_nba_id = row.get("teamId", "").strip()
+                team_db_id = team_map.get(team_nba_id)
+                if not team_db_id:
+                    continue
+                await session.execute(
+                    update(TeamGameStats)
+                    .where(
+                        TeamGameStats.game_id == game_db_id,
+                        TeamGameStats.team_id == team_db_id,
+                    )
+                    .values(**adv)
+                )
+                updated += 1
+
+        return updated
 
     # ── Player Sync ─────────────────────────────────────────────
 

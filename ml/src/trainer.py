@@ -18,8 +18,8 @@ from sklearn.model_selection import TimeSeriesSplit
 
 from ml.src.config import ml_settings
 from ml.src.database import async_session_factory
-from ml.src.features.feature_builder import FeatureBuilder, TrainingDataset
-from ml.src.models.xgboost_model import XGBoostTrainer, TrainingMetrics
+from ml.src.features.feature_builder import FeatureBuilder, TrainingDataset, CoverOverDataset
+from ml.src.models.xgboost_model import XGBoostTrainer, TrainingMetrics, CoverOverTrainingMetrics
 from ml.src.models.calibration import Calibrator
 
 # MLPTrainer imported lazily — torch ~800MB, not available in backend container.
@@ -128,6 +128,11 @@ class Trainer:
             mlp_path = mlp_trainer.save()
         except ImportError:
             logger.info("MLP training skipped (torch not available) — XGBoost only")
+        except ValueError as e:
+            # Sanity check failure or other data/model validation error
+            logger.warning(
+                "MLP training rejected: %s — model NOT saved, continuing with XGBoost only", e
+            )
         except Exception as e:
             logger.warning("MLP training failed: %s — continuing with XGBoost", e)
 
@@ -180,6 +185,68 @@ class Trainer:
         )
 
         return result
+
+    async def train_cover_over_pipeline(
+        self,
+        seasons: list[str] | None = None,
+        lookback_games: int = 10,
+        version: str | None = None,
+        min_games_before: int = 5,
+    ) -> tuple[CoverOverTrainingMetrics, str]:
+        """Train the cover/over (盘口) binary classifiers and save them.
+
+        Uses the reduced cross-season-safe feature subset and games that have a
+        betting line (2012-2019).  Saves cover_model.json / over_model.json into
+        the given version directory (or a fresh one), alongside any regression
+        models already there.
+
+        Returns:
+            (CoverOverTrainingMetrics, version string).
+        """
+        ver = version or datetime.now().strftime("%Y%m%d_%H%M%S")
+        logger.info("=== Training cover/over classifiers v%s ===", ver)
+
+        dataset: CoverOverDataset = await self.feature_builder.build_cover_over_dataset(
+            seasons=seasons,
+            lookback_games=lookback_games,
+            min_games_before=min_games_before,
+        )
+
+        if len(dataset.X) == 0:
+            raise ValueError(
+                "No cover/over training samples found. Check betting_lines import "
+                "(scripts/import_historical_odds.py)."
+            )
+
+        logger.info(
+            "Cover/over dataset: %d samples, %d features, "
+            "cover_balance=%.2f, over_balance=%.2f",
+            len(dataset.X), dataset.X.shape[1],
+            dataset.y_cover.mean(), dataset.y_over.mean(),
+        )
+
+        # Chronological split (last 15% for validation)
+        n = len(dataset.X)
+        split_idx = int(n * 0.85)
+        split_idx = max(split_idx, 1)
+        split_idx = min(split_idx, n - 1)
+
+        xgb = XGBoostTrainer(version=ver)
+        metrics = xgb.train_cover_over(
+            X_train=dataset.X[:split_idx],
+            y_cover_train=dataset.y_cover[:split_idx],
+            y_over_train=dataset.y_over[:split_idx],
+            X_val=dataset.X[split_idx:],
+            y_cover_val=dataset.y_cover[split_idx:],
+            y_over_val=dataset.y_over[split_idx:],
+        )
+        xgb.save()
+
+        logger.info(
+            "=== Cover/over training complete: Cover acc=%.3f, Over acc=%.3f ===",
+            metrics.cover_accuracy, metrics.over_accuracy,
+        )
+        return metrics, ver
 
     @staticmethod
     def _chronological_split(dataset: TrainingDataset, val_ratio: float = 0.15) -> dict:

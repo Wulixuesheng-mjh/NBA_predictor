@@ -16,6 +16,20 @@ class PredictionRequest(BaseModel):
         le=15,
         description="Number of recent games to look back for team features",
     )
+    spread_line: float | None = Field(
+        default=None,
+        description=(
+            "体彩让分盘口 (positive = home favored, e.g. +3.5). "
+            "Required together with total_line to enable 让分胜负/大小分 prediction."
+        ),
+    )
+    total_line: float | None = Field(
+        default=None,
+        description=(
+            "体彩大小分盘口 (expected total, e.g. 220.5). "
+            "Required together with spread_line to enable 让分胜负/大小分 prediction."
+        ),
+    )
 
 
 class ModelPredictionOutput(BaseModel):
@@ -47,6 +61,15 @@ class DataQualityOutput(BaseModel):
     warnings: list[str] = []
 
 
+class ConfidenceOutput(BaseModel):
+    """Overall prediction confidence assessment."""
+
+    level: str  # "high" | "medium" | "low" | "not_recommended"
+    score: float  # 0-100
+    factors: dict[str, float] = {}  # factor_name → contribution
+    label_cn: str  # Chinese display label
+
+
 class ExplanationFeature(BaseModel):
     """Single feature's SHAP contribution."""
 
@@ -62,6 +85,23 @@ class ExplanationOutput(BaseModel):
 
     top_features: list[ExplanationFeature]
     explained_model: str = "xgboost_win"
+
+
+class CoverOverOutput(BaseModel):
+    """盘口二分类预测 (让分胜负 + 大小分), driven by manually entered lines."""
+
+    model_version: str
+    spread_line: float | None = None
+    total_line: float | None = None
+    cover_prob_home: float  # P(home covers the spread)
+    cover_prob_away: float  # P(away covers the spread)
+    cover_direction: str  # "home" | "away"
+    cover_direction_cn: str  # "主队让分胜" | "客队让分胜"
+    over_prob: float  # P(game goes over the total)
+    under_prob: float  # P(game goes under the total)
+    over_direction: str  # "over" | "under"
+    over_direction_cn: str  # "大分" | "小分"
+    explanation: dict | None = None  # {"cover": [...], "over": [...]} SHAP contributions
 
 
 class PredictionResponse(BaseModel):
@@ -85,7 +125,9 @@ class PredictionResponse(BaseModel):
 
     data_quality: DataQualityOutput
     calibration_applied: bool = False
+    confidence: ConfidenceOutput | None = None
     explanation: ExplanationOutput | None = None
+    cover_over: CoverOverOutput | None = None
 
 
 class PredictionHistoryItem(BaseModel):

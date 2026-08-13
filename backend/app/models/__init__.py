@@ -9,6 +9,7 @@ from app.models.player_injuries import PlayerInjury
 from app.models.prediction import Prediction
 from app.models.prediction_results import PredictionResult
 from app.models.data_collection_log import DataCollectionLog
+from app.models.betting_line import BettingLine
 
 __all__ = [
     "Team",
@@ -20,4 +21,5 @@ __all__ = [
     "Prediction",
     "PredictionResult",
     "DataCollectionLog",
+    "BettingLine",
 ]

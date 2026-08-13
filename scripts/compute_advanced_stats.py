@@ -1,226 +1,122 @@
-"""Compute advanced stats from raw box score data and update team_game_stats.
+"""Backfill advanced stats into team_game_stats from basic box score data.
 
-NBA advanced metrics computed per game:
-  - Pace: possessions per 48 minutes (both teams)
-  - ORtg: points scored per 100 possessions
-  - DRtg: points allowed per 100 possessions
-  - TS%: true shooting percentage
-  - eFG%: effective field goal percentage
-  - TOV%: turnover percentage
-  - FTR: free throw rate
-  - AST%: assist percentage (estimated)
+Derives pace, off_rtg, def_rtg, ts_pct, efg_pct, tov_pct, and ast_pct from the
+basic box score columns we already store (see app.collector.advanced_stats for
+the formulas). This fills the advanced-stat columns that are currently NULL
+because neither the Kaggle dataset nor nba_collector ever provided them.
 
-Formulas:
-  Team Possessions = FGA + 0.44*FTA - OReb + TOV
-  (OReb estimated as 0.25 * total rebounds — league-average offensive rebounding rate)
-  Pace = 48 * (Poss_A + Poss_B) / (2 * minutes_played)
-  ORtg = 100 * PTS / Poss
-  DRtg = 100 * Opp_PTS / Opp_Poss
-  TS%  = PTS / (2 * (FGA + 0.44 * FTA))
-  eFG% = (FGM + 0.5 * FG3M) / FGA
-  TOV% = TOV / (FGA + 0.44 * FTA + TOV)
-
-Usage:
-    docker compose exec backend python scripts/compute_advanced_stats.py
+Usage (run inside the trainer container, which mounts scripts/ + backend/app):
+    docker compose --profile trainer run --rm --entrypoint python \
+        trainer scripts/compute_advanced_stats.py
 """
 
 import asyncio
 import sys
-from datetime import datetime
+from collections import defaultdict
+from pathlib import Path
 
-sys.path.insert(0, "/app")
+# Add project root AND backend directory to Python path (same as train_models.py):
+# /app for the 'ml' package, /app/backend so 'app' resolves to /app/backend/app.
+sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
 
-from sqlalchemy import select, update, and_
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, update
 
+from app.collector.advanced_stats import derive_game_advanced_stats, REGULATION_MINUTES
 from app.database import async_session_factory
 from app.models.team_game_stats import TeamGameStats
-from app.models.game import Game
 from app.models.game_player_stats import GamePlayerStats
 
 
-async def compute_possessions(
-    fga: float, fta: float, tov: float, reb: float,
-) -> float:
-    """Estimate possessions from box score data.
-
-    Full formula: Poss = FGA + 0.44*FTA - OReb + TOV
-    Since we don't have offensive rebounds separately, estimate OReb as
-    25% of total rebounds (league average over the past decade).
-    """
-    oreb_estimate = 0.25 * reb
-    return fga + 0.44 * fta - oreb_estimate + tov
-
-
-async def compute_ts_pct(pts: float, fga: float, fta: float) -> float:
-    """True Shooting Percentage."""
-    denom = 2.0 * (fga + 0.44 * fta)
-    return pts / denom if denom > 0 else 0.0
-
-
-async def compute_efg_pct(fgm: float, fg3m: float, fga: float) -> float:
-    """Effective Field Goal Percentage."""
-    return (fgm + 0.5 * fg3m) / fga if fga > 0 else 0.0
-
-
-async def compute_tov_pct(tov: float, fga: float, fta: float) -> float:
-    """Turnover Percentage (per-possession)."""
-    denom = fga + 0.44 * fta + tov
-    return tov / denom if denom > 0 else 0.0
-
-
-async def compute_ftr(fta: float, fga: float) -> float:
-    """Free Throw Rate."""
-    return fta / fga if fga > 0 else 0.0
-
-
-async def compute_ast_pct(ast: float, fgm: float) -> float:
-    """Assist Percentage — % of field goals that were assisted."""
-    return ast / fgm if fgm > 0 else 0.0
+def _parse_minutes(m) -> float:
+    """Parse a minutes value (decimal string '33.5' or 'mm:ss') to float minutes."""
+    if m is None:
+        return 0.0
+    if isinstance(m, str):
+        if ":" in m:
+            parts = m.split(":")
+            try:
+                return float(parts[0]) + float(parts[1]) / 60.0
+            except (ValueError, IndexError):
+                return 0.0
+        try:
+            return float(m)
+        except ValueError:
+            return 0.0
+    return float(m)
 
 
 async def main() -> None:
-    """Compute advanced stats for all Final games and update team_game_stats."""
+    """Compute advanced stats for all games with two team-stat rows and update them."""
     print("=" * 60)
-    print("NBA Advanced Stats Computer")
+    print("NBA Advanced Stats Backfill")
     print("=" * 60)
 
     async with async_session_factory() as session:
-        # Get all completed games with team stats
-        query = (
-            select(Game)
-            .where(Game.status == "Final")
-            .order_by(Game.game_date.asc())
+        # 1. Bulk-load all team box scores (small — ~20 columns x ~60k rows).
+        stats_result = await session.execute(
+            select(TeamGameStats).order_by(TeamGameStats.game_id)
         )
-        result = await session.execute(query)
-        games = result.scalars().all()
+        all_stats = stats_result.scalars().all()
+        print(f"Loaded {len(all_stats)} team game stat rows")
 
-        print(f"Found {len(games)} completed games")
+        by_game: dict[int, list[TeamGameStats]] = defaultdict(list)
+        for ts in all_stats:
+            by_game[ts.game_id].append(ts)
 
-        updated_count = 0
-        for game in games:
-            # Get both teams' stats for this game
-            stats_query = select(TeamGameStats).where(
-                TeamGameStats.game_id == game.id
-            )
-            stats_result = await session.execute(stats_query)
-            team_stats = stats_result.scalars().all()
+        # 2. Bulk-load player minutes, aggregated per game for OT detection.
+        minutes_result = await session.execute(
+            select(GamePlayerStats.game_id, GamePlayerStats.minutes)
+        )
+        minutes_by_game: dict[int, float] = defaultdict(float)
+        for game_id, m in minutes_result.all():
+            minutes_by_game[game_id] += _parse_minutes(m)
 
+        # 3. Compute + update each game's two team rows.
+        updated = 0
+        skipped = 0
+        for game_id, team_stats in by_game.items():
             if len(team_stats) != 2:
+                skipped += 1
                 continue
 
-            home_stats = None
-            away_stats = None
-            for ts in team_stats:
-                if ts.is_home:
-                    home_stats = ts
-                else:
-                    away_stats = ts
-
-            if not home_stats or not away_stats:
+            home = next((ts for ts in team_stats if ts.is_home), None)
+            away = next((ts for ts in team_stats if not ts.is_home), None)
+            if home is None or away is None:
+                skipped += 1
                 continue
 
-            # Game minutes: estimate from player stats or use 240 (48min * 5 players)
-            # NBA games are 48 minutes; OT can make them longer
-            # Use player minutes to estimate
-            minutes_query = select(GamePlayerStats.minutes).where(
-                GamePlayerStats.game_id == game.id
-            )
-            minutes_result = await session.execute(minutes_query)
-            all_minutes = [m for m in minutes_result.scalars().all() if m]
-
-            total_player_minutes = 0.0
-            for m_str in all_minutes:
-                if m_str is None:
-                    continue
-                if isinstance(m_str, str):
-                    if ":" in m_str:
-                        parts = m_str.split(":")
-                        total_player_minutes += float(parts[0]) + float(parts[1]) / 60.0
-                    else:
-                        try:
-                            total_player_minutes += float(m_str)
-                        except ValueError:
-                            pass
-                else:
-                    total_player_minutes += float(m_str)
-
-            # 5 players * 48 min = 240 regulation minutes per team
-            # With OT: linearly scale
-            game_minutes = 48.0
-            if total_player_minutes > 480:  # More than 480 player-minutes = OT
-                game_minutes = total_player_minutes / 10.0  # 10 players total on court
-
-            # ── Home team computations ──
-            h_poss = await compute_possessions(
-                home_stats.fga, home_stats.fta, home_stats.tov, home_stats.reb
-            )
-            a_poss = await compute_possessions(
-                away_stats.fga, away_stats.fta, away_stats.tov, away_stats.reb
+            total_player_minutes = minutes_by_game.get(game_id, 0.0)
+            game_minutes = (
+                total_player_minutes / 10.0
+                if total_player_minutes > 480.0
+                else REGULATION_MINUTES
             )
 
-            # Pace (possessions per 48 minutes)
-            avg_poss = (h_poss + a_poss) / 2.0
-            pace = 48.0 * avg_poss / game_minutes if game_minutes > 0 else 100.0
+            home_adv, away_adv = derive_game_advanced_stats(
+                home, away, game_minutes
+            )
 
-            # Offensive / Defensive Rating
-            home_ortg = 100.0 * home_stats.pts / h_poss if h_poss > 0 else 0.0
-            home_drtg = 100.0 * away_stats.pts / a_poss if a_poss > 0 else 0.0
-            away_ortg = 100.0 * away_stats.pts / a_poss if a_poss > 0 else 0.0
-            away_drtg = 100.0 * home_stats.pts / h_poss if h_poss > 0 else 0.0
-
-            # Advanced shooting
-            home_ts = await compute_ts_pct(home_stats.pts, home_stats.fga, home_stats.fta)
-            home_efg = await compute_efg_pct(home_stats.fgm, home_stats.fg3m, home_stats.fga)
-            home_tovp = await compute_tov_pct(home_stats.tov, home_stats.fga, home_stats.fta)
-            home_ftr = await compute_ftr(home_stats.fta, home_stats.fga)
-            home_astp = await compute_ast_pct(home_stats.ast, home_stats.fgm)
-
-            away_ts = await compute_ts_pct(away_stats.pts, away_stats.fga, away_stats.fta)
-            away_efg = await compute_efg_pct(away_stats.fgm, away_stats.fg3m, away_stats.fga)
-            away_tovp = await compute_tov_pct(away_stats.tov, away_stats.fga, away_stats.fta)
-            away_ftr = await compute_ftr(away_stats.fta, away_stats.fga)
-            away_astp = await compute_ast_pct(away_stats.ast, away_stats.fgm)
-
-            # Update home team stats
             await session.execute(
                 update(TeamGameStats)
-                .where(TeamGameStats.id == home_stats.id)
-                .values(
-                    pace=round(pace, 2),
-                    off_rtg=round(home_ortg, 2),
-                    def_rtg=round(home_drtg, 2),
-                    ts_pct=round(home_ts, 4),
-                    efg_pct=round(home_efg, 4),
-                    tov_pct=round(home_tovp, 4),
-                    ast_pct=round(home_astp, 4),
-                )
+                .where(TeamGameStats.id == home.id)
+                .values(**home_adv)
             )
-
-            # Update away team stats
             await session.execute(
                 update(TeamGameStats)
-                .where(TeamGameStats.id == away_stats.id)
-                .values(
-                    pace=round(pace, 2),
-                    off_rtg=round(away_ortg, 2),
-                    def_rtg=round(away_drtg, 2),
-                    ts_pct=round(away_ts, 4),
-                    efg_pct=round(away_efg, 4),
-                    tov_pct=round(away_tovp, 4),
-                    ast_pct=round(away_astp, 4),
-                )
+                .where(TeamGameStats.id == away.id)
+                .values(**away_adv)
             )
 
-            updated_count += 2
-
-            if updated_count % 500 == 0:
+            updated += 2
+            if updated % 5000 == 0:
                 await session.commit()
-                print(f"  ... {updated_count} team stat rows updated")
+                print(f"  ... {updated} team stat rows updated")
 
         await session.commit()
 
-    print(f"\nUpdated {updated_count} team game stat rows with advanced metrics")
+    print(f"\nUpdated {updated} team game stat rows with advanced metrics")
+    print(f"Skipped {skipped} games with missing/incomplete team stats")
     print("Done!")
 
 

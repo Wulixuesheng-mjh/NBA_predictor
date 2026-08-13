@@ -363,10 +363,9 @@ class BallDontLieCollector(BaseCollector):
 
     # ── HTTP Methods ────────────────────────────────────────────
 
-    @staticmethod
-    def _headers() -> dict:
+    def _headers(self) -> dict:
         return {
-            "Authorization": BALLDONTLIE_API_KEY,
+            "Authorization": self._api_key,
             "Accept": "application/json",
         }
 

@@ -1,13 +1,21 @@
 /** Dual-model prediction result card. */
 
-import type { ModelPredictionOutput } from "../../types";
+import type { ModelPredictionOutput, ConfidenceOutput } from "../../types";
 
 interface Props {
   modelName: string;
   modelLabel: string;
   prediction: ModelPredictionOutput;
   recommended: boolean;
+  confidence?: ConfidenceOutput | null;
 }
+
+const CONFIDENCE_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
+  high: { bg: "bg-emerald-500/10 border-emerald-500/30", text: "text-emerald-400", dot: "bg-emerald-400" },
+  medium: { bg: "bg-amber-500/10 border-amber-500/30", text: "text-amber-400", dot: "bg-amber-400" },
+  low: { bg: "bg-orange-500/10 border-orange-500/30", text: "text-orange-400", dot: "bg-orange-400" },
+  not_recommended: { bg: "bg-red-500/10 border-red-500/30", text: "text-red-400", dot: "bg-red-400" },
+};
 
 function WinBar({ prob, isHome }: { prob: number; isHome: boolean }) {
   const pct = (prob * 100).toFixed(1);
@@ -27,8 +35,9 @@ function WinBar({ prob, isHome }: { prob: number; isHome: boolean }) {
   );
 }
 
-export default function PredictionCard({ modelName: _modelName, modelLabel, prediction, recommended }: Props) {
+export default function PredictionCard({ modelName: _modelName, modelLabel, prediction, recommended, confidence }: Props) {
   const winHome = prediction.win_prob_home > 0.5;
+  const confStyle = confidence ? CONFIDENCE_STYLES[confidence.level] ?? CONFIDENCE_STYLES.not_recommended : null;
 
   return (
     <div
@@ -40,12 +49,21 @@ export default function PredictionCard({ modelName: _modelName, modelLabel, pred
         <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">
           {modelLabel}
         </h3>
-        {recommended && (
-          <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded">
-            主力模型
-          </span>
-        )}
-        <span className="text-xs text-gray-500 font-mono">{prediction.model_version}</span>
+        <div className="flex items-center gap-2">
+          {recommended && (
+            <span className="text-xs bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded">
+              主力模型
+            </span>
+          )}
+          {confStyle && confidence && (
+            <span className={`text-xs px-2 py-0.5 rounded border ${confStyle.bg} ${confStyle.text}`}
+                  title={`置信度评分: ${confidence.score.toFixed(0)}/100`}>
+              <span className={`inline-block w-1.5 h-1.5 rounded-full ${confStyle.dot} mr-1`} />
+              {confidence.label_cn}
+            </span>
+          )}
+          <span className="text-xs text-gray-500 font-mono">{prediction.model_version}</span>
+        </div>
       </div>
 
       {/* Win/Loss */}

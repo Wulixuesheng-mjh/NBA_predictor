@@ -32,6 +32,7 @@ RUN pip install --no-cache-dir --no-compile \
     https://download.pytorch.org/whl/cpu/torch-2.13.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl
 
 # ── Install ML / data packages ───────────────────────────
+# onnxscript required for torch.onnx.export (MLP → ONNX for production)
 RUN pip install --no-cache-dir --no-compile --default-timeout=300 --retries 5 \
     xgboost \
     numpy \
@@ -41,7 +42,8 @@ RUN pip install --no-cache-dir --no-compile --default-timeout=300 --retries 5 \
     asyncpg \
     "sqlalchemy[asyncio]" \
     pydantic-settings \
-    kagglehub
+    kagglehub \
+    onnxscript
 
 # ── Clean up venv + strip .so debug symbols ─────────────
 # ALL in one RUN so Docker doesn't store intermediate layers

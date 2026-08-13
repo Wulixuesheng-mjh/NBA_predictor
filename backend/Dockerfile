@@ -15,10 +15,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 # ── Layer 1: install heavy ML packages first (cached separately) ──
 # These rarely change — keeping them in a dedicated layer avoids re-downloads
 # when only app code or lightweight deps change.
+# onnxruntime provides MLP inference without needing PyTorch (~10 MB vs ~800 MB).
 ARG PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
 COPY pyproject.toml .
 RUN pip install --no-cache-dir --no-compile --default-timeout=300 --retries 5 \
-    xgboost>=2.0 shap>=0.44.0 numpy>=1.26.0 scikit-learn>=1.3.0
+    xgboost>=2.0 shap>=0.44.0 numpy>=1.26.0 scikit-learn>=1.3.0 onnxruntime>=1.18.0
 
 # ── Layer 2: copy app source + install the app + remaining deps ──
 # `app/` must be present for `pip install "."` to find the package.

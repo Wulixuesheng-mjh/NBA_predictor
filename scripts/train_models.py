@@ -16,7 +16,10 @@ Requirements:
 
 import argparse
 import asyncio
+import json
+import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Add project root AND backend directory to Python path.
@@ -33,6 +36,53 @@ from ml.src.models.mlp_model import MLPTrainer
 from ml.src.features.feature_builder import FeatureBuilder, FEATURE_DIM
 
 
+def _save_backtest_report(
+    metrics,
+    version: str,
+    walk_forward: bool = False,
+    seasons: list[str] | None = None,
+    lookback: int = 10,
+) -> str:
+    """Save backtest metrics as a JSON report."""
+    reports_dir = Path(__file__).parent.parent / "reports"
+    reports_dir.mkdir(exist_ok=True)
+
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    mode = "walkforward" if walk_forward else "frozen"
+    filename = f"backtest_{mode}_{timestamp}.json"
+    filepath = reports_dir / filename
+
+    report = {
+        "report_type": f"backtest_{mode}",
+        "version": version,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "parameters": {
+            "seasons": seasons or ["all"],
+            "lookback": lookback,
+        },
+        "results": {
+            "n_games": metrics.n_games,
+            "win_accuracy": metrics.win_accuracy,
+            "spread_mae": metrics.spread_mae,
+            "spread_rmse": metrics.spread_rmse,
+            "spread_within_3": metrics.spread_within_3,
+            "spread_within_5": metrics.spread_within_5,
+            "total_mae": metrics.total_mae,
+            "total_rmse": metrics.total_rmse,
+            "total_within_5": metrics.total_within_5,
+            "total_within_8": metrics.total_within_8,
+            "win_accuracy_by_season": metrics.win_accuracy_by_season,
+            "per_game_last_50": metrics.per_game,
+        },
+    }
+
+    with open(filepath, "w") as f:
+        json.dump(report, f, indent=2, default=str)
+
+    print(f"\n  📄 Report saved to: {filepath}")
+    return str(filepath)
+
+
 async def main(
     seasons: list[str] | None = None,
     lookback: int = 10,
@@ -40,6 +90,13 @@ async def main(
     version: str | None = None,
     tune: bool = False,
     tune_trials: int = 100,
+    walk_forward: bool = False,
+    initial_train_games: int = 200,
+    retrain_every: int = 50,
+    max_games: int | None = None,
+    cover_over: bool = False,
+    cover_over_initial: int = 1000,
+    cover_over_retrain: int = 250,
 ) -> None:
     """Run the full training pipeline."""
     print("=" * 60)
@@ -124,42 +181,113 @@ async def main(
 
     # 2. Backtest
     if run_backtest:
-        print("\n[2/2] Running walk-forward backtest...")
+        if walk_forward:
+            # ── Walk-forward with incremental retraining ──
+            print(f"\n[2/2] Running walk-forward backtest "
+                  f"(initial={initial_train_games}, retrain_every={retrain_every})...")
 
-        xgb = XGBoostTrainer()
-        xgb.load(result.version)
+            backtester = Backtester()
+            metrics = await backtester.run_walk_forward(
+                seasons=seasons,
+                lookback_games=lookback,
+                min_games_before=5,
+                initial_train_games=initial_train_games,
+                retrain_every=retrain_every,
+                max_games=max_games,
+            )
+        else:
+            # ── Frozen-model backtest (legacy) ──
+            print("\n[2/2] Running frozen-model backtest...")
 
-        mlp = MLPTrainer()
+            xgb = XGBoostTrainer()
+            xgb.load(result.version)
+
+            mlp = MLPTrainer()
+            try:
+                mlp.load(result.version)
+            except Exception as e:
+                print(f"  MLP load skipped: {e}")
+                mlp = None
+
+            backtester = Backtester()
+            metrics = await backtester.run(
+                xgb_trainer=xgb,
+                mlp_trainer=mlp,
+                seasons=seasons,
+                lookback_games=lookback,
+                min_games_before=5,
+            )
+
+        if metrics.n_games == 0:
+            print("\n  ⚠️  Backtest produced no results (not enough data).")
+        else:
+            print(f"\n  Backtest Results ({metrics.n_games} games):")
+            print(f"    Win Accuracy:      {metrics.win_accuracy:.3f}")
+            print(f"    Spread MAE:        {metrics.spread_mae:.2f}  (target < 5.0)")
+            print(f"    Spread RMSE:       {metrics.spread_rmse:.2f}")
+            print(f"    Spread within ±3:  {metrics.spread_within_3:.1%}  (stretch)")
+            print(f"    Spread within ±5:  {metrics.spread_within_5:.1%}  (target)")
+            print(f"    Total MAE:         {metrics.total_mae:.2f}  (target < 5.0)")
+            print(f"    Total RMSE:        {metrics.total_rmse:.2f}")
+            print(f"    Total within ±5:   {metrics.total_within_5:.1%}  (target)")
+            print(f"    Total within ±8:   {metrics.total_within_8:.1%}")
+
+            if metrics.win_accuracy_by_season:
+                print(f"\n  By Season:")
+                for season, acc in sorted(metrics.win_accuracy_by_season.items()):
+                    print(f"    {season}:  {acc:.3f}")
+
+            # Save JSON report
+            _save_backtest_report(
+                metrics,
+                version=result.version,
+                walk_forward=walk_forward,
+                seasons=seasons,
+                lookback=lookback,
+            )
+
+    # 3. Cover/over (盘口) training + walk-forward backtest
+    if cover_over:
+        print("\n[3/3] Cover/over (盘口) binary classifiers...")
+
         try:
-            mlp.load(result.version)
+            cov_metrics, cov_version = await trainer.train_cover_over_pipeline(
+                version=result.version,
+            )
+            print(f"\n  Cover/over models saved (version {cov_version}):")
+            print(f"    Cover (让分胜负) accuracy: {cov_metrics.cover_accuracy:.3f}")
+            print(f"    Over  (大小分)   accuracy: {cov_metrics.over_accuracy:.3f}")
+            print(f"    Cover logloss:   {cov_metrics.cover_logloss:.3f}")
+            print(f"    Over logloss:    {cov_metrics.over_logloss:.3f}")
         except Exception as e:
-            print(f"  MLP load skipped: {e}")
-            mlp = None
+            print(f"\n  ⚠️  Cover/over training failed: {e}")
 
+        print(f"\n  Running cover/over walk-forward backtest "
+              f"(initial={cover_over_initial}, retrain={cover_over_retrain})...")
         backtester = Backtester()
-        metrics = await backtester.run(
-            xgb_trainer=xgb,
-            mlp_trainer=mlp,
-            seasons=seasons,
-            lookback_games=lookback,
-            min_games_before=5,
+        cov_bt = await backtester.run_cover_over_walk_forward(
+            initial_train_games=cover_over_initial,
+            retrain_every=cover_over_retrain,
         )
-
-        print(f"\n  Backtest Results ({metrics.n_games} games):")
-        print(f"    Win Accuracy:      {metrics.win_accuracy:.3f}")
-        print(f"    Spread MAE:        {metrics.spread_mae:.2f}  (target < 5.0)")
-        print(f"    Spread RMSE:       {metrics.spread_rmse:.2f}")
-        print(f"    Spread within ±3:  {metrics.spread_within_3:.1%}  (stretch)")
-        print(f"    Spread within ±5:  {metrics.spread_within_5:.1%}  (target)")
-        print(f"    Total MAE:         {metrics.total_mae:.2f}  (target < 5.0)")
-        print(f"    Total RMSE:        {metrics.total_rmse:.2f}")
-        print(f"    Total within ±5:   {metrics.total_within_5:.1%}  (target)")
-        print(f"    Total within ±8:   {metrics.total_within_8:.1%}")
-
-        if metrics.win_accuracy_by_season:
-            print(f"\n  By Season:")
-            for season, acc in sorted(metrics.win_accuracy_by_season.items()):
-                print(f"    {season}:  {acc:.3f}")
+        if cov_bt.n_games == 0:
+            print("  ⚠️  Cover/over backtest produced no results (not enough data).")
+        else:
+            print(f"\n  Cover/Over Walk-Forward Results ({cov_bt.n_games} games):")
+            print(f"    Cover accuracy:  {cov_bt.cover_accuracy:.3f}  (break-even 52.4%)")
+            print(f"    Over accuracy:   {cov_bt.over_accuracy:.3f}  (break-even 52.4%)")
+            print(f"    Cover logloss:   {cov_bt.cover_logloss:.3f}")
+            print(f"    Over logloss:    {cov_bt.over_logloss:.3f}")
+            if cov_bt.n_confident:
+                print(f"    Confident cover: {cov_bt.cover_accuracy_confident:.3f}")
+                print(f"    Confident over:  {cov_bt.over_accuracy_confident:.3f}")
+            if cov_bt.cover_accuracy_by_season:
+                print(f"\n  Cover accuracy by season:")
+                for s, a in sorted(cov_bt.cover_accuracy_by_season.items()):
+                    print(f"    {s}: {a:.3f}")
+            if cov_bt.over_accuracy_by_season:
+                print(f"\n  Over accuracy by season:")
+                for s, a in sorted(cov_bt.over_accuracy_by_season.items()):
+                    print(f"    {s}: {a:.3f}")
 
     print("\n" + "=" * 60)
     print("Training pipeline complete! 🏀")
@@ -192,13 +320,50 @@ if __name__ == "__main__":
         "--tune-trials", type=int, default=100,
         help="Number of Optuna trials (default: 100)",
     )
+    parser.add_argument(
+        "--walk-forward", action="store_true",
+        help="Run walk-forward backtest with incremental retraining instead of frozen-model backtest",
+    )
+    parser.add_argument(
+        "--initial-train-games", type=int, default=200,
+        help="Number of games for the initial training window in walk-forward mode (default: 200)",
+    )
+    parser.add_argument(
+        "--retrain-every", type=int, default=50,
+        help="Retrain model every N games in walk-forward mode (default: 50)",
+    )
+    parser.add_argument(
+        "--max-games", type=int, default=None,
+        help="Limit number of games in walk-forward backtest (for quick testing)",
+    )
+    parser.add_argument(
+        "--cover-over", action="store_true",
+        help="Train cover/over (盘口) binary classifiers and run their walk-forward backtest",
+    )
+    parser.add_argument(
+        "--cover-over-initial", type=int, default=1000,
+        help="Initial training games for cover/over walk-forward (default: 1000)",
+    )
+    parser.add_argument(
+        "--cover-over-retrain", type=int, default=250,
+        help="Retrain cover/over every N games (default: 250)",
+    )
     args = parser.parse_args()
+
+    run_backtest = not args.no_backtest
 
     asyncio.run(main(
         seasons=args.seasons,
         lookback=args.lookback,
-        run_backtest=not args.no_backtest,
+        run_backtest=run_backtest,
         version=args.version,
         tune=args.tune,
         tune_trials=args.tune_trials,
+        walk_forward=args.walk_forward,
+        initial_train_games=args.initial_train_games,
+        retrain_every=args.retrain_every,
+        max_games=args.max_games,
+        cover_over=args.cover_over,
+        cover_over_initial=args.cover_over_initial,
+        cover_over_retrain=args.cover_over_retrain,
     ))

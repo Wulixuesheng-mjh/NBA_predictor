@@ -67,6 +67,8 @@ async def create_prediction(
             home_team_id=body.home_team_id,
             away_team_id=body.away_team_id,
             lookback_games=body.lookback_games,
+            spread_line=body.spread_line,
+            total_line=body.total_line,
         )
         return PredictionResponse(**result)
     except ValueError as e:

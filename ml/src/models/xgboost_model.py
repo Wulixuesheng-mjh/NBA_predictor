@@ -54,6 +54,28 @@ class TrainingMetrics:
     training_time_seconds: float
 
 
+@dataclass
+class CoverOverPrediction:
+    """Result from cover/over (盘口) XGBoost inference."""
+
+    cover_prob_home: float  # P(home covers the spread)
+    over_prob: float        # P(game goes over the total)
+    model_version: str
+
+
+@dataclass
+class CoverOverTrainingMetrics:
+    """Metrics from a cover/over training run."""
+
+    cover_accuracy: float
+    cover_logloss: float
+    over_accuracy: float
+    over_logloss: float
+    train_samples: int
+    val_samples: int
+    training_time_seconds: float
+
+
 class XGBoostTrainer:
     """Trains and manages XGBoost models for NBA prediction."""
 
@@ -67,6 +89,8 @@ class XGBoostTrainer:
         self._model_win: xgb.XGBClassifier | None = None
         self._model_spread: xgb.XGBRegressor | None = None
         self._model_total: xgb.XGBRegressor | None = None
+        self._model_cover: xgb.XGBClassifier | None = None
+        self._model_over: xgb.XGBClassifier | None = None
 
     @property
     def model_win(self) -> xgb.XGBClassifier | None:
@@ -81,8 +105,36 @@ class XGBoostTrainer:
         return self._model_total
 
     @property
+    def model_cover(self) -> xgb.XGBClassifier | None:
+        return self._model_cover
+
+    @property
+    def model_over(self) -> xgb.XGBClassifier | None:
+        return self._model_over
+
+    @property
     def is_trained(self) -> bool:
         return self._model_win is not None
+
+    @property
+    def is_cover_over_trained(self) -> bool:
+        return self._model_cover is not None and self._model_over is not None
+
+    def _common_params(self) -> dict:
+        """Shared XGBoost hyperparameters (regression and classification)."""
+        return {
+            "n_estimators": ml_settings.xgboost_n_estimators,
+            "max_depth": ml_settings.xgboost_max_depth,
+            "learning_rate": ml_settings.xgboost_learning_rate,
+            "subsample": ml_settings.xgboost_subsample,
+            "colsample_bytree": ml_settings.xgboost_colsample_bytree,
+            "reg_alpha": ml_settings.xgboost_reg_alpha,
+            "reg_lambda": ml_settings.xgboost_reg_lambda,
+            "min_child_weight": ml_settings.xgboost_min_child_weight,
+            "gamma": ml_settings.xgboost_gamma,
+            "random_state": ml_settings.random_seed,
+            "n_jobs": -1,
+        }
 
     def train(
         self,
@@ -121,19 +173,7 @@ class XGBoostTrainer:
         )
 
         # Common XGBoost parameters — tuned for tight spread/total accuracy
-        common_params = {
-            "n_estimators": ml_settings.xgboost_n_estimators,
-            "max_depth": ml_settings.xgboost_max_depth,
-            "learning_rate": ml_settings.xgboost_learning_rate,
-            "subsample": ml_settings.xgboost_subsample,
-            "colsample_bytree": ml_settings.xgboost_colsample_bytree,
-            "reg_alpha": ml_settings.xgboost_reg_alpha,
-            "reg_lambda": ml_settings.xgboost_reg_lambda,
-            "min_child_weight": ml_settings.xgboost_min_child_weight,
-            "gamma": ml_settings.xgboost_gamma,
-            "random_state": ml_settings.random_seed,
-            "n_jobs": -1,
-        }
+        common_params = self._common_params()
 
         # ── Win/Loss Classifier ──
         logger.info("Training XGBoost-Win classifier...")
@@ -232,6 +272,93 @@ class XGBoostTrainer:
 
         return metrics
 
+    def train_cover_over(
+        self,
+        X_train: np.ndarray,
+        y_cover_train: np.ndarray,
+        y_over_train: np.ndarray,
+        X_val: np.ndarray | None = None,
+        y_cover_val: np.ndarray | None = None,
+        y_over_val: np.ndarray | None = None,
+        feature_names: list[str] | None = None,
+    ) -> CoverOverTrainingMetrics:
+        """Train the two cover/over binary classifiers (让分胜负 / 大小分).
+
+        Uses the reduced cross-season-safe feature subset (COVER_OVER_FEATURE_DIM)
+        and the betting-line labels:
+          y_cover = 1 if (home - away) > spread_line else 0
+          y_over  = 1 if (home + away) > total_line else 0
+        """
+        import time
+        start_time = time.time()
+
+        n_train = len(X_train)
+        n_val = len(X_val) if X_val is not None else 0
+        logger.info(
+            "Training cover/over classifiers v%s: %d train, %d val samples",
+            self.version, n_train, n_val,
+        )
+
+        common_params = self._common_params()
+
+        # ── Cover (spread) classifier ──
+        self._model_cover = xgb.XGBClassifier(
+            objective="binary:logistic",
+            eval_metric="logloss",
+            early_stopping_rounds=ml_settings.xgboost_early_stopping_rounds,
+            **common_params,
+        )
+        eval_set_cover = [(X_train, y_cover_train)]
+        if X_val is not None and y_cover_val is not None:
+            eval_set_cover.append((X_val, y_cover_val))
+        self._model_cover.fit(X_train, y_cover_train, eval_set=eval_set_cover, verbose=False)
+
+        # ── Over (total) classifier ──
+        self._model_over = xgb.XGBClassifier(
+            objective="binary:logistic",
+            eval_metric="logloss",
+            early_stopping_rounds=ml_settings.xgboost_early_stopping_rounds,
+            **common_params,
+        )
+        eval_set_over = [(X_train, y_over_train)]
+        if X_val is not None and y_over_val is not None:
+            eval_set_over.append((X_val, y_over_val))
+        self._model_over.fit(X_train, y_over_train, eval_set=eval_set_over, verbose=False)
+
+        training_time = time.time() - start_time
+
+        if X_val is not None and y_cover_val is not None and y_over_val is not None:
+            cover_preds = self._model_cover.predict(X_val)
+            over_preds = self._model_over.predict(X_val)
+            cover_acc = float((cover_preds == y_cover_val).mean())
+            over_acc = float((over_preds == y_over_val).mean())
+
+            cover_probs = np.clip(self._model_cover.predict_proba(X_val)[:, 1], 1e-15, 1 - 1e-15)
+            over_probs = np.clip(self._model_over.predict_proba(X_val)[:, 1], 1e-15, 1 - 1e-15)
+            cover_logloss = float(-np.mean(
+                y_cover_val * np.log(cover_probs) + (1 - y_cover_val) * np.log(1 - cover_probs)
+            ))
+            over_logloss = float(-np.mean(
+                y_over_val * np.log(over_probs) + (1 - y_over_val) * np.log(1 - over_probs)
+            ))
+        else:
+            cover_acc = over_acc = cover_logloss = over_logloss = 0.0
+
+        logger.info(
+            "Cover/over training complete in %.1fs. Cover acc=%.3f, Over acc=%.3f",
+            training_time, cover_acc, over_acc,
+        )
+
+        return CoverOverTrainingMetrics(
+            cover_accuracy=cover_acc,
+            cover_logloss=cover_logloss,
+            over_accuracy=over_acc,
+            over_logloss=over_logloss,
+            train_samples=n_train,
+            val_samples=n_val,
+            training_time_seconds=training_time,
+        )
+
     def predict(self, X: np.ndarray) -> XGBoostPrediction:
         """Run inference with all three models.
 
@@ -274,6 +401,28 @@ class XGBoostTrainer:
 
         return results[0] if single else results
 
+    def predict_cover_over(self, X: np.ndarray) -> CoverOverPrediction:
+        """Run cover/over inference (requires train_cover_over() or load())."""
+        if not self.is_cover_over_trained:
+            raise RuntimeError("Cover/over models not trained. Call train_cover_over() or load().")
+
+        if X.ndim == 1:
+            X = X.reshape(1, -1)
+        single = X.shape[0] == 1
+
+        cover_probs = self._model_cover.predict_proba(X)[:, 1]
+        over_probs = self._model_over.predict_proba(X)[:, 1]
+
+        results = [
+            CoverOverPrediction(
+                cover_prob_home=float(cover_probs[i]),
+                over_prob=float(over_probs[i]),
+                model_version=self.version,
+            )
+            for i in range(len(X))
+        ]
+        return results[0] if single else results
+
     def _evaluate(
         self,
         X_val: np.ndarray,
@@ -284,7 +433,7 @@ class XGBoostTrainer:
         n_val: int,
         training_time: float,
     ) -> TrainingMetrics:
-        """Compute validation metrics."""
+        """Compute validation metrics with sanity checks."""
         # Win accuracy
         win_preds = self._model_win.predict(X_val)
         win_acc = float((win_preds == y_win_val).mean())
@@ -307,6 +456,9 @@ class XGBoostTrainer:
         total_mae = float(np.mean(np.abs(total_preds - y_total_val)))
         total_rmse = float(np.sqrt(np.mean((total_preds - y_total_val) ** 2)))
 
+        # ── Post-training sanity check ──
+        self._validate_predictions(spread_preds, total_preds, win_probs[:, 1])
+
         return TrainingMetrics(
             win_accuracy=win_acc,
             win_logloss=win_logloss,
@@ -317,6 +469,58 @@ class XGBoostTrainer:
             train_samples=n_train,
             val_samples=n_val,
             training_time_seconds=training_time,
+        )
+
+    @staticmethod
+    def _validate_predictions(
+        spread_preds: np.ndarray,
+        total_preds: np.ndarray,
+        win_probs: np.ndarray,
+    ) -> None:
+        """Validate model predictions are within reasonable ranges.
+
+        Catches severe model breakage before persisting to disk.
+        Thresholds are generous — a healthy model never comes close.
+        """
+        issues: list[str] = []
+
+        # 1. Spread within ±50
+        max_abs_spread = float(max(abs(spread_preds)))
+        if max_abs_spread > 50:
+            issues.append(
+                f"max |spread| = {max_abs_spread:.1f} exceeds 50 "
+                f"(range [{float(spread_preds.min()):.1f}, {float(spread_preds.max()):.1f}])"
+            )
+
+        # 2. Total within [180, 350]
+        t_min, t_max = float(total_preds.min()), float(total_preds.max())
+        if t_min < 180 or t_max > 350:
+            issues.append(
+                f"total range = [{t_min:.0f}, {t_max:.0f}] outside [180, 350]"
+            )
+
+        # 3. All spreads same sign → model biased
+        if bool(np.all(spread_preds > 0)) or bool(np.all(spread_preds < 0)):
+            sign_str = "positive" if bool(np.all(spread_preds > 0)) else "negative"
+            issues.append(f"all {len(spread_preds)} spreads are {sign_str} (model biased)")
+
+        # 4. Win probs should vary
+        unique_probs = len(set(round(float(w), 3) for w in win_probs))
+        if unique_probs < 3:
+            issues.append(
+                f"only {unique_probs} unique win probabilities (model may be collapsed)"
+            )
+
+        if issues:
+            raise ValueError(
+                "XGBoost sanity check FAILED:\n  - " + "\n  - ".join(issues)
+            )
+
+        logger.info(
+            "XGBoost sanity check PASSED: spread [%.1f, %.1f], total [%.0f, %.0f], "
+            "%d unique win probs",
+            float(spread_preds.min()), float(spread_preds.max()),
+            t_min, t_max, unique_probs,
         )
 
     def save(self, version: str | None = None) -> str:
@@ -331,12 +535,29 @@ class XGBoostTrainer:
             self._model_spread.save_model(os.path.join(model_dir, "spread_model.json"))
         if self._model_total:
             self._model_total.save_model(os.path.join(model_dir, "total_model.json"))
+        if self._model_cover:
+            self._model_cover.save_model(os.path.join(model_dir, "cover_model.json"))
+        if self._model_over:
+            self._model_over.save_model(os.path.join(model_dir, "over_model.json"))
 
-        # Save metadata
+        # Save metadata. When only cover/over was trained (_model_win is None —
+        # e.g. train_cover_over_pipeline saving into an existing version dir),
+        # preserve the existing feature_dim instead of clobbering it to 0.
+        feature_dim = self._model_win.n_features_in_ if self._model_win else 0
+        if self._model_win is None:
+            meta_path = os.path.join(model_dir, "metadata.json")
+            if os.path.exists(meta_path):
+                try:
+                    with open(meta_path) as f:
+                        feature_dim = json.load(f).get("feature_dim", 0)
+                except Exception:
+                    feature_dim = 0
+
         metadata = {
             "version": ver,
             "created_at": datetime.now().isoformat(),
-            "feature_dim": self._model_win.n_features_in_ if self._model_win else 0,
+            "feature_dim": feature_dim,
+            "cover_over_feature_dim": self._model_cover.n_features_in_ if self._model_cover else None,
         }
         with open(os.path.join(model_dir, "metadata.json"), "w") as f:
             json.dump(metadata, f, indent=2)
@@ -352,6 +573,8 @@ class XGBoostTrainer:
         win_path = os.path.join(model_dir, "win_model.json")
         spread_path = os.path.join(model_dir, "spread_model.json")
         total_path = os.path.join(model_dir, "total_model.json")
+        cover_path = os.path.join(model_dir, "cover_model.json")
+        over_path = os.path.join(model_dir, "over_model.json")
 
         self._model_win = xgb.XGBClassifier()
         self._model_win.load_model(win_path)
@@ -361,6 +584,13 @@ class XGBoostTrainer:
 
         self._model_total = xgb.XGBRegressor()
         self._model_total.load_model(total_path)
+
+        # Cover/over classifiers are optional (older versions lack them).
+        if os.path.exists(cover_path) and os.path.exists(over_path):
+            self._model_cover = xgb.XGBClassifier()
+            self._model_cover.load_model(cover_path)
+            self._model_over = xgb.XGBClassifier()
+            self._model_over.load_model(over_path)
 
         self.version = ver
         logger.info("Loaded XGBoost models v%s from %s", ver, model_dir)

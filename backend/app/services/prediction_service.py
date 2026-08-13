@@ -30,7 +30,7 @@ class PredictionService:
         Returns a Predictor instance or None if ML module is unavailable.
         """
         try:
-            ml_path = str(Path(__file__).parent.parent.parent / "ml")
+            ml_path = str(Path(__file__).parent.parent.parent.parent / "ml")
             if ml_path not in sys.path:
                 sys.path.insert(0, ml_path)
 
@@ -49,6 +49,8 @@ class PredictionService:
         home_team_id: int,
         away_team_id: int,
         lookback_games: int = 10,
+        spread_line: float | None = None,
+        total_line: float | None = None,
     ) -> dict[str, Any]:
         """Generate a prediction for a matchup.
 
@@ -57,6 +59,10 @@ class PredictionService:
             home_team_id: Home team internal ID.
             away_team_id: Away team internal ID.
             lookback_games: Number of recent games to use for features (5-15).
+            spread_line: Optional 体彩让分盘口 (positive = home favored). When both
+                spread_line and total_line are provided, the 盘口 binary
+                (让分胜负 / 大小分) prediction is also returned.
+            total_line: Optional 体彩大小分盘口 (expected total).
 
         Returns:
             Dict with prediction results or error info.
@@ -103,6 +109,7 @@ class PredictionService:
                     "warnings": ["ML module not available — models may not be trained yet"],
                 },
                 "calibration_applied": False,
+                "cover_over": None,
             }
 
         # Build features and predict
@@ -143,6 +150,36 @@ class PredictionService:
             except Exception:
                 logger.debug("SHAP explanation skipped", exc_info=True)
                 result["explanation"] = None
+
+            # Cover/over (盘口) binary prediction — only when both lines provided
+            result["cover_over"] = None
+            if spread_line is not None and total_line is not None:
+                try:
+                    from ml.src.features.feature_builder import (
+                        COVER_OVER_FEATURE_NAMES,
+                        COVER_OVER_FEATURE_DISPLAY_NAMES,
+                    )
+                    cov_fv = await builder.build_cover_over_features(
+                        home_team_id=home_team_id,
+                        away_team_id=away_team_id,
+                        game_date=game_date,
+                        lookback_games=lookback_games,
+                        session=session,
+                    )
+                    cov_pred = predictor.predict_cover_over(
+                        cov_fv, spread_line=spread_line, total_line=total_line
+                    )
+                    if cov_pred is not None:
+                        cov_pred["explanation"] = predictor.explain_cover_over(
+                            cov_fv,
+                            feature_names=COVER_OVER_FEATURE_NAMES,
+                            top_k=5,
+                            display_names=COVER_OVER_FEATURE_DISPLAY_NAMES,
+                        )
+                        result["cover_over"] = cov_pred
+                except Exception as e:
+                    logger.warning("Cover/over prediction unavailable: %s", e)
+                    result["cover_over"] = None
 
             duration_ms = round((time.monotonic() - t0) * 1000, 1)
             logger.info(

@@ -36,6 +36,10 @@ MATCHUP_FEATURE_NAMES = [
 
     # Expected scoring
     "expected_total",           # theoretical total = expected_pace * (home_off + away_off) / 200
+
+    # Total points (over/under) specific — Task A1
+    "pace_product",             # home_pace * away_pace / 10000 — multiplicative tempo interaction
+    "combined_over_tendency",   # (home_over_ratio + away_over_ratio) / 2 — both teams' over/under tendency
 ]
 
 
@@ -103,6 +107,16 @@ def compute_matchup_features(
     else:
         expected_total = 0.0
 
+    # ── Total-specific matchup features (Task A1) ──
+    # Multiplicative pace interaction: two fast teams explode the total more
+    # than a linear sum predicts. Normalize by 10000 (typical pace ~100²) → ~1.0.
+    pace_product = (home_pace * away_pace) / 10000.0 if home_pace > 0 and away_pace > 0 else 0.0
+
+    # Combined over/under tendency: both teams' recent over-league-average ratio.
+    home_over_ratio = home_team_f.get("over_league_avg_ratio", 0.0)
+    away_over_ratio = away_team_f.get("over_league_avg_ratio", 0.0)
+    combined_over_tendency = (home_over_ratio + away_over_ratio) / 2.0
+
     features = {
         "pace_diff": pace_diff,
         "expected_pace": expected_pace,
@@ -115,6 +129,8 @@ def compute_matchup_features(
         "tov_pct_diff": tov_pct_diff,
         "ftr_diff": ftr_diff,
         "expected_total": expected_total,
+        "pace_product": pace_product,
+        "combined_over_tendency": combined_over_tendency,
     }
 
     # Replace NaN/Inf (can happen when advanced stats are NULL for early season)

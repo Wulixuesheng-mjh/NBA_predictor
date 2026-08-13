@@ -230,6 +230,13 @@ export interface DataQualityOutput {
   warnings: string[];
 }
 
+export interface ConfidenceOutput {
+  level: "high" | "medium" | "low" | "not_recommended";
+  score: number;
+  factors: Record<string, number>;
+  label_cn: string;
+}
+
 export interface PredictionResponse {
   home_team_id: number;
   away_team_id: number;
@@ -247,7 +254,9 @@ export interface PredictionResponse {
   recommended: string;
   data_quality: DataQualityOutput;
   calibration_applied: boolean;
+  confidence?: ConfidenceOutput | null;
   explanation?: ExplanationOutput | null;
+  cover_over?: CoverOverOutput | null;
 }
 
 export interface ExplanationFeature {
@@ -267,6 +276,36 @@ export interface PredictionRequest {
   home_team_id: number;
   away_team_id: number;
   lookback_games: number;
+  spread_line?: number;
+  total_line?: number;
+}
+
+export interface CoverOverExplanationFeature {
+  feature: string;
+  display_name: string;
+  shap_value: number;
+  contribution: "positive" | "negative";
+  direction: string;
+}
+
+export interface CoverOverExplanation {
+  cover: CoverOverExplanationFeature[] | null;
+  over: CoverOverExplanationFeature[] | null;
+}
+
+export interface CoverOverOutput {
+  model_version: string;
+  spread_line: number | null;
+  total_line: number | null;
+  cover_prob_home: number;
+  cover_prob_away: number;
+  cover_direction: "home" | "away";
+  cover_direction_cn: string;
+  over_prob: number;
+  under_prob: number;
+  over_direction: "over" | "under";
+  over_direction_cn: string;
+  explanation: CoverOverExplanation | null;
 }
 
 export interface PredictionHistoryItem {
