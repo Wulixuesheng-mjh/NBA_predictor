@@ -61,6 +61,7 @@ class PlayerFeatures:
         team_id: int,
         before_date: datetime,
         session: AsyncSession | None = None,
+        use_historical: bool = False,
     ) -> dict[str, float]:
         """Compute injury firepower loss for a team.
 
@@ -68,11 +69,16 @@ class PlayerFeatures:
             team_id: Internal team ID.
             before_date: Reference date for injury status.
             session: Optional existing session.
+            use_historical: If True, read from ``historical_player_injuries``
+                (daily snapshots, used during training); if False (default),
+                read from the live ``player_injuries`` table (prediction).
 
         Returns:
             Dict mapping feature_name -> float.
         """
-        injuries = await self._query_active_injuries(team_id, before_date, session)
+        injuries = await self._query_active_injuries(
+            team_id, before_date, session, use_historical=use_historical
+        )
         return self._compute_from_injuries(injuries)
 
     async def _query_active_injuries(
@@ -80,12 +86,26 @@ class PlayerFeatures:
         team_id: int,
         before_date: datetime,
         session: AsyncSession | None = None,
+        use_historical: bool = False,
     ) -> list[InjuryInfo]:
-        """Query active injuries for a team, with player season averages."""
+        """Query active injuries for a team, with player season averages.
+
+        Dispatches to the live (``player_injuries``) or historical
+        (``historical_player_injuries``) source depending on ``use_historical``.
+        """
+        if use_historical:
+            return await self._query_historical(team_id, before_date, session)
+        return await self._query_live(team_id, before_date, session)
+
+    async def _query_live(
+        self,
+        team_id: int,
+        before_date: datetime,
+        session: AsyncSession | None = None,
+    ) -> list[InjuryInfo]:
+        """Live injury path (prediction): ``player_injuries`` table."""
         from app.models.player_injuries import PlayerInjury
         from app.models.player import Player
-        from app.models.game_player_stats import GamePlayerStats
-        from app.models.game import Game
 
         async def _query(sess: AsyncSession) -> list[InjuryInfo]:
             # Priority ordering: manual(1) > modified(2) > confirmed(3) > pending(4)
@@ -118,64 +138,10 @@ class PlayerFeatures:
             if not injury_rows:
                 return []
 
-            # Get affected player IDs
             player_ids = [row.PlayerInjury.player_id for row in injury_rows]
-
-            # Query season averages for these players (games before reference date)
-            # We need per-game stats to compute averages
-            player_stats_query = (
-                select(
-                    GamePlayerStats.player_id,
-                    func.avg(GamePlayerStats.pts).label("avg_pts"),
-                    func.avg(GamePlayerStats.stl).label("avg_stl"),
-                    func.avg(GamePlayerStats.blk).label("avg_blk"),
-                    func.count(GamePlayerStats.id).label("games_played"),
-                )
-                .join(Game, GamePlayerStats.game_id == Game.id)
-                .where(
-                    and_(
-                        GamePlayerStats.player_id.in_(player_ids),
-                        Game.game_date < before_date,
-                        Game.status == "Final",
-                    )
-                )
-                .group_by(GamePlayerStats.player_id)
+            stats_map, minutes_data = await self._compute_season_stats(
+                sess, player_ids, before_date
             )
-            stats_result = await sess.execute(player_stats_query)
-            stats_map = {
-                row.player_id: {
-                    "ppg": float(row.avg_pts or 0),
-                    "spg": float(row.avg_stl or 0),
-                    "bpg": float(row.avg_blk or 0),
-                    "games": row.games_played,
-                }
-                for row in stats_result.all()
-            }
-
-            # Also compute minutes per game (stored as string like "MM:SS" or float)
-            minutes_query = (
-                select(
-                    GamePlayerStats.player_id,
-                    GamePlayerStats.minutes,
-                )
-                .join(Game, GamePlayerStats.game_id == Game.id)
-                .where(
-                    and_(
-                        GamePlayerStats.player_id.in_(player_ids),
-                        Game.game_date < before_date,
-                        Game.status == "Final",
-                    )
-                )
-            )
-            minutes_result = await sess.execute(minutes_query)
-            minutes_rows = minutes_result.all()
-
-            # Compute average minutes per game for each player
-            minutes_data: dict[int, list[float]] = {}
-            for row in minutes_rows:
-                mins = _parse_minutes(row.minutes)
-                if mins is not None:
-                    minutes_data.setdefault(row.player_id, []).append(mins)
 
             injuries = []
             for inj_row in injury_rows:
@@ -183,9 +149,6 @@ class PlayerFeatures:
                 pid = inj.player_id
                 stats = stats_map.get(pid, {"ppg": 0.0, "spg": 0.0, "bpg": 0.0, "games": 0})
                 mpg = np.mean(minutes_data.get(pid, [0.0])) if minutes_data.get(pid) else 0.0
-
-                # Only count as "out" if status is Out or Doubtful
-                # Questionable and Probable are tracked separately
                 injuries.append(
                     InjuryInfo(
                         player_id=pid,
@@ -205,6 +168,146 @@ class PlayerFeatures:
         else:
             async with self.session_factory() as sess:
                 return await _query(sess)
+
+    async def _query_historical(
+        self,
+        team_id: int,
+        before_date: datetime,
+        session: AsyncSession | None = None,
+    ) -> list[InjuryInfo]:
+        """Historical injury path (training): ``historical_player_injuries``.
+
+        Matches the daily snapshot whose ``game_date`` equals the reference
+        date. ``team_id`` comes from the snapshot itself (not ``Player.team_id``,
+        because players change teams across seasons).
+        """
+        from app.models.historical_player_injuries import HistoricalPlayerInjury
+
+        async def _query(sess: AsyncSession) -> list[InjuryInfo]:
+            target_date = before_date.date() if hasattr(before_date, "date") else before_date
+
+            query = (
+                select(
+                    HistoricalPlayerInjury.player_id,
+                    HistoricalPlayerInjury.injury_status,
+                )
+                .where(
+                    and_(
+                        HistoricalPlayerInjury.team_id == team_id,
+                        HistoricalPlayerInjury.game_date == target_date,
+                    )
+                )
+            )
+            result = await sess.execute(query)
+            injury_rows = result.all()
+
+            if not injury_rows:
+                return []
+
+            player_ids = [row.player_id for row in injury_rows]
+            stats_map, minutes_data = await self._compute_season_stats(
+                sess, player_ids, before_date
+            )
+
+            injuries = []
+            for row in injury_rows:
+                pid = row.player_id
+                stats = stats_map.get(pid, {"ppg": 0.0, "spg": 0.0, "bpg": 0.0, "games": 0})
+                mpg = np.mean(minutes_data.get(pid, [0.0])) if minutes_data.get(pid) else 0.0
+                injuries.append(
+                    InjuryInfo(
+                        player_id=pid,
+                        injury_status=row.injury_status or "Out",
+                        priority=4,  # no confirmation workflow for historical snapshots
+                        season_ppg=stats["ppg"],
+                        season_mpg=mpg,
+                        season_spg=stats["spg"],
+                        season_bpg=stats["bpg"],
+                    )
+                )
+
+            return injuries
+
+        if session is not None:
+            return await _query(session)
+        else:
+            async with self.session_factory() as sess:
+                return await _query(sess)
+
+    async def _compute_season_stats(
+        self,
+        sess: AsyncSession,
+        player_ids: list[int],
+        before_date: datetime,
+    ) -> tuple[dict[int, dict], dict[int, list[float]]]:
+        """Compute per-player season PPG/SPG/BPG and minutes from played games.
+
+        Excludes DNP (did-not-play) rows — a player who was Out/DNP has minutes
+        NULL or "0", which would otherwise dilute their averages and understate
+        the injury's firepower loss.
+        """
+        from app.models.game_player_stats import GamePlayerStats
+        from app.models.game import Game
+
+        played_filter = and_(
+            GamePlayerStats.minutes.isnot(None),
+            GamePlayerStats.minutes.notin_(["", "0", "0.0", "0:00", "00:00"]),
+        )
+
+        player_stats_query = (
+            select(
+                GamePlayerStats.player_id,
+                func.avg(GamePlayerStats.pts).label("avg_pts"),
+                func.avg(GamePlayerStats.stl).label("avg_stl"),
+                func.avg(GamePlayerStats.blk).label("avg_blk"),
+                func.count(GamePlayerStats.id).label("games_played"),
+            )
+            .join(Game, GamePlayerStats.game_id == Game.id)
+            .where(
+                and_(
+                    GamePlayerStats.player_id.in_(player_ids),
+                    Game.game_date < before_date,
+                    Game.status == "Final",
+                    played_filter,
+                )
+            )
+            .group_by(GamePlayerStats.player_id)
+        )
+        stats_result = await sess.execute(player_stats_query)
+        stats_map = {
+            row.player_id: {
+                "ppg": float(row.avg_pts or 0),
+                "spg": float(row.avg_stl or 0),
+                "bpg": float(row.avg_blk or 0),
+                "games": row.games_played,
+            }
+            for row in stats_result.all()
+        }
+
+        minutes_query = (
+            select(
+                GamePlayerStats.player_id,
+                GamePlayerStats.minutes,
+            )
+            .join(Game, GamePlayerStats.game_id == Game.id)
+            .where(
+                and_(
+                    GamePlayerStats.player_id.in_(player_ids),
+                    Game.game_date < before_date,
+                    Game.status == "Final",
+                    played_filter,
+                )
+            )
+        )
+        minutes_result = await sess.execute(minutes_query)
+
+        minutes_data: dict[int, list[float]] = {}
+        for row in minutes_result.all():
+            mins = _parse_minutes(row.minutes)
+            if mins is not None:
+                minutes_data.setdefault(row.player_id, []).append(mins)
+
+        return stats_map, minutes_data
 
     @staticmethod
     def _compute_from_injuries(injuries: list[InjuryInfo]) -> dict[str, float]:

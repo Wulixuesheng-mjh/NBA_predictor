@@ -26,3 +26,6 @@ class Player(Base):
     team: Mapped["Team | None"] = relationship("Team", back_populates="players")
     game_stats: Mapped[list["GamePlayerStats"]] = relationship("GamePlayerStats", back_populates="player")
     injuries: Mapped[list["PlayerInjury"]] = relationship("PlayerInjury", back_populates="player")
+    historical_injuries: Mapped[list["HistoricalPlayerInjury"]] = relationship(
+        "HistoricalPlayerInjury", back_populates="player"
+    )

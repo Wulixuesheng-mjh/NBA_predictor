@@ -159,6 +159,7 @@ class Backtester:
                         game_date=game.game_date,
                         lookback_games=lookback_games,
                         session=sess,
+                        use_historical=True,
                     )
                 except Exception as e:
                     logger.debug("Skipping %s: %s", game.nba_game_id, e)
@@ -364,6 +365,7 @@ class Backtester:
                         game_date=game.game_date,
                         lookback_games=lookback_games,
                         session=sess,
+                        use_historical=True,
                     )
                 except Exception:
                     continue

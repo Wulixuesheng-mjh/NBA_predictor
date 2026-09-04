@@ -318,6 +318,7 @@ class FeatureBuilder:
         lookback_games: int = 10,
         session: AsyncSession | None = None,
         opponent_cache: dict[tuple[int, str], dict] | None = None,
+        use_historical: bool = False,
     ) -> FeatureVector:
         """Build complete feature vector for a single matchup.
 
@@ -327,6 +328,8 @@ class FeatureBuilder:
             game_date: Scheduled game date (features use only data before this).
             lookback_games: Number of recent games for team stats (5-15).
             session: Optional existing session.
+            use_historical: If True, read injury features from the historical
+                snapshot table (training); if False, from the live table.
 
         Returns:
             FeatureVector with numpy array and metadata.
@@ -366,10 +369,10 @@ class FeatureBuilder:
 
             # 2. Player / injury features
             home_injury_f = await self.player_features.compute_injury_impact(
-                home_team_id, game_date, session=sess
+                home_team_id, game_date, session=sess, use_historical=use_historical
             )
             away_injury_f = await self.player_features.compute_injury_impact(
-                away_team_id, game_date, session=sess
+                away_team_id, game_date, session=sess, use_historical=use_historical
             )
 
             # 2b. Player form features (top scorer form, team depth)
@@ -589,6 +592,7 @@ class FeatureBuilder:
         lookback_games: int = 10,
         min_games_before: int = 10,
         session: AsyncSession | None = None,
+        use_historical: bool = True,
     ) -> TrainingDataset:
         """Build a complete training dataset from historical games.
 
@@ -601,6 +605,8 @@ class FeatureBuilder:
             lookback_games: Number of recent games for team features.
             min_games_before: Minimum prior games required for each team.
             session: Optional existing session.
+            use_historical: Read injury features from the historical snapshot
+                table (default True — the live table has no historical variance).
 
         Returns:
             TrainingDataset with X, y arrays and sample metadata.
@@ -643,6 +649,7 @@ class FeatureBuilder:
                         lookback_games=lookback_games,
                         session=sess,
                         opponent_cache=opponent_cache,
+                        use_historical=use_historical,
                     )
                 except Exception as e:
                     logger.debug("Failed to build features for game %s: %s", game.nba_game_id, e)

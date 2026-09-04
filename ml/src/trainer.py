@@ -54,6 +54,7 @@ class Trainer:
         lookback_games: int = 10,
         version: str | None = None,
         calibrate: bool = True,
+        use_historical: bool = True,
     ) -> TrainingResult:
         """Run the complete training pipeline.
 
@@ -62,6 +63,8 @@ class Trainer:
             lookback_games: Number of recent games for team features.
             version: Model version string; auto-generated if None.
             calibrate: Whether to compute calibration coefficients.
+            use_historical: Read injury features from the historical snapshot
+                table (True) or leave them zero (False — A/B baseline).
 
         Returns:
             TrainingResult with full metrics and paths.
@@ -75,6 +78,7 @@ class Trainer:
             seasons=seasons,
             lookback_games=lookback_games,
             min_games_before=5,  # minimum prior games per team
+            use_historical=use_historical,
         )
 
         if len(dataset.X) == 0:
