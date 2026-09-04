@@ -55,3 +55,6 @@ logs/
 # ── OS ─────────────────────────────────────────────
 Thumbs.db
 Desktop.ini
+
+# ── AI tooling (personal notes/config, not project code) ──
+.claude/
