@@ -10,7 +10,7 @@ import asyncio
 import time
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.collector.base import BaseCollector, CollectionResult
@@ -21,6 +21,7 @@ from app.models.game import Game
 from app.models.team_game_stats import TeamGameStats
 from app.models.game_player_stats import GamePlayerStats
 from app.models.player_injuries import PlayerInjury
+from app.models.roster_snapshot import RosterSnapshot
 from app.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -156,15 +157,24 @@ class NBACollector(BaseCollector):
 
     # ── Player Sync ───────────────────────────────────────────
 
-    async def sync_players(self) -> int:
-        """Sync players for all active teams.
+    async def sync_players(self, season: str | None = None) -> int:
+        """Sync every team's current-season roster via CommonTeamRoster.
 
-        For each team, fetches the current roster via CommonAllPlayers.
-        Sets team_id on player records so each player is linked to their
-        current NBA team.
+        Updates team assignments (trades, free-agent signings), jersey
+        numbers and positions, and detaches players that are no longer on a
+        team's roster — otherwise the UI keeps showing last season's names.
+
+        Args:
+            season: Season string like "2026-27". Defaults to the current one.
+
+        Returns:
+            Number of player records written.
         """
+        if season is None:
+            season = self._determine_season()
+
         try:
-            from nba_api.stats.endpoints import CommonAllPlayers
+            from nba_api.stats.endpoints import CommonTeamRoster
         except ImportError:
             logger.warning("nba_api not installed")
             return 0
@@ -178,48 +188,114 @@ class NBACollector(BaseCollector):
         count = 0
         for nba_team_id, db_team_id in nba_to_db_team.items():
             try:
-                players_data = await asyncio.to_thread(
-                    lambda tid=nba_team_id: CommonAllPlayers(
-                        team_id=tid, is_only_current_season=1
-                    ).get_normalized_dict()
+                roster = await asyncio.to_thread(
+                    lambda tid=nba_team_id: CommonTeamRoster(
+                        team_id=tid, season=season, timeout=30
+                    )
+                    .get_normalized_dict()
+                    .get("CommonTeamRoster", [])
                 )
             except Exception as e:
-                logger.debug("Failed to fetch players for team %d: %s", nba_team_id, e)
+                logger.warning(
+                    "Failed to fetch roster for team %d: %s", nba_team_id, e
+                )
                 continue
 
-            player_list = (
-                players_data.get("CommonAllPlayers", []) if players_data else []
-            )
-            if not player_list:
+            # Guard against truncated responses: never detach a whole roster
+            # because the API returned an empty/incomplete payload.
+            if len(roster) < 10:
+                logger.warning(
+                    "Roster for team %d has only %d players — skipping",
+                    nba_team_id,
+                    len(roster),
+                )
                 continue
 
+            roster_ids: list[int] = []
             async with self.db_session_factory() as session:
-                for p in player_list:
+                for p in roster:
+                    player_id = p.get("PLAYER_ID")
+                    if not player_id:
+                        continue
+                    roster_ids.append(player_id)
+
+                    full_name = (p.get("PLAYER") or "").strip()
+                    name_parts = full_name.split()
+                    first_name = name_parts[0] if name_parts else None
+                    last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else None
+                    jersey = (p.get("NUM") or "").strip() or None
+                    position = (p.get("POSITION") or "").strip() or None
+
                     stmt = pg_insert(Player).values(
-                        nba_player_id=p.get("PERSON_ID", 0),
-                        first_name=p.get("FIRST_NAME"),
-                        last_name=p.get("LAST_NAME"),
-                        full_name=p.get("DISPLAY_FIRST_LAST"),
+                        nba_player_id=player_id,
+                        first_name=first_name,
+                        last_name=last_name,
+                        full_name=full_name or None,
                         team_id=db_team_id,
-                        jersey_number=p.get("JERSEY_NUMBER"),
-                        position=p.get("POSITION"),
+                        jersey_number=jersey,
+                        position=position,
                     ).on_conflict_do_update(
                         index_elements=["nba_player_id"],
                         set_={
-                            "first_name": p.get("FIRST_NAME"),
-                            "last_name": p.get("LAST_NAME"),
-                            "full_name": p.get("DISPLAY_FIRST_LAST"),
+                            "first_name": first_name,
+                            "last_name": last_name,
+                            "full_name": full_name or None,
                             "team_id": db_team_id,
-                            "jersey_number": p.get("JERSEY_NUMBER"),
-                            "position": p.get("POSITION"),
+                            "jersey_number": jersey,
+                            "position": position,
                             "updated_at": datetime.now(timezone.utc),
                         },
                     )
                     await session.execute(stmt)
                     count += 1
+
+                # Players that left this team since the last sync
+                await session.execute(
+                    update(Player)
+                    .where(
+                        Player.team_id == db_team_id,
+                        Player.nba_player_id.notin_(roster_ids),
+                    )
+                    .values(team_id=None, updated_at=datetime.now(timezone.utc))
+                )
+                await session.flush()
+                observed_at = datetime.now(timezone.utc)
+                current_player_ids = set((await session.execute(
+                    select(Player.id).where(Player.nba_player_id.in_(roster_ids))
+                )).scalars())
+                active_snapshots = list((await session.execute(
+                    select(RosterSnapshot).where(
+                        RosterSnapshot.team_id == db_team_id,
+                        RosterSnapshot.effective_until.is_(None),
+                    )
+                )).scalars())
+                active_ids = {row.player_id for row in active_snapshots}
+                roster_changed = current_player_ids != active_ids
+                for row in active_snapshots:
+                    if row.player_id not in current_player_ids:
+                        row.effective_until = observed_at
+                for player_id in current_player_ids - active_ids:
+                    session.add(RosterSnapshot(
+                        player_id=player_id,
+                        team_id=db_team_id,
+                        effective_from=observed_at,
+                        source="nba_api",
+                        observed_at=observed_at,
+                    ))
+                if roster_changed:
+                    from app.services.data_quality_service import bump_data_revision
+                    await bump_data_revision(session, f"roster-sync:{db_team_id}")
                 await session.commit()
 
-        logger.info("Synced %d player records", count)
+            # Be polite to stats.nba.com
+            await asyncio.sleep(0.5)
+
+        logger.info(
+            "Synced %d player records across %d teams (season %s)",
+            count,
+            len(nba_to_db_team),
+            season,
+        )
         return count
 
     # ── Schedule Sync ─────────────────────────────────────────
@@ -264,6 +340,10 @@ class NBACollector(BaseCollector):
                     nba_game_id=g.get("game_id", ""),
                     season=season,
                     game_date=game_date,
+                    source_game_date=game_date.date() if game_date else None,
+                    scheduled_start_utc=None,
+                    time_precision="date",
+                    game_type=self._game_type(g.get("game_id", "")),
                     home_team_id=home_id,
                     away_team_id=away_id,
                     status=g.get("status", "Scheduled"),
@@ -275,6 +355,8 @@ class NBACollector(BaseCollector):
                         "status": g.get("status", "Scheduled"),
                         "home_score": g.get("home_score"),
                         "away_score": g.get("away_score"),
+                        "source_game_date": game_date.date() if game_date else None,
+                        "game_type": self._game_type(g.get("game_id", "")),
                         "updated_at": datetime.now(timezone.utc),
                     },
                 )
@@ -284,6 +366,11 @@ class NBACollector(BaseCollector):
 
         logger.info("Synced %d games for season %s", count, season)
         return count
+
+    @staticmethod
+    def _game_type(game_id: str) -> str:
+        prefix = str(game_id).zfill(10)[:3]
+        return {"001": "preseason", "002": "regular", "003": "exhibition", "004": "playoffs", "005": "play_in", "006": "cup_final"}.get(prefix, "unknown")
 
     @staticmethod
     def _fetch_schedule(season: str) -> list[dict]:

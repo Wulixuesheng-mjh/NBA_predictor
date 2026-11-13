@@ -12,7 +12,21 @@ const STATUS_OPTIONS: { label: string; value: GameStatus | "" }[] = [
   { label: "已排期", value: "Scheduled" },
 ];
 
-const SEASONS = ["2025-26", "2024-25", "2023-24"];
+/** Current NBA season label, e.g. "2026-27". Seasons roll over in July. */
+function currentSeasonStart(now: Date = new Date()): number {
+  return now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
+}
+
+/** Current season plus the previous three, newest first. */
+const SEASONS = Array.from({ length: 4 }, (_, i) => {
+  const start = currentSeasonStart() - i;
+  return `${start}-${String((start + 1) % 100).padStart(2, "0")}`;
+});
+
+/** BallDontLie only returns a date, stored as 00:00 UTC — tip-off is unknown. */
+function isDateOnly(game: { nba_game_id?: string }): boolean {
+  return String(game.nba_game_id ?? "").startsWith("bdl-");
+}
 
 export default function GamesPage() {
   const navigate = useNavigate();
@@ -113,7 +127,9 @@ export default function GamesPage() {
                 <div className="w-28 text-sm text-gray-400">
                   <div>{formatDate(game.game_date)}</div>
                   {game.status !== "Final" && (
-                    <div className="text-xs">{formatTime(game.game_date)}</div>
+                    <div className="text-xs">
+                      {isDateOnly(game) ? "时间待定" : formatTime(game.game_date)}
+                    </div>
                   )}
                 </div>
 

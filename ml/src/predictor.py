@@ -10,7 +10,8 @@ producing a combined prediction with:
 """
 
 import logging
-from dataclasses import dataclass, field
+from copy import deepcopy
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -77,6 +78,9 @@ class CombinedPrediction:
     data_quality: dict
     calibration_applied: bool = False
     confidence: ConfidenceLevel | None = None
+    raw_outputs: dict = field(default_factory=dict)
+    # Kept out of the public response; persisted per model in the audit ledger.
+    processed_inputs: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         """Convert to API response format."""
@@ -90,6 +94,7 @@ class CombinedPrediction:
             "recommended": self.recommended,
             "calibration_applied": self.calibration_applied,
             "data_quality": self.data_quality,
+            "raw_outputs": self.raw_outputs,
         }
 
         if self.xgboost:
@@ -141,10 +146,12 @@ class Predictor:
         xgb_trainer: XGBoostTrainer | None = None,
         mlp_trainer: "MLPTrainer | None" = None,
         calibrator: Calibrator | None = None,
+        release_manifest: dict | None = None,
     ):
         self.xgb_trainer = xgb_trainer
         self.mlp_trainer = mlp_trainer
         self.calibrator = calibrator or Calibrator()
+        self.release_manifest = deepcopy(release_manifest or {})
         self._shap_explainer = None  # Lazy-initialized SHAP TreeExplainer (win)
         self._shap_explainer_cover = None  # Lazy-initialized SHAP TreeExplainer (cover)
         self._shap_explainer_over = None  # Lazy-initialized SHAP TreeExplainer (over)
@@ -163,23 +170,56 @@ class Predictor:
         Returns:
             CombinedPrediction with both model outputs and consensus.
         """
+        from ml.src.features.feature_builder import FEATURE_NAMES
+        if feature_vector.feature_names != FEATURE_NAMES:
+            raise ValueError('Builder feature order mismatch')
         X = feature_vector.features.reshape(1, -1)
+
+        extra_warnings: list[str] = []
+        raw_outputs = {}
+        processed_inputs = {}
+        X_for_release = self._prepare_release_features(X)
+        if self._release_semantic_version() < 6:
+            extra_warnings.append(
+                "当前活动模型使用旧特征语义；已应用可兼容的量纲转换，建议完成新版本影子验收"
+            )
+
+        # Calibration is opt-in: the variance-inflating variant made MAE worse
+        # on the validation set, so by default we serve raw model outputs.
+        # Coefficients are fitted on XGBoost only — never applied to the MLP.
+        use_calibration = bool(
+            apply_calibration
+            and getattr(ml_settings, "calibration_enabled", False)
+            and self.release_manifest.get("calibration_enabled") is True
+            and self.calibrator.is_fitted
+        )
 
         # XGBoost prediction (primary)
         xgb_pred = None
         if self.xgb_trainer and self.xgb_trainer.is_trained:
             try:
-                result = self.xgb_trainer.predict(X)
+                expected = int(self.xgb_trainer.model_win.n_features_in_)
+                model_input = self._model_features(X_for_release, expected)
+                processed_inputs['xgboost'] = self._input_snapshot(
+                    model_input, 'xgboost', self.xgb_trainer.version)
+                result = self.xgb_trainer.predict(model_input)
                 # xgb predict returns list for 2D input, single object for 1D
                 xgb_pred = result[0] if isinstance(result, list) else result
-                if apply_calibration:
+                raw_outputs["xgboost"] = asdict(xgb_pred)
+                if use_calibration:
                     xgb_pred = self.calibrator.apply(xgb_pred)
                 # Round to nearest 0.5 — basketball scores are integers,
                 # gambling lines use .5 to avoid pushes
                 xgb_pred.predicted_spread = round_to_half(xgb_pred.predicted_spread)
                 xgb_pred.predicted_total = round_to_half(xgb_pred.predicted_total)
+                ok, reason = self._is_plausible(xgb_pred)
+                if not ok:
+                    logger.warning("XGBoost output rejected: %s", reason)
+                    extra_warnings.append(f"XGBoost 输出异常（{reason}），已忽略")
+                    xgb_pred = None
             except Exception as e:
                 logger.warning("XGBoost prediction failed: %s", e)
+                extra_warnings.append(f"XGBoost 推理失败：{e}")
 
         # MLP prediction (auxiliary) — check both PyTorch and ONNX backends
         mlp_pred = None
@@ -189,16 +229,29 @@ class Predictor:
         )
         if mlp_available:
             try:
-                result = self.mlp_trainer.predict(X)
+                expected = (
+                    len(self.mlp_trainer._scaler_mean)
+                    if self.mlp_trainer._scaler_mean is not None else X.shape[1]
+                )
+                model_input = self._model_features(X_for_release, expected)
+                processed_inputs['mlp'] = self._input_snapshot(model_input, 'mlp', self.mlp_trainer.version)
+                result = self.mlp_trainer.predict(model_input)
                 mlp_pred = result[0] if isinstance(result, list) else result
-                # Apply same calibration to MLP (bias + scale correction)
-                if apply_calibration:
-                    mlp_pred = self.calibrator.apply(mlp_pred)
+                raw_outputs["mlp"] = asdict(mlp_pred)
+                # NOTE: no calibration here. The coefficients are fitted on
+                # XGBoost residuals and made MLP worse (e.g. totals pinned to
+                # the 180 floor).
                 # Round to nearest 0.5
                 mlp_pred.predicted_spread = round_to_half(mlp_pred.predicted_spread)
                 mlp_pred.predicted_total = round_to_half(mlp_pred.predicted_total)
+                ok, reason = self._is_plausible(mlp_pred)
+                if not ok:
+                    logger.warning("MLP output rejected: %s", reason)
+                    extra_warnings.append(f"MLP 输出异常（{reason}），已忽略该模型")
+                    mlp_pred = None
             except Exception as e:
                 logger.warning("MLP prediction failed: %s", e)
+                extra_warnings.append(f"MLP 推理失败：{e}")
 
         # Consensus analysis
         consensus = None
@@ -209,8 +262,11 @@ class Predictor:
         data_quality = {
             "home_games_available": feature_vector.home_games_available,
             "away_games_available": feature_vector.away_games_available,
-            "warnings": feature_vector.data_quality_warnings,
+            "warnings": list(feature_vector.data_quality_warnings or []) + extra_warnings,
         }
+        compatibility = getattr(self.mlp_trainer, "input_compatibility_id", None)
+        if compatibility:
+            data_quality["mlp_input_compatibility"] = compatibility
 
         # Determine recommendation
         if xgb_pred:
@@ -235,9 +291,103 @@ class Predictor:
             consensus=consensus,
             recommended=recommended,
             data_quality=data_quality,
-            calibration_applied=apply_calibration and self.calibrator.is_fitted,
+            calibration_applied=use_calibration,
             confidence=confidence,
+            raw_outputs=raw_outputs,
+            processed_inputs=processed_inputs,
         )
+
+    @staticmethod
+    def _adapt_features(X: np.ndarray, expected_dim: int) -> np.ndarray:
+        """Serve a previous release while new features are appended.
+
+        Schema v6 guarantees that the legacy 166 columns remain an exact
+        prefix.  Shrinking is therefore safe; expanding is never fabricated.
+        """
+        if X.shape[1] == expected_dim:
+            return X
+        if X.shape[1] > expected_dim:
+            return X[:, :expected_dim]
+        raise ValueError(f"Feature vector has {X.shape[1]} columns; model needs {expected_dim}")
+
+    def _release_semantic_version(self) -> int:
+        try:
+            return int(self.release_manifest.get("feature_semantic_version") or 5)
+        except (TypeError, ValueError) as exc:
+            raise ValueError('Invalid release feature semantic version') from exc
+
+    def _prepare_release_features(self, X: np.ndarray) -> np.ndarray:
+        """Translate current features for an older pinned model when possible."""
+        prepared = np.asarray(X, dtype=np.float64).copy()
+        from ml.src.features.feature_builder import FEATURE_NAMES
+        from ml.src.features.dataset_cache import CACHE_FORMAT_VERSION
+
+        if prepared.ndim != 2 or prepared.shape[1] != len(FEATURE_NAMES) or not np.isfinite(prepared).all():
+            raise ValueError('Invalid builder feature vector')
+        semantic = self._release_semantic_version()
+        if semantic not in (5, CACHE_FORMAT_VERSION):
+            raise ValueError('Release feature semantics are incompatible with this code image')
+        names = self.release_manifest.get('feature_names')
+        if semantic >= 6 and (names != FEATURE_NAMES
+                or self.release_manifest.get('feature_dim') != len(FEATURE_NAMES)):
+            raise ValueError('Release feature dimension/order mismatch')
+        if names is not None and names != FEATURE_NAMES[:len(names)]:
+            raise ValueError('Legacy release feature order mismatch')
+        disabled = self.release_manifest.get('disabled_features', [])
+        if (not isinstance(disabled, list) or any(not isinstance(name, str) for name in disabled)
+                or len(disabled) != len(set(disabled)) or any(name not in FEATURE_NAMES for name in disabled)):
+            raise ValueError('Invalid disabled feature list')
+        if self._release_semantic_version() < 6:
+            # v5 trained expected_total with an erroneous /200 scale. Keep the
+            # active v5 bundle stable while v6 remains in shadow evaluation.
+            index = FEATURE_NAMES.index("expected_total")
+            if index < prepared.shape[1]:
+                prepared[:, index] /= 2.0
+        for name in disabled:
+            prepared[:, FEATURE_NAMES.index(name)] = 0.0
+        return prepared
+
+    def _model_features(self, X: np.ndarray, expected_dim: int) -> np.ndarray:
+        declared = self.release_manifest.get('feature_dim')
+        if declared is not None and declared != expected_dim:
+            raise ValueError('Model dimension differs from its release manifest')
+        # Only the documented legacy 166-column prefix may be truncated.
+        if X.shape[1] != expected_dim and expected_dim != 166:
+            raise ValueError('Undocumented feature truncation is forbidden')
+        return self._adapt_features(X, expected_dim)
+
+    def _input_snapshot(self, X, model_name, model_version):
+        from ml.src.inference_snapshot import input_snapshot
+        from ml.src.features.feature_builder import FEATURE_NAMES
+        return input_snapshot(X[0], FEATURE_NAMES[:X.shape[1]], model_name=model_name,
+                              model_version=model_version, manifest=self.release_manifest)
+
+    @staticmethod
+    def _is_plausible(pred) -> tuple[bool, str]:
+        """Reject physically impossible model outputs.
+
+        A broken network can emit a total of 5 or a 600-point spread; the UI
+        must never present that as a real prediction (it previously surfaced as
+        a clipped "180" total).
+        """
+        total = getattr(pred, "predicted_total", None)
+        if total is not None:
+            lo = getattr(ml_settings, "output_total_min", 150.0)
+            hi = getattr(ml_settings, "output_total_max", 300.0)
+            if not (lo <= total <= hi):
+                return False, f"总分 {total:.1f} 超出 [{lo:.0f}, {hi:.0f}]"
+
+        spread = getattr(pred, "predicted_spread", None)
+        if spread is not None:
+            cap = getattr(ml_settings, "output_max_abs_spread", 45.0)
+            if abs(spread) > cap:
+                return False, f"让分 {spread:.1f} 绝对值超过 {cap:.0f}"
+
+        prob = getattr(pred, "win_prob_home", None)
+        if prob is None or not (0.0 <= prob <= 1.0) or np.isnan(prob):
+            return False, f"主胜概率 {prob} 非法"
+
+        return True, ""
 
     @staticmethod
     def _compute_confidence(
@@ -393,6 +543,11 @@ class Predictor:
         try:
             import shap
 
+            expected = int(self.xgb_trainer.model_win.n_features_in_)
+            X = self._adapt_features(self._prepare_release_features(X), expected)
+            if feature_names is not None:
+                feature_names = feature_names[:expected]
+
             if self._shap_explainer is None:
                 self._shap_explainer = shap.TreeExplainer(
                     self.xgb_trainer.model_win,
@@ -470,7 +625,7 @@ class Predictor:
             "cover_prob_home": round(cov.cover_prob_home, 4),
             "cover_prob_away": round(1.0 - cov.cover_prob_home, 4),
             "cover_direction": "home" if cover_home else "away",
-            "cover_direction_cn": "主队让分胜" if cover_home else "客队让分胜",
+            "cover_direction_cn": "主队赢盘" if cover_home else "客队赢盘",
             "over_prob": round(cov.over_prob, 4),
             "under_prob": round(1.0 - cov.over_prob, 4),
             "over_direction": "over" if over else "under",
@@ -551,19 +706,80 @@ class Predictor:
         return result if (result.get("cover") or result.get("over")) else None
 
 
+def _read_active_release() -> dict | None:
+    """Read the atomically published release manifest, if any."""
+    import json
+    import os
+
+    path = os.path.join(ml_settings.models_dir, "active.json")
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        logger.warning("Could not read active release manifest: %s", e)
+        return None
+
+
 def load_predictor(
     xgb_version: str | None = None,
     mlp_version: str | None = None,
+    release_manifest: dict | None = None,
+    mlp_compatibility_path: str | None = None,
 ) -> Predictor:
     """Load trained models and create a Predictor instance.
 
+    Versions are pinned by ``saved_models/active.json`` when it exists, so a
+    prediction never mixes a freshly written model with a stale scaler or an
+    older MLP. ``mlp_version: null`` in that manifest means "MLP failed its
+    checks — do not load any MLP" (rather than silently falling back to the
+    newest old one).
+
     Args:
-        xgb_version: XGBoost model version to load (latest if None).
-        mlp_version: MLP model version to load (latest if None).
+        xgb_version: XGBoost model version to load (release pin if None).
+        mlp_version: MLP model version to load (release pin if None).
+        mlp_compatibility_path: Explicit, hash-checked legacy input repair contract.
+            Archived manifests carry the same contract for reproducible replay.
 
     Returns:
         Predictor ready for inference.
     """
+    release = dict(release_manifest) if release_manifest is not None else _read_active_release()
+    requested_version = xgb_version or mlp_version
+    if requested_version is not None:
+        # Explicit candidate/replay loads must carry their own preprocessing
+        # semantics, rather than inheriting the currently active old bundle.
+        if release_manifest is None and (not release or requested_version not in (
+            release.get("xgboost_version"), release.get("mlp_version")
+        )):
+            import json
+            from pathlib import Path
+
+            path = Path(ml_settings.models_dir) / "candidates" / f"{requested_version}.json"
+            release = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+        if release:
+            for supplied, key in ((xgb_version, "xgboost_version"), (mlp_version, "mlp_version")):
+                if supplied is not None and supplied != release.get(key):
+                    raise ValueError("Requested models do not belong to one release bundle")
+        elif xgb_version is None:
+            xgb_version = requested_version
+    skip_mlp = requested_version is not None and release is None and mlp_version is None
+    if release:
+        if xgb_version is None:
+            xgb_version = release.get("xgboost_version")
+        if mlp_version is None:
+            pinned = release.get("mlp_version")
+            mlp_version = pinned
+            skip_mlp = "mlp_version" in release and pinned is None
+        logger.info(
+            "Active release %s: xgb=%s mlp=%s (data until %s)",
+            release.get("version"),
+            release.get("xgboost_version"),
+            release.get("mlp_version"),
+            release.get("training_data_until"),
+        )
+
     xgb = XGBoostTrainer()
     try:
         xgb.load(xgb_version)
@@ -571,16 +787,30 @@ def load_predictor(
         logger.warning("Could not load XGBoost model: %s", e)
 
     mlp = None
-    try:
-        from ml.src.models.mlp_model import MLPTrainer
-        mlp = MLPTrainer()
+    if skip_mlp:
+        logger.warning("MLP disabled by release manifest — XGBoost only")
+    else:
         try:
-            mlp.load(mlp_version)
-        except Exception as e:
-            logger.warning("Could not load MLP model: %s", e)
-            mlp = None
-    except ImportError as e:
-        logger.info("MLP not available (%s) — using XGBoost only", e)
+            from ml.src.models.mlp_model import MLPTrainer
+            mlp = MLPTrainer()
+            try:
+                mlp.load(mlp_version)
+            except Exception as e:
+                logger.warning("Could not load MLP model: %s", e)
+                mlp = None
+        except ImportError as e:
+            logger.info("MLP not available (%s) — using XGBoost only", e)
+
+    compatibility = (release or {}).get("mlp_input_compatibility")
+    if mlp_compatibility_path is not None or compatibility is not None:
+        if mlp is None:
+            raise ValueError("Requested legacy MLP compatibility requires its pinned model")
+        from ml.src.legacy_mlp_compatibility import CompatibleLegacyMLP
+        mlp = CompatibleLegacyMLP(mlp, mlp_compatibility_path if mlp_compatibility_path is not None else compatibility)
+        if compatibility is not None and compatibility != mlp.input_compatibility_contract:
+            raise ValueError("Archived MLP compatibility differs from requested contract")
+        release = dict(release or {})
+        release["mlp_input_compatibility"] = mlp.input_compatibility_contract
 
     calibrator = Calibrator()
     try:
@@ -588,4 +818,4 @@ def load_predictor(
     except Exception:
         logger.info("No calibration coefficients found, using raw predictions")
 
-    return Predictor(xgb, mlp, calibrator)
+    return Predictor(xgb, mlp, calibrator, release_manifest=release)

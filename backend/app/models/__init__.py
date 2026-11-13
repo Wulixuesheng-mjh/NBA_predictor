@@ -11,6 +11,10 @@ from app.models.prediction import Prediction
 from app.models.prediction_results import PredictionResult
 from app.models.data_collection_log import DataCollectionLog
 from app.models.betting_line import BettingLine
+from app.models.data_revision import DataRevision
+from app.models.injury_report import InjuryReport
+from app.models.roster_snapshot import RosterSnapshot
+from app.models.prospective import ProspectiveRun, ProspectiveForecast
 
 __all__ = [
     "Team",
@@ -24,4 +28,9 @@ __all__ = [
     "PredictionResult",
     "DataCollectionLog",
     "BettingLine",
+    "DataRevision",
+    "InjuryReport",
+    "RosterSnapshot",
 ]
+from app.models.box_score_snapshot import BoxScoreSnapshot
+from app.models.shadow_observation import ShadowObservationRun, ShadowObservation

@@ -29,3 +29,20 @@ export async function fetchPrediction(predictionId: number): Promise<PredictionD
   const res = await apiClient.get(`/predictions/${predictionId}`);
   return res.data;
 }
+
+export interface ShadowObservationStatus {
+  runs: Array<{
+    name: string;
+    version: string;
+    captured: number;
+    settled: number;
+    awaiting: number;
+    configuration_matches: boolean;
+    integrity_errors: number;
+    metrics?: Record<string, { mae: number; rmse: number; bias: number }>;
+  }>;
+}
+
+export async function fetchShadowStatus(): Promise<ShadowObservationStatus> {
+  return (await apiClient.get('/predictions/shadow-status')).data;
+}

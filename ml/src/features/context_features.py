@@ -89,6 +89,7 @@ class ContextFeatures:
         away_team_id: int,
         game_date: datetime,
         session: AsyncSession | None = None,
+        target_game_day=None,
     ) -> dict[str, float]:
         """Compute all context features for a matchup.
 
@@ -103,12 +104,14 @@ class ContextFeatures:
         """
         async def _compute(sess: AsyncSession) -> dict[str, float]:
             # Rest days
-            home_rest = await self._compute_rest_days(sess, home_team_id, game_date)
-            away_rest = await self._compute_rest_days(sess, away_team_id, game_date)
+            home_rest = await self._compute_rest_days(sess, home_team_id, game_date, target_game_day)
+            away_rest = await self._compute_rest_days(sess, away_team_id, game_date, target_game_day)
 
             # Back-to-back
-            home_b2b = 1.0 if home_rest == 0 else 0.0
-            away_b2b = 1.0 if away_rest == 0 else 0.0
+            # Back-to-back means games on consecutive NBA calendar dates.
+            # ``rest_days`` is the date difference, so the correct value is 1.
+            home_b2b = 1.0 if home_rest == 1 else 0.0
+            away_b2b = 1.0 if away_rest == 1 else 0.0
 
             # Home/Away win rates (season-long)
             home_home_wr = await self._compute_venue_win_rate(
@@ -184,16 +187,17 @@ class ContextFeatures:
 
     @staticmethod
     async def _compute_rest_days(
-        session: AsyncSession, team_id: int, before_date: datetime
+        session: AsyncSession, team_id: int, before_date: datetime, target_game_day=None,
     ) -> int:
         """Compute days since the team's last game."""
         from app.models.game import Game
 
         query = (
-            select(Game.game_date)
+            select(Game.game_date, Game.source_game_date, Game.time_precision)
             .where(
                 and_(
                     Game.status == "Final",
+                    Game.game_type.in_(("regular", "play_in", "playoffs")),
                     Game.game_date < before_date,
                     (Game.home_team_id == team_id) | (Game.away_team_id == team_id),
                 )
@@ -202,21 +206,20 @@ class ContextFeatures:
             .limit(1)
         )
         result = await session.execute(query)
-        last_game_date = result.scalar_one_or_none()
+        last = result.one_or_none()
 
-        if last_game_date is None:
+        if last is None:
             # No previous games this season — assume well-rested
             return 7
 
-        # Handle timezone-aware vs naive datetime: make both naive
-        bd = before_date
-        if hasattr(bd, 'tzinfo') and bd.tzinfo is not None:
-            bd = bd.replace(tzinfo=None)
-        lg_date = last_game_date
-        if hasattr(lg_date, 'tzinfo') and lg_date.tzinfo is not None:
-            lg_date = lg_date.replace(tzinfo=None)
-
-        delta = (bd - lg_date).days
+        from zoneinfo import ZoneInfo
+        nba_tz = ZoneInfo('America/New_York')
+        reference_day = target_game_day or (
+            before_date.astimezone(nba_tz).date() if before_date.tzinfo else before_date.date())
+        last_day = last.source_game_date or (
+            last.game_date.astimezone(nba_tz).date()
+            if last.time_precision == 'exact' and last.game_date.tzinfo else last.game_date.date())
+        delta = (reference_day - last_day).days
         return max(0, delta)
 
     @staticmethod
@@ -241,6 +244,7 @@ class ContextFeatures:
                 and_(
                     condition,
                     Game.status == "Final",
+                    Game.game_type.in_(("regular", "play_in", "playoffs")),
                     Game.game_date < before_date,
                 )
             )
@@ -283,6 +287,7 @@ class ContextFeatures:
             .where(
                 and_(
                     Game.status == "Final",
+                    Game.game_type.in_(("regular", "play_in", "playoffs")),
                     Game.game_date < before_date,
                     (Game.home_team_id == team_id) | (Game.away_team_id == team_id),
                 )
@@ -382,6 +387,7 @@ class ContextFeatures:
             .where(
                 and_(
                     Game.status == "Final",
+                    Game.game_type.in_(("regular", "play_in", "playoffs")),
                     Game.game_date < before_date,
                     (Game.home_team_id == team_id) | (Game.away_team_id == team_id),
                 )
@@ -416,6 +422,7 @@ class ContextFeatures:
             .where(
                 and_(
                     Game.status == "Final",
+                    Game.game_type.in_(("regular", "play_in", "playoffs")),
                     Game.game_date < before_date,
                     Game.home_team_id == team_id,
                 )
@@ -483,6 +490,7 @@ class ContextFeatures:
             .where(
                 and_(
                     Game.status == "Final",
+                    Game.game_type.in_(("regular", "play_in", "playoffs")),
                     Game.game_date < before_date,
                     Game.game_date >= season_start,
                     or_(

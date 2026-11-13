@@ -11,11 +11,17 @@ This module adjusts team metrics by the quality of opponents faced:
   - opp_adj_def_rtg:       Defensive rating vs opponent average offensive rating
   - sos_rating:            Average opponent win rate (strength of schedule)
 
-Performance: During training, use precompute_opponent_cache() to build an in-memory
-dict of all (team, season) → stats in one pass, eliminating the N+1 query pattern.
+Performance: during training, use OpponentStatsCache (built in one pass) which
+answers "team stats as of date D" without touching games after D, so the offline
+features match what a live prediction would see.
+
+Leakage note: the previous implementation averaged the *whole season* for each
+(team, season), which let a game played in November see stats from April — both
+a train/serve mismatch and a direct leak of future results.
 """
 
 import logging
+from bisect import bisect_left
 from collections import defaultdict
 from datetime import datetime
 
@@ -26,6 +32,23 @@ from ml.src.database import async_session_factory
 
 logger = logging.getLogger(__name__)
 
+
+def previous_season(season: str) -> str | None:
+    """Return the season before ``season`` ("2025-26" → "2024-25")."""
+    if not season:
+        return None
+    if "-" in season:
+        try:
+            start = int(season.split("-")[0])
+            return f"{start - 1}-{start % 100:02d}"
+        except ValueError:
+            return None
+    try:
+        return str(int(season) - 1)
+    except ValueError:
+        return None
+
+
 OPPONENT_ADJUSTED_FEATURE_NAMES = [
     "opp_adj_pts",
     "opp_adj_pts_allowed",
@@ -34,6 +57,66 @@ OPPONENT_ADJUSTED_FEATURE_NAMES = [
     "opp_adj_def_rtg",
     "sos_rating",
 ]
+
+
+class OpponentStatsCache:
+    """As-of-date team stats: a lookup at date D only sees games before D.
+
+    One pass over all completed games builds cumulative series per
+    (team, season); ``get()`` binary-searches the date. This keeps offline
+    feature building consistent with a live prediction and removes the
+    "November game knows April stats" leak of the previous whole-season
+    aggregate.
+    """
+
+    def __init__(self) -> None:
+        self._dates: dict[tuple[int, str], list[datetime]] = defaultdict(list)
+        self._cum: dict[tuple[int, str], list[tuple[float, float, int]]] = defaultdict(list)
+
+    def add_game(
+        self,
+        team_id: int,
+        season: str,
+        game_date: datetime,
+        pts: float,
+        pts_allowed: float,
+        win: bool,
+    ) -> None:
+        key = (team_id, season)
+        prev = self._cum[key][-1] if self._cum[key] else (0.0, 0.0, 0)
+        self._cum[key].append(
+            (prev[0] + pts, prev[1] + pts_allowed, prev[2] + (1 if win else 0))
+        )
+        self._dates[key].append(game_date)
+
+    @staticmethod
+    def _stats(pts: float, allowed: float, wins: int, n: int) -> dict[str, float]:
+        return {
+            "avg_pts": pts / n,
+            "avg_pts_allowed": allowed / n,
+            "avg_off_rtg": pts / n,
+            "avg_def_rtg": allowed / n,
+            "win_rate": wins / n,
+        }
+
+    def get(self, team_id: int, season: str, before_date: datetime) -> dict[str, float] | None:
+        key = (team_id, season)
+        dates = self._dates.get(key)
+        if dates:
+            idx = bisect_left(dates, before_date)  # games strictly before the date
+            if idx > 0:
+                pts, allowed, wins = self._cum[key][idx - 1]
+                return self._stats(pts, allowed, wins, idx)
+
+        # Not enough current-season history (season opener): use last season
+        prev = previous_season(season)
+        if prev:
+            prev_key = (team_id, prev)
+            prev_dates = self._dates.get(prev_key)
+            if prev_dates:
+                pts, allowed, wins = self._cum[prev_key][-1]
+                return self._stats(pts, allowed, wins, len(prev_dates))
+        return None
 
 
 class OpponentAdjustedFeatures:
@@ -50,7 +133,7 @@ class OpponentAdjustedFeatures:
         before_date: datetime,
         n_games: int = 10,
         session: AsyncSession | None = None,
-        opponent_cache: dict[tuple[int, str], dict] | None = None,
+        opponent_cache: "OpponentStatsCache | None" = None,
     ) -> dict[str, float]:
         """Compute opponent-adjusted stats for a team.
 
@@ -64,9 +147,9 @@ class OpponentAdjustedFeatures:
             before_date: Reference date (only games before this are used).
             n_games: Number of recent games to look back.
             session: Optional existing DB session.
-            opponent_cache: Optional precomputed dict[(team_id, season), stats].
-                            When provided, skips all per-game DB queries for
-                            opponent stats — huge speedup for training.
+            opponent_cache: Optional precomputed OpponentStatsCache. When
+                provided, per-game opponent lookups are answered from memory
+                (as-of-date, so no future leakage).
 
         Returns:
             Dict with opp_adj_* feature values.
@@ -81,6 +164,8 @@ class OpponentAdjustedFeatures:
                     and_(
                         Game.game_date < before_date,
                         Game.status == "Final",
+                        Game.game_type.in_(("regular", "play_in", "playoffs")),
+                        Game.score_complete.is_(True),
                         Game.home_score.isnot(None),
                         Game.away_score.isnot(None),
                         (Game.home_team_id == team_id) | (Game.away_team_id == team_id),
@@ -112,11 +197,12 @@ class OpponentAdjustedFeatures:
 
                 # ── Opponent season stats (cache or DB fallback) ──
                 if opponent_cache is not None:
-                    cache_key = (opp_id, game.season or "")
-                    opp_stats = opponent_cache.get(cache_key)
+                    opp_stats = opponent_cache.get(
+                        opp_id, game.season or "", game.game_date
+                    )
                 else:
                     opp_stats = await self._get_opponent_season_stats(
-                        sess, opp_id, game.game_date
+                        sess, opp_id, game.season or "", game.game_date
                     )
 
                 if opp_stats is None:
@@ -173,140 +259,124 @@ class OpponentAdjustedFeatures:
     # ── Cache precomputation (bulk, for training) ───────────────────────
 
     @staticmethod
-    async def precompute_opponent_cache(
-        session: AsyncSession,
-    ) -> dict[tuple[int, str], dict]:
-        """Precompute per-team per-season opponent quality stats in ONE pass.
-
-        Scans all completed games once, aggregates pts/pts_allowed/wins per
-        (team_id, season), and returns a dict suitable for O(1) lookup during
-        training.  This eliminates the N+1 query pattern: without it,
-        build_training_dataset() fires ~600K individual opponent-stat queries;
-        with it, the entire cache costs 1 query + 1 in-memory pass.
+    async def precompute_opponent_cache(session: AsyncSession) -> "OpponentStatsCache":
+        """Build the as-of-date team stats cache in ONE pass over all games.
 
         Returns:
-            dict[(team_id, season_str), {
-                "avg_pts": float,
-                "avg_pts_allowed": float,
-                "avg_off_rtg": float,
-                "avg_def_rtg": float,
-                "win_rate": float,
-            }]
+            OpponentStatsCache — call ``.get(team_id, season, before_date)``
+            for stats that only use games played before that date.
         """
         from app.models.game import Game
 
-        query = select(Game).where(
-            Game.status == "Final",
-            Game.home_score.isnot(None),
-            Game.away_score.isnot(None),
+        query = (
+            select(Game)
+            .where(
+                Game.status == "Final",
+                Game.game_type.in_(("regular", "play_in", "playoffs")),
+                Game.score_complete.is_(True),
+                Game.home_score.isnot(None),
+                Game.away_score.isnot(None),
+            )
+            .order_by(Game.game_date.asc())
         )
         result = await session.execute(query)
         all_games = result.scalars().all()
 
-        # Aggregate: one row per (team, season)
-        agg: dict[tuple[int, str], dict[str, float]] = defaultdict(
-            lambda: {"pts": 0.0, "pts_allowed": 0.0, "wins": 0, "n": 0}
-        )
-
+        cache = OpponentStatsCache()
         for g in all_games:
             season = g.season or "unknown"
-
-            # Home team
-            hkey = (g.home_team_id, season)
-            agg[hkey]["pts"] += float(g.home_score)
-            agg[hkey]["pts_allowed"] += float(g.away_score)
-            agg[hkey]["n"] += 1
-            if g.home_score > g.away_score:
-                agg[hkey]["wins"] += 1
-
-            # Away team
-            akey = (g.away_team_id, season)
-            agg[akey]["pts"] += float(g.away_score)
-            agg[akey]["pts_allowed"] += float(g.home_score)
-            agg[akey]["n"] += 1
-            if g.away_score > g.home_score:
-                agg[akey]["wins"] += 1
-
-        cache: dict[tuple[int, str], dict] = {}
-        for (tid, season), s in agg.items():
-            n = s["n"]
-            if n == 0:
-                continue
-            cache[(tid, season)] = {
-                "avg_pts": round(s["pts"] / n, 2),
-                "avg_pts_allowed": round(s["pts_allowed"] / n, 2),
-                "avg_off_rtg": round(s["pts"] / n, 2),
-                "avg_def_rtg": round(s["pts_allowed"] / n, 2),
-                "win_rate": round(s["wins"] / n, 4),
-            }
+            cache.add_game(
+                team_id=g.home_team_id,
+                season=season,
+                game_date=g.game_date,
+                pts=float(g.home_score),
+                pts_allowed=float(g.away_score),
+                win=g.home_score > g.away_score,
+            )
+            cache.add_game(
+                team_id=g.away_team_id,
+                season=season,
+                game_date=g.game_date,
+                pts=float(g.away_score),
+                pts_allowed=float(g.home_score),
+                win=g.away_score > g.home_score,
+            )
 
         logger.info(
-            "Precomputed opponent cache: %d (team, season) entries from %d games",
-            len(cache),
+            "Precomputed opponent cache: %d (team, season) series from %d games",
+            len(cache._cum),
             len(all_games),
         )
         return cache
 
-    # ── Fallback: per-player lookup (used during single-game prediction) ─
+    # ── Fallback: per-team lookup (used during single-game prediction) ─
 
     @staticmethod
     async def _get_opponent_season_stats(
         session: AsyncSession,
         team_id: int,
+        season: str,
         before_date: datetime,
     ) -> dict | None:
         """Compute a team's season-to-date averages (as of before_date).
+
+        Mirrors OpponentStatsCache.get(): current-season games before
+        ``before_date``; if the team has not played yet this season, fall back
+        to its final stats from the previous season (pre-season prior).
 
         Used as a fallback during single-game prediction when no precomputed
         cache is available.  For training, prefer precompute_opponent_cache().
         """
         from app.models.game import Game
 
-        games_query = (
-            select(Game)
-            .where(
-                and_(
-                    Game.game_date < before_date,
-                    Game.status == "Final",
-                    Game.home_score.isnot(None),
-                    Game.away_score.isnot(None),
-                    (Game.home_team_id == team_id) | (Game.away_team_id == team_id),
-                )
-            )
-        )
-        result = await session.execute(games_query)
-        games = result.scalars().all()
+        async def _aggregate(season_filter: str | None) -> dict | None:
+            conditions = [
+                Game.status == "Final",
+                Game.game_type.in_(("regular", "play_in", "playoffs")),
+                Game.score_complete.is_(True),
+                Game.home_score.isnot(None),
+                Game.away_score.isnot(None),
+                (Game.home_team_id == team_id) | (Game.away_team_id == team_id),
+            ]
+            if season_filter is not None:
+                conditions.append(Game.season == season_filter)
+            if season_filter is not None:
+                conditions.append(Game.game_date < before_date)
 
-        if not games:
-            return None
+            result = await session.execute(select(Game).where(and_(*conditions)))
+            games = result.scalars().all()
+            if not games:
+                return None
 
-        total_pts = 0
-        total_pts_allowed = 0
-        wins = 0
-        n = len(games)
+            total_pts = 0.0
+            total_pts_allowed = 0.0
+            wins = 0
+            for g in games:
+                is_home = g.home_team_id == team_id
+                pts = g.home_score if is_home else g.away_score
+                pts_allowed = g.away_score if is_home else g.home_score
+                total_pts += pts
+                total_pts_allowed += pts_allowed
+                if pts > pts_allowed:
+                    wins += 1
 
-        for g in games:
-            is_home = g.home_team_id == team_id
-            pts = g.home_score if is_home else g.away_score
-            pts_allowed = g.away_score if is_home else g.home_score
-            total_pts += pts
-            total_pts_allowed += pts_allowed
-            if pts > pts_allowed:
-                wins += 1
+            n = len(games)
+            return {
+                "avg_pts": total_pts / n,
+                "avg_pts_allowed": total_pts_allowed / n,
+                "avg_off_rtg": total_pts / n,
+                "avg_def_rtg": total_pts_allowed / n,
+                "win_rate": wins / n,
+            }
 
-        avg_pts = total_pts / n
-        avg_pts_allowed = total_pts_allowed / n
-        avg_off_rtg = avg_pts
-        avg_def_rtg = avg_pts_allowed
-        win_rate = wins / n
+        stats = await _aggregate(season)
+        if stats is not None:
+            return stats
 
-        return {
-            "avg_pts": avg_pts,
-            "avg_pts_allowed": avg_pts_allowed,
-            "avg_off_rtg": avg_off_rtg,
-            "avg_def_rtg": avg_def_rtg,
-            "win_rate": win_rate,
-        }
+        prev = previous_season(season)
+        if prev:
+            return await _aggregate(prev)
+        return None
 
     @staticmethod
     def _default_result() -> dict[str, float]:

@@ -1,6 +1,7 @@
 """Injury schemas with confirmation workflow support."""
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -9,7 +10,7 @@ class InjuryBase(BaseModel):
     """Base injury fields."""
 
     player_id: int
-    injury_status: str = Field(..., description="Out / Doubtful / Questionable / Probable / Available")
+    injury_status: Literal['Out','Doubtful','Questionable','Probable','Available']
     injury_type: str | None = None
     description: str | None = None
     expected_return: datetime | None = None
@@ -18,7 +19,9 @@ class InjuryBase(BaseModel):
 class InjuryCreate(InjuryBase):
     """Manual injury creation request — auto-confirmed with source='manual'."""
 
-    pass
+    game_id: int | None = None
+    team_id: int | None = None
+    published_at: datetime | None = None
 
 
 class InjuryUpdate(BaseModel):
@@ -28,7 +31,7 @@ class InjuryUpdate(BaseModel):
     Updating sets confirmation='modified' (unless it was 'manual').
     """
 
-    injury_status: str | None = None
+    injury_status: Literal['Out','Doubtful','Questionable','Probable','Available'] | None = None
     injury_type: str | None = None
     description: str | None = None
     expected_return: datetime | None = None
@@ -39,6 +42,8 @@ class InjuryResponse(InjuryBase):
     """Injury as returned by the API."""
 
     id: int
+    game_id: int | None = None
+    team_id: int | None = None
     source: str
     confirmation: str
     reported_date: datetime
@@ -64,3 +69,19 @@ class ConfirmAllResponse(BaseModel):
 
     status: str = "ok"
     confirmed_count: int
+
+
+class InjuryReportCreate(BaseModel):
+    game_id: int
+    team_id: int
+    source: str = "manual"
+    published_at: datetime | None = None
+    observed_at: datetime | None = None
+    is_complete: bool = False
+
+
+class InjuryReportResponse(InjuryReportCreate):
+    id: int
+    observed_at: datetime
+
+    model_config = {"from_attributes": True}

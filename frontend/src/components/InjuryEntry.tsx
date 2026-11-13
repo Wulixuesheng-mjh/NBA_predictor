@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { fetchTeamRoster } from "../api/teams";
-import { fetchInjuries, createInjury, deleteInjury } from "../api/injuries";
+import { fetchInjuries, createInjury, deleteInjury, confirmCompleteReport } from "../api/injuries";
 import type { PlayerBrief, PlayerInjury } from "../types";
 
 const STATUS_OPTIONS = ["Out", "Doubtful", "Questionable", "Probable", "Available"];
@@ -17,9 +17,10 @@ interface Props {
   awayTeamId: number | null;
   homeName: string;
   awayName: string;
+  gameId?: number;
 }
 
-function TeamInjuryForm({ teamId, teamName }: { teamId: number; teamName: string }) {
+function TeamInjuryForm({ teamId, teamName, gameId }: { teamId: number; teamName: string; gameId?: number }) {
   const [roster, setRoster] = useState<PlayerBrief[]>([]);
   const [injuries, setInjuries] = useState<PlayerInjury[]>([]);
   const [playerId, setPlayerId] = useState<number>(0);
@@ -28,37 +29,41 @@ function TeamInjuryForm({ teamId, teamName }: { teamId: number; teamName: string
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [completeSaved, setCompleteSaved] = useState(false);
 
   const refresh = useCallback(async () => {
     setError(null);
     const [r, i] = await Promise.all([
       fetchTeamRoster(teamId).catch(() => null),
-      fetchInjuries({ team_id: teamId, is_active: true }).catch(() => ({
+      fetchInjuries({ team_id: teamId, game_id: gameId, is_active: true }).catch(() => ({
         injuries: [] as PlayerInjury[],
         total: 0,
         pending_count: 0,
       })),
     ]);
     setRoster(r?.players ?? []);
-    setInjuries(i.injuries);
-  }, [teamId]);
+    setInjuries(i.injuries.filter(injury => gameId ? injury.game_id === gameId : !injury.game_id));
+  }, [teamId, gameId]);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
   const handleAdd = async () => {
-    if (!playerId) return;
+    if (!playerId || !gameId) return;
     setBusy(true);
     setError(null);
     try {
       await createInjury({
         player_id: playerId,
+        game_id: gameId,
+        team_id: teamId,
         injury_status: status,
         injury_type: injuryType.trim() || null,
         description: description.trim() || null,
       });
       setPlayerId(0);
+      setCompleteSaved(false);
       setInjuryType("");
       setDescription("");
       await refresh();
@@ -72,6 +77,7 @@ function TeamInjuryForm({ teamId, teamName }: { teamId: number; teamName: string
   const handleRemove = async (injuryId: number) => {
     try {
       await deleteInjury(injuryId);
+      setCompleteSaved(false);
       await refresh();
     } catch (e: any) {
       setError(e?.message ?? "移除失败");
@@ -85,6 +91,18 @@ function TeamInjuryForm({ teamId, teamName }: { teamId: number; teamName: string
     <div className="bg-gray-900/40 rounded-lg border border-gray-700/50 p-3">
       <h5 className="text-sm font-medium text-gray-300 mb-3">{teamName}</h5>
 
+      {gameId && <div className="mb-3">
+        <button className="btn-secondary text-xs" disabled={busy || completeSaved} onClick={async () => {
+          setBusy(true);
+          try {
+            const complete = await confirmCompleteReport(gameId, teamId);
+            setCompleteSaved(complete);
+            if (!complete) setError('名单仍有未识别球员或未知状态，暂不能确认为完整报告。');
+          }
+          catch (e: any) { setError(e?.message ?? '保存失败'); }
+          finally { setBusy(false); }
+        }}>{completeSaved ? '本场完整报告已保存' : '确认本场伤病名单完整（含无人伤病）'}</button>
+      </div>}
       {/* Add form */}
       <div className="space-y-2">
         <select
@@ -177,12 +195,12 @@ function TeamInjuryForm({ teamId, teamName }: { teamId: number; teamName: string
   );
 }
 
-export default function InjuryEntry({ homeTeamId, awayTeamId, homeName, awayName }: Props) {
-  if (!homeTeamId || !awayTeamId) {
+export default function InjuryEntry({ homeTeamId, awayTeamId, homeName, awayName, gameId }: Props) {
+  if (!homeTeamId || !awayTeamId || !gameId) {
     return (
       <div className="card">
         <h2 className="card-header">伤病录入</h2>
-        <p className="text-xs text-gray-600">请先选择主队和客队，再录入两队伤病。</p>
+        <p className="text-xs text-gray-400">请先选择主客队和具体赛程，再录入本场伤病；假设预览不会保存赛前记录。</p>
       </div>
     );
   }
@@ -191,11 +209,12 @@ export default function InjuryEntry({ homeTeamId, awayTeamId, homeName, awayName
     <div className="card">
       <h2 className="card-header">
         伤病录入
-        <span className="text-xs text-gray-500 font-normal ml-2">手动录入 · 参与预测</span>
+        <span className="text-xs text-gray-500 font-normal ml-2">{gameId ? '已绑定本场比赛 · 修改将保存新快照' : '未绑定比赛 · 用于假设预览'}</span>
       </h2>
+      {gameId && <p className="text-xs text-gray-500 mb-3">下方管理本场手动调整；预测还会读取可用的官方报告。使用 Available 标记确认复出，修改后需重新确认名单。</p>}
       <div className="grid grid-cols-2 gap-4">
-        <TeamInjuryForm teamId={homeTeamId} teamName={homeName} />
-        <TeamInjuryForm teamId={awayTeamId} teamName={awayName} />
+        <TeamInjuryForm key={`${homeTeamId}-${gameId}`} teamId={homeTeamId} teamName={homeName} gameId={gameId} />
+        <TeamInjuryForm key={`${awayTeamId}-${gameId}`} teamId={awayTeamId} teamName={awayName} gameId={gameId} />
       </div>
     </div>
   );

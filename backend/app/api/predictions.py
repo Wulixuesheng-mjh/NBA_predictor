@@ -64,11 +64,18 @@ async def create_prediction(
     try:
         result = await PredictionService.generate_prediction(
             db,
+            game_id=body.game_id,
             home_team_id=body.home_team_id,
             away_team_id=body.away_team_id,
+            as_of=body.as_of,
+            prediction_mode=body.mode,
+            persist=body.persist,
             lookback_games=body.lookback_games,
             spread_line=body.spread_line,
+            market_home_handicap=body.market_home_handicap,
             total_line=body.total_line,
+            home_odds=body.home_odds,
+            away_odds=body.away_odds,
         )
         return PredictionResponse(**result)
     except ValueError as e:
@@ -80,6 +87,27 @@ async def create_prediction(
             status_code=500,
             detail=f"Prediction failed: {str(e)}. Ensure models are trained (run scripts/train_models.py).",
         )
+
+
+@router.get('/shadow-status')
+async def shadow_status(db: AsyncSession=Depends(get_db)):
+    import os
+    url=os.getenv('LEGACY_TOTAL_STATUS_URL')
+    if url:
+        import httpx
+        from fastapi import HTTPException
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                response=await client.get(url)
+                response.raise_for_status()
+                return response.json()
+        except (httpx.HTTPError,ValueError) as exc:
+            raise HTTPException(status_code=503,detail='Frozen total observer status unavailable') from exc
+    from app.models.shadow_observation import ShadowObservationRun
+    from app.services.shadow_observation_service import progress
+    runs=(await db.execute(select(ShadowObservationRun).order_by(ShadowObservationRun.id))).scalars().all()
+    return dict(purpose='diagnostic_only',acceptance_run=False,
+                runs=[await progress(db,run) for run in runs])
 
 
 @router.get(

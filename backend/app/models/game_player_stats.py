@@ -31,6 +31,7 @@ class GamePlayerStats(Base):
     fta: Mapped[int] = mapped_column(Integer, default=0)
     plus_minus: Mapped[int | None] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
     game: Mapped["Game"] = relationship("Game", back_populates="player_stats")

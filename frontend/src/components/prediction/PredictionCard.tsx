@@ -8,6 +8,8 @@ interface Props {
   prediction: ModelPredictionOutput;
   recommended: boolean;
   confidence?: ConfidenceOutput | null;
+  /** 用户录入的体彩大小分盘口；没有盘口就不给大/小分建议 */
+  totalLine?: number | null;
 }
 
 const CONFIDENCE_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
@@ -35,7 +37,7 @@ function WinBar({ prob, isHome }: { prob: number; isHome: boolean }) {
   );
 }
 
-export default function PredictionCard({ modelName: _modelName, modelLabel, prediction, recommended, confidence }: Props) {
+export default function PredictionCard({ modelName: _modelName, modelLabel, prediction, recommended, confidence, totalLine }: Props) {
   const winHome = prediction.win_prob_home > 0.5;
   const confStyle = confidence ? CONFIDENCE_STYLES[confidence.level] ?? CONFIDENCE_STYLES.not_recommended : null;
 
@@ -107,10 +109,12 @@ export default function PredictionCard({ modelName: _modelName, modelLabel, pred
               : '—'}
           </div>
           <div className="text-xs text-gray-600 mt-1">
-            {prediction.predicted_total !== null
-              ? prediction.predicted_total > 225
-                ? '推荐大分 ↑'
-                : '推荐小分 ↓'
+            {prediction.predicted_total !== null && totalLine != null
+              ? prediction.predicted_total > totalLine
+                ? `大分 ↑ (盘口 ${totalLine})`
+                : `小分 ↓ (盘口 ${totalLine})`
+              : prediction.predicted_total !== null
+              ? "未录入大小分盘口"
               : ''}
           </div>
         </div>

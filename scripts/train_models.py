@@ -17,10 +17,12 @@ Requirements:
 import argparse
 import asyncio
 import json
+import logging
 import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from dataclasses import asdict
 
 # Add project root AND backend directory to Python path.
 # Both are needed: /app for 'ml' package, /app/backend for 'app' ORM models.
@@ -97,6 +99,10 @@ async def main(
     cover_over: bool = False,
     cover_over_initial: int = 1000,
     cover_over_retrain: int = 250,
+    use_cache: bool = True,
+    clear_cache: bool = False,
+    activate: bool = False,
+    feature_cache_key: str | None = None,
 ) -> None:
     """Run the full training pipeline."""
     print("=" * 60)
@@ -106,7 +112,15 @@ async def main(
     print(f"  Lookback:     {lookback} games")
     print(f"  Backtest:     {'yes' if run_backtest else 'no'}")
     print(f"  Feature dim:  {FEATURE_DIM}")
+    print(f"  Feature cache:{' off' if not use_cache else (' cleared' if clear_cache else ' on')}")
     print("=" * 60)
+
+    # 0a. Optional cache maintenance
+    if clear_cache:
+        from ml.src.features.dataset_cache import DatasetCache
+
+        removed = DatasetCache().clear()
+        print(f"  Cleared {removed} cached feature dataset(s)")
 
     # 0. Optional hyperparameter tuning
     if tune:
@@ -143,6 +157,9 @@ async def main(
         lookback_games=lookback,
         version=version,
         calibrate=True,
+        use_cache=use_cache,
+        activate=activate,
+        feature_cache_key=feature_cache_key,
     )
 
     print(f"\n  Version: {result.version}")
@@ -178,6 +195,12 @@ async def main(
         print(f"    Total bias:   {total_b:+.2f}")
 
     print(f"\n  Models saved to: {result.model_paths}")
+    print(f"  Release status: {result.release_status}")
+    reports_dir = Path("/app/ml/saved_models/training_reports") if Path("/app").exists() else Path("ml/saved_models/training_reports")
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    report_path = reports_dir / f"{result.version}.json"
+    report_path.write_text(json.dumps(asdict(result), indent=2, default=str), encoding="utf-8")
+    print(f"  Training report: {report_path}")
 
     # 2. Backtest
     if run_backtest:
@@ -295,6 +318,7 @@ async def main(
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     parser = argparse.ArgumentParser(description="Train NBA prediction models")
     parser.add_argument(
         "--seasons", type=str, nargs="+", default=None,
@@ -348,6 +372,19 @@ if __name__ == "__main__":
         "--cover-over-retrain", type=int, default=250,
         help="Retrain cover/over every N games (default: 250)",
     )
+    parser.add_argument(
+        "--no-cache", action="store_true",
+        help="Ignore the feature dataset cache (always rebuild, and don't write it)",
+    )
+    parser.add_argument(
+        "--clear-cache", action="store_true",
+        help="Delete cached feature datasets before training",
+    )
+    parser.add_argument(
+        "--activate", action="store_true",
+        help="Atomically activate this bundle; omit for a shadow candidate",
+    )
+    parser.add_argument("--feature-cache-key", help="Use an immutable, already built feature cache")
     args = parser.parse_args()
 
     run_backtest = not args.no_backtest
@@ -366,4 +403,8 @@ if __name__ == "__main__":
         cover_over=args.cover_over,
         cover_over_initial=args.cover_over_initial,
         cover_over_retrain=args.cover_over_retrain,
+        use_cache=not args.no_cache,
+        clear_cache=args.clear_cache,
+        activate=args.activate,
+        feature_cache_key=args.feature_cache_key,
     ))

@@ -6,7 +6,7 @@
 
 import { useState } from "react";
 import { useAdminStats } from "../hooks/useAdminStats";
-import { triggerCollection, triggerModelTraining } from "../api/admin";
+import { triggerCollection, triggerModelTraining, syncRosters } from "../api/admin";
 
 export default function AdminPage() {
   const { stats, loading: statsLoading, refresh: refreshStats } = useAdminStats();
@@ -14,6 +14,8 @@ export default function AdminPage() {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem("admin_api_key") || "");
   const [showKeyInput, setShowKeyInput] = useState(false);
   const [collecting, setCollecting] = useState(false);
+  const [syncingRosters, setSyncingRosters] = useState(false);
+  const [rosterMsg, setRosterMsg] = useState("");
   const [training, setTraining] = useState(false);
   const [trainingMsg, setTrainingMsg] = useState("");
 
@@ -37,6 +39,20 @@ export default function AdminPage() {
       alert(`采集${result.status === "triggered" ? "完成" : "失败"}: ${result.message ?? ""}`);
     } finally {
       setCollecting(false);
+    }
+  };
+
+  const handleSyncRosters = async () => {
+    setSyncingRosters(true);
+    setRosterMsg("正在从 nba_api 拉取最新阵容...");
+    try {
+      const result = await syncRosters();
+      setRosterMsg(`阵容已更新：写入 ${result.players_synced} 名球员`);
+      await refreshStats();
+    } catch (e: any) {
+      setRosterMsg(`阵容更新失败: ${e.message}`);
+    } finally {
+      setSyncingRosters(false);
     }
   };
 
@@ -138,6 +154,9 @@ export default function AdminPage() {
           <button className="btn-secondary" onClick={handleCollect} disabled={collecting}>
             {collecting ? "采集中..." : "手动触发采集"}
           </button>
+          <button className="btn-secondary" onClick={handleSyncRosters} disabled={syncingRosters}>
+            {syncingRosters ? "更新阵容中..." : "更新本赛季阵容"}
+          </button>
           <button
             className="bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-6 rounded-lg
                        transition-colors duration-200 disabled:opacity-50 text-sm"
@@ -149,6 +168,9 @@ export default function AdminPage() {
         </div>
         {trainingMsg && (
           <p className="mt-2 text-sm text-gray-400">{trainingMsg}</p>
+        )}
+        {rosterMsg && (
+          <p className="mt-2 text-sm text-gray-400">{rosterMsg}</p>
         )}
       </div>
     </div>

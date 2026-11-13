@@ -43,7 +43,8 @@ RUN pip install --no-cache-dir --no-compile --default-timeout=300 --retries 5 \
     "sqlalchemy[asyncio]" \
     pydantic-settings \
     kagglehub \
-    onnxscript
+    onnxscript \
+    onnxruntime
 
 # ── Clean up venv + strip .so debug symbols ─────────────
 # ALL in one RUN so Docker doesn't store intermediate layers

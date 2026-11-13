@@ -31,9 +31,12 @@ OREB_RATE = 0.25
 REGULATION_MINUTES = 48.0
 
 
-def team_possessions(fga: float, fta: float, tov: float, reb: float) -> float:
+def team_possessions(
+    fga: float, fta: float, tov: float, reb: float, oreb: float | None = None
+) -> float:
     """Estimated possessions for one team from its box score."""
-    return fga + 0.44 * fta - OREB_RATE * reb + tov
+    offensive_rebounds = OREB_RATE * reb if oreb is None else oreb
+    return fga + 0.44 * fta - offensive_rebounds + tov
 
 
 def ts_pct(pts: float, fga: float, fta: float) -> float:
@@ -83,8 +86,8 @@ def derive_game_advanced_stats(
     if home.fga <= 0 or away.fga <= 0:
         return _null_adv(), _null_adv()
 
-    h_poss = team_possessions(home.fga, home.fta, home.tov, home.reb)
-    a_poss = team_possessions(away.fga, away.fta, away.tov, away.reb)
+    h_poss = team_possessions(home.fga, home.fta, home.tov, home.reb, getattr(home, "oreb", None))
+    a_poss = team_possessions(away.fga, away.fta, away.tov, away.reb, getattr(away, "oreb", None))
     avg_poss = (h_poss + a_poss) / 2.0
     pace = 48.0 * avg_poss / game_minutes if game_minutes > 0 else 100.0
 

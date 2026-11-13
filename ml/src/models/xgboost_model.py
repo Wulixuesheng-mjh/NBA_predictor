@@ -22,6 +22,7 @@ import numpy as np
 import xgboost as xgb
 
 from ml.src.config import ml_settings
+from ml.src.training_policy import normalize_fit_weights
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +90,9 @@ class XGBoostTrainer:
         self._model_win: xgb.XGBClassifier | None = None
         self._model_spread: xgb.XGBRegressor | None = None
         self._model_total: xgb.XGBRegressor | None = None
+        self._model_total_direct: xgb.XGBRegressor | None = None
+        self._total_mode: str = "direct"
+        self._total_baseline_feature_index: int | None = None
         self._model_cover: xgb.XGBClassifier | None = None
         self._model_over: xgb.XGBClassifier | None = None
 
@@ -147,6 +151,14 @@ class XGBoostTrainer:
         y_spread_val: np.ndarray | None = None,
         y_total_val: np.ndarray | None = None,
         feature_names: list[str] | None = None,
+        sample_weight: np.ndarray | None = None,
+        sample_weight_win: np.ndarray | None = None,
+        sample_weight_spread: np.ndarray | None = None,
+        sample_weight_total: np.ndarray | None = None,
+        total_baseline_train: np.ndarray | None = None,
+        total_baseline_val: np.ndarray | None = None,
+        total_baseline_feature_index: int | None = None,
+        total_strategy: str = "auto",
     ) -> TrainingMetrics:
         """Train all three XGBoost models.
 
@@ -163,7 +175,15 @@ class XGBoostTrainer:
             TrainingMetrics with validation performance.
         """
         import time
+        if total_strategy not in ("auto", "direct", "residual"):
+            raise ValueError("Unknown total strategy")
         start_time = time.time()
+        win_weight = sample_weight_win if sample_weight_win is not None else sample_weight
+        spread_weight = sample_weight_spread if sample_weight_spread is not None else sample_weight
+        total_weight = sample_weight_total if sample_weight_total is not None else sample_weight
+        win_weight = normalize_fit_weights(win_weight, len(X_train))
+        spread_weight = normalize_fit_weights(spread_weight, len(X_train))
+        total_weight = normalize_fit_weights(total_weight, len(X_train))
 
         n_train = len(X_train)
         n_val = len(X_val) if X_val is not None else 0
@@ -190,7 +210,12 @@ class XGBoostTrainer:
 
         self._model_win.fit(
             X_train, y_win_train,
+            sample_weight=win_weight,
             eval_set=eval_set_win,
+            sample_weight_eval_set=(
+                [win_weight] + ([np.ones(len(X_val))] if X_val is not None else [])
+                if win_weight is not None else None
+            ),
             verbose=False,
         )
 
@@ -209,7 +234,12 @@ class XGBoostTrainer:
 
         self._model_spread.fit(
             X_train, y_spread_train,
+            sample_weight=spread_weight,
             eval_set=eval_set_spread,
+            sample_weight_eval_set=(
+                [spread_weight] + ([np.ones(len(X_val))] if X_val is not None else [])
+                if spread_weight is not None else None
+            ),
             verbose=False,
         )
 
@@ -228,9 +258,67 @@ class XGBoostTrainer:
 
         self._model_total.fit(
             X_train, y_total_train,
+            sample_weight=total_weight,
             eval_set=eval_set_total,
+            sample_weight_eval_set=(
+                [total_weight] + ([np.ones(len(X_val))] if X_val is not None else [])
+                if total_weight is not None else None
+            ),
             verbose=False,
         )
+        self._model_total_direct = self._model_total
+        self._total_mode = "direct"
+        self._total_baseline_feature_index = total_baseline_feature_index
+
+        # Optional structurally informed candidate: predict only the residual
+        # around the pace/efficiency baseline, then add it back at inference.
+        baseline_train = np.asarray(total_baseline_train) if total_baseline_train is not None else np.array([])
+        baseline_val = np.asarray(total_baseline_val) if total_baseline_val is not None else np.array([])
+        baseline_train_mask = baseline_train > 0
+        baseline_val_mask = baseline_val > 0
+        if (
+            total_strategy != "direct"
+            and
+            total_baseline_feature_index is not None
+            and baseline_train_mask.sum() >= 100
+            and baseline_val_mask.sum() >= 50
+        ):
+            residual_model = xgb.XGBRegressor(
+                objective="reg:squarederror",
+                eval_metric="rmse",
+                early_stopping_rounds=ml_settings.xgboost_early_stopping_rounds,
+                **common_params,
+            )
+            residual_train = y_total_train[baseline_train_mask] - baseline_train[baseline_train_mask]
+            residual_val = y_total_val[baseline_val_mask] - baseline_val[baseline_val_mask]
+            residual_model.fit(
+                X_train[baseline_train_mask],
+                residual_train,
+                sample_weight=normalize_fit_weights(total_weight[baseline_train_mask], int(baseline_train_mask.sum())) if total_weight is not None else None,
+                eval_set=[
+                    (X_train[baseline_train_mask], residual_train),
+                    (X_val[baseline_val_mask], residual_val),
+                ],
+                sample_weight_eval_set=(
+                    [normalize_fit_weights(total_weight[baseline_train_mask], int(baseline_train_mask.sum())), np.ones(int(baseline_val_mask.sum()))]
+                    if total_weight is not None else None
+                ),
+                verbose=False,
+            )
+            direct_mae = float(np.mean(np.abs(
+                self._model_total.predict(X_val[baseline_val_mask]) - y_total_val[baseline_val_mask]
+            )))
+            residual_mae = float(np.mean(np.abs(
+                residual_model.predict(X_val[baseline_val_mask])
+                + baseline_val[baseline_val_mask] - y_total_val[baseline_val_mask]
+            )))
+            logger.info("Total candidates: direct MAE=%.3f residual MAE=%.3f", direct_mae, residual_mae)
+            if total_strategy == "residual" or residual_mae < direct_mae:
+                self._model_total = residual_model
+                self._total_mode = "residual"
+
+        if total_strategy == "residual" and self._total_mode != "residual":
+            raise ValueError("Forced residual comparison requires sufficient valid train/validation baselines")
 
         training_time = time.time() - start_time
 
@@ -271,6 +359,91 @@ class XGBoostTrainer:
         )
 
         return metrics
+
+    def refit_full(
+        self,
+        X: np.ndarray,
+        y_win: np.ndarray,
+        y_spread: np.ndarray,
+        y_total: np.ndarray,
+        sample_weight: np.ndarray | None = None,
+        sample_weight_win: np.ndarray | None = None,
+        sample_weight_spread: np.ndarray | None = None,
+        sample_weight_total: np.ndarray | None = None,
+        total_baseline: np.ndarray | None = None,
+    ) -> None:
+        """Refit the three models on ALL available data.
+
+        The train/val split exists to pick the stopping point; the shipped
+        model should then be fitted on everything (including the most recent
+        seasons) so production predictions are not stuck at the 85% cutoff.
+
+        Uses each model's ``best_iteration`` from the early-stopped run and
+        disables early stopping (there is no held-out set left).
+        """
+        common = self._common_params()
+        win_weight = sample_weight_win if sample_weight_win is not None else sample_weight
+        spread_weight = sample_weight_spread if sample_weight_spread is not None else sample_weight
+        total_weight = sample_weight_total if sample_weight_total is not None else sample_weight
+        win_weight = normalize_fit_weights(win_weight, len(X))
+        spread_weight = normalize_fit_weights(spread_weight, len(X))
+        total_weight = normalize_fit_weights(total_weight, len(X))
+
+        def _n_estimators(model, default: int) -> int:
+            best = getattr(model, "best_iteration", None)
+            if best is not None:
+                return int(best) + 1
+            return default
+
+        params = {k: v for k, v in common.items() if k != "n_estimators"}
+        n_win = _n_estimators(self._model_win, common["n_estimators"])
+        n_spread = _n_estimators(self._model_spread, common["n_estimators"])
+        n_total = _n_estimators(self._model_total, common["n_estimators"])
+        n_total_direct = _n_estimators(self._model_total_direct, common["n_estimators"])
+
+        logger.info(
+            "Refitting on all %d samples (n_estimators: win=%d, spread=%d, total=%d)",
+            len(X), n_win, n_spread, n_total,
+        )
+
+        self._model_win = xgb.XGBClassifier(
+            objective="binary:logistic",
+            eval_metric="logloss",
+            n_estimators=n_win,
+            **params,
+        )
+        self._model_win.fit(X, y_win, sample_weight=win_weight, verbose=False)
+
+        self._model_spread = xgb.XGBRegressor(
+            objective="reg:squarederror",
+            eval_metric="rmse",
+            n_estimators=n_spread,
+            **params,
+        )
+        self._model_spread.fit(X, y_spread, sample_weight=spread_weight, verbose=False)
+
+        self._model_total_direct = xgb.XGBRegressor(
+            objective="reg:squarederror",
+            eval_metric="rmse",
+            n_estimators=n_total_direct,
+            **params,
+        )
+        self._model_total_direct.fit(X, y_total, sample_weight=total_weight, verbose=False)
+        if self._total_mode == "residual":
+            if total_baseline is None or np.sum(np.asarray(total_baseline) > 0) < 100:
+                raise ValueError("Residual total refit requires at least 100 positive baselines")
+            baseline = np.asarray(total_baseline)
+            mask = baseline > 0
+            self._model_total = xgb.XGBRegressor(
+                objective="reg:squarederror", eval_metric="rmse", n_estimators=n_total, **params
+            )
+            self._model_total.fit(
+                X[mask], y_total[mask] - baseline[mask],
+                sample_weight=normalize_fit_weights(total_weight[mask], int(mask.sum())) if total_weight is not None else None,
+                verbose=False,
+            )
+        else:
+            self._model_total = self._model_total_direct
 
     def train_cover_over(
         self,
@@ -378,7 +551,7 @@ class XGBoostTrainer:
 
         win_probs = self._model_win.predict_proba(X)  # shape: (n, 2) -> [away, home]
         spreads = self._model_spread.predict(X)
-        totals = self._model_total.predict(X)
+        totals = self._predict_totals(X)
 
         # Confidence estimates from prediction margins
         # For classifier: how far from 0.5
@@ -400,6 +573,20 @@ class XGBoostTrainer:
             )
 
         return results[0] if single else results
+
+    def _predict_totals(self, X: np.ndarray) -> np.ndarray:
+        raw = self._model_total.predict(X)
+        if self._total_mode != "residual":
+            return raw
+        index = self._total_baseline_feature_index
+        if index is None or index >= X.shape[1]:
+            raise RuntimeError("Residual total model is missing its baseline feature index")
+        baseline = np.asarray(X[:, index], dtype=np.float64)
+        residual_total = raw + baseline
+        if self._model_total_direct is None:
+            return residual_total
+        direct = self._model_total_direct.predict(X)
+        return np.where(baseline > 0, residual_total, direct)
 
     def predict_cover_over(self, X: np.ndarray) -> CoverOverPrediction:
         """Run cover/over inference (requires train_cover_over() or load())."""
@@ -452,7 +639,7 @@ class XGBoostTrainer:
         spread_rmse = float(np.sqrt(np.mean((spread_preds - y_spread_val) ** 2)))
 
         # Total metrics
-        total_preds = self._model_total.predict(X_val)
+        total_preds = self._predict_totals(X_val)
         total_mae = float(np.mean(np.abs(total_preds - y_total_val)))
         total_rmse = float(np.sqrt(np.mean((total_preds - y_total_val) ** 2)))
 
@@ -535,6 +722,8 @@ class XGBoostTrainer:
             self._model_spread.save_model(os.path.join(model_dir, "spread_model.json"))
         if self._model_total:
             self._model_total.save_model(os.path.join(model_dir, "total_model.json"))
+        if self._model_total_direct is not None:
+            self._model_total_direct.save_model(os.path.join(model_dir, "total_direct_model.json"))
         if self._model_cover:
             self._model_cover.save_model(os.path.join(model_dir, "cover_model.json"))
         if self._model_over:
@@ -544,20 +733,28 @@ class XGBoostTrainer:
         # e.g. train_cover_over_pipeline saving into an existing version dir),
         # preserve the existing feature_dim instead of clobbering it to 0.
         feature_dim = self._model_win.n_features_in_ if self._model_win else 0
+        existing_metadata: dict = {}
         if self._model_win is None:
             meta_path = os.path.join(model_dir, "metadata.json")
             if os.path.exists(meta_path):
                 try:
                     with open(meta_path) as f:
-                        feature_dim = json.load(f).get("feature_dim", 0)
+                        existing_metadata = json.load(f)
+                        feature_dim = existing_metadata.get("feature_dim", 0)
                 except Exception:
                     feature_dim = 0
 
         metadata = {
+            **existing_metadata,
             "version": ver,
             "created_at": datetime.now().isoformat(),
             "feature_dim": feature_dim,
             "cover_over_feature_dim": self._model_cover.n_features_in_ if self._model_cover else None,
+            "total_mode": self._total_mode if self._model_win else existing_metadata.get("total_mode", "direct"),
+            "total_baseline_feature_index": (
+                self._total_baseline_feature_index
+                if self._model_win else existing_metadata.get("total_baseline_feature_index")
+            ),
         }
         with open(os.path.join(model_dir, "metadata.json"), "w") as f:
             json.dump(metadata, f, indent=2)
@@ -584,6 +781,17 @@ class XGBoostTrainer:
 
         self._model_total = xgb.XGBRegressor()
         self._model_total.load_model(total_path)
+        direct_path = os.path.join(model_dir, "total_direct_model.json")
+        self._model_total_direct = xgb.XGBRegressor()
+        self._model_total_direct.load_model(direct_path if os.path.exists(direct_path) else total_path)
+        try:
+            with open(os.path.join(model_dir, "metadata.json"), encoding="utf-8") as handle:
+                metadata = json.load(handle)
+            self._total_mode = metadata.get("total_mode", "direct")
+            self._total_baseline_feature_index = metadata.get("total_baseline_feature_index")
+        except (OSError, ValueError):
+            self._total_mode = "direct"
+            self._total_baseline_feature_index = None
 
         # Cover/over classifiers are optional (older versions lack them).
         if os.path.exists(cover_path) and os.path.exists(over_path):

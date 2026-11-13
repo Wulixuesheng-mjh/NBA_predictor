@@ -38,7 +38,7 @@ function FeatureList({ features }: { features: CoverOverExplanationFeature[] | n
           </span>
           <span className="text-gray-300 flex-1">{f.display_name}</span>
           <span className="font-mono text-gray-500">
-            {f.contribution === "positive" ? "+" : ""}{(f.shap_value * 100).toFixed(1)}%
+            {f.contribution === "positive" ? "+" : ""}{f.shap_value.toFixed(3)} log-odds
           </span>
         </div>
       ))}
@@ -66,22 +66,25 @@ export default function CoverOverSection({ coverOver }: Props) {
             · 大小分 {coverOver.total_line ?? "—"}
           </p>
         </div>
-        <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-0.5 rounded">XGBoost 二分类</span>
+        <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-0.5 rounded">
+          {coverOver.calibrated ? `样本外残差 · n=${coverOver.residual_samples}` : "未校验分布"}
+        </span>
       </div>
 
       <div className="p-5 grid grid-cols-2 gap-6">
         {/* 让分胜负 */}
         <div>
-          <div className="text-xs text-gray-500 mb-2">让分胜负（主队让分胜 vs 客队让分胜）</div>
+          <div className="text-xs text-gray-500 mb-2">让分胜负（主队赢盘 vs 客队赢盘）</div>
           <div className="mb-2">
             <span className={`text-lg font-bold ${coverHome ? "text-emerald-400" : "text-red-400"}`}>
               推荐: {coverOver.cover_direction_cn}
             </span>
           </div>
-          <DirectionBar prob={coverOver.cover_prob_home} label="主队让分胜" active={coverHome} />
+          <DirectionBar prob={coverOver.cover_prob_home} label="主队赢盘" active={coverHome} />
           <div className="mt-1">
-            <DirectionBar prob={coverOver.cover_prob_away} label="客队让分胜" active={!coverHome} />
+            <DirectionBar prob={coverOver.cover_prob_away} label="客队赢盘" active={!coverHome} />
           </div>
+          {coverOver.cover_push_prob > 0 && <p className="text-xs text-gray-500 mt-1">走盘 {(coverOver.cover_push_prob * 100).toFixed(1)}%</p>}
         </div>
 
         {/* 大小分 */}
@@ -96,6 +99,7 @@ export default function CoverOverSection({ coverOver }: Props) {
           <div className="mt-1">
             <DirectionBar prob={coverOver.under_prob} label="小分" active={!over} />
           </div>
+          {coverOver.total_push_prob > 0 && <p className="text-xs text-gray-500 mt-1">走盘 {(coverOver.total_push_prob * 100).toFixed(1)}%</p>}
         </div>
       </div>
 
@@ -125,7 +129,9 @@ export default function CoverOverSection({ coverOver }: Props) {
 
       <div className="px-5 py-2 bg-gray-900/40 border-t border-gray-700/50">
         <p className="text-xs text-gray-600">
-          ⚠️ 盘口二分类为实验性功能，walk-forward 回测准确率约 50%（未显著超过 52.4% 盈亏平衡线），仅供研究参考，不构成投注建议。
+          {coverOver.calibrated
+            ? "概率来自最近样本外残差分布，会随输入盘口单调变化。"
+            : "当前样本外残差不足 200 条，概率使用未校验的正态近似；达到门槛后自动切换。"}
         </p>
       </div>
     </div>

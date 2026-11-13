@@ -76,6 +76,8 @@ class LineupFeatures:
                 .where(
                     and_(
                         Game.status == "Final",
+                        Game.game_type.in_(("regular", "play_in", "playoffs")),
+                        Game.player_stats_complete.is_(True),
                         Game.game_date < before_date,
                         (Game.home_team_id == team_id)
                         | (Game.away_team_id == team_id),
@@ -95,19 +97,24 @@ class LineupFeatures:
             game_lineups: list[set[int]] = []
             for game_id, _ in games:
                 # Top 5 players by minutes for this game
-                stats_query = (
-                    select(GamePlayerStats.player_id)
-                    .where(GamePlayerStats.game_id == game_id)
-                    .order_by(
-                        func.coalesce(
-                            func.nullif(GamePlayerStats.minutes, ""),
-                            "0:00",
-                        ).desc()
+                stats_query = select(
+                    GamePlayerStats.player_id,
+                    GamePlayerStats.minutes,
+                ).where(
+                    and_(
+                        GamePlayerStats.game_id == game_id,
+                        GamePlayerStats.team_id == team_id,
                     )
-                    .limit(5)
                 )
                 stats_result = await sess.execute(stats_query)
-                top5 = {row[0] for row in stats_result.all()}
+                from ml.src.features.player_features import _parse_minutes
+
+                ranked = sorted(
+                    stats_result.all(),
+                    key=lambda row: _parse_minutes(row.minutes) or 0.0,
+                    reverse=True,
+                )
+                top5 = {row.player_id for row in ranked[:5]}
                 if len(top5) >= 3:  # Need at least 3 players to be meaningful
                     game_lineups.append(top5)
 

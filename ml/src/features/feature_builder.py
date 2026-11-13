@@ -9,14 +9,17 @@ This is the main entry point for feature computation. It:
 """
 
 import logging
+from bisect import bisect_left
+from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 
 import numpy as np
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, or_, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ml.src.database import async_session_factory
+from ml.src.features.dataset_cache import DatasetCache
 from ml.src.features.team_features import TeamFeatures, TEAM_FEATURE_NAMES
 from ml.src.features.player_features import PlayerFeatures, PLAYER_FEATURE_NAMES
 from ml.src.features.player_form_features import PlayerFormFeatures, PLAYER_FORM_FEATURE_NAMES
@@ -28,16 +31,24 @@ from ml.src.features.bench_features import BenchFeatures, BENCH_FEATURE_NAMES
 from ml.src.features.lineup_features import LineupFeatures, LINEUP_FEATURE_NAMES
 from ml.src.features.opponent_adjusted_features import OpponentAdjustedFeatures, OPPONENT_ADJUSTED_FEATURE_NAMES
 from ml.src.features.roster_continuity_features import RosterContinuityFeatures, ROSTER_CONTINUITY_FEATURE_NAMES
+from ml.src.features.season_prior_features import SeasonPriorFeatures, SEASON_PRIOR_FEATURE_NAMES
+from ml.src.features.injury_net_features import InjuryNetFeatures, INJURY_NET_FEATURE_NAMES
 
 logger = logging.getLogger(__name__)
 
 # ── Complete feature name list in fixed order ──
 
+TEAM_FEATURE_EXTENSION_NAMES = ["avg_fg3a_rate", "season_games_played", "advanced_stats_coverage"]
+ROSTER_FEATURE_EXTENSION_NAMES = ["roster_data_missing"]
+TOTAL_BASELINE_FEATURE_NAMES = ["shrunk_expected_total"]
+BASE_TEAM_FEATURE_NAMES = [name for name in TEAM_FEATURE_NAMES if name not in TEAM_FEATURE_EXTENSION_NAMES]
+BASE_ROSTER_FEATURE_NAMES = [name for name in ROSTER_CONTINUITY_FEATURE_NAMES if name not in ROSTER_FEATURE_EXTENSION_NAMES]
+
 FEATURE_NAMES = []
 # Team features: home_* + away_*
-for name in TEAM_FEATURE_NAMES:
+for name in BASE_TEAM_FEATURE_NAMES:
     FEATURE_NAMES.append(f"home_{name}")
-for name in TEAM_FEATURE_NAMES:
+for name in BASE_TEAM_FEATURE_NAMES:
     FEATURE_NAMES.append(f"away_{name}")
 # Player/injury features: home_* + away_*
 for name in PLAYER_FEATURE_NAMES:
@@ -77,9 +88,28 @@ for name in OPPONENT_ADJUSTED_FEATURE_NAMES:
 for name in OPPONENT_ADJUSTED_FEATURE_NAMES:
     FEATURE_NAMES.append(f"away_{name}")
 # Roster continuity features: home/away prefix
-for name in ROSTER_CONTINUITY_FEATURE_NAMES:
+for name in BASE_ROSTER_FEATURE_NAMES:
     FEATURE_NAMES.append(f"home_{name}")
-for name in ROSTER_CONTINUITY_FEATURE_NAMES:
+for name in BASE_ROSTER_FEATURE_NAMES:
+    FEATURE_NAMES.append(f"away_{name}")
+# The historical 166-feature schema remains an exact prefix during the rolling
+# deployment; all v6 additions are appended after it.
+for name in TEAM_FEATURE_EXTENSION_NAMES:
+    FEATURE_NAMES.append(f"home_{name}")
+for name in TEAM_FEATURE_EXTENSION_NAMES:
+    FEATURE_NAMES.append(f"away_{name}")
+for name in ROSTER_FEATURE_EXTENSION_NAMES:
+    FEATURE_NAMES.append(f"home_{name}")
+for name in ROSTER_FEATURE_EXTENSION_NAMES:
+    FEATURE_NAMES.append(f"away_{name}")
+for name in SEASON_PRIOR_FEATURE_NAMES:
+    FEATURE_NAMES.append(f"home_{name}")
+for name in SEASON_PRIOR_FEATURE_NAMES:
+    FEATURE_NAMES.append(f"away_{name}")
+FEATURE_NAMES.extend(TOTAL_BASELINE_FEATURE_NAMES)
+for name in INJURY_NET_FEATURE_NAMES:
+    FEATURE_NAMES.append(f"home_{name}")
+for name in INJURY_NET_FEATURE_NAMES:
     FEATURE_NAMES.append(f"away_{name}")
 
 FEATURE_DIM = len(FEATURE_NAMES)
@@ -120,6 +150,43 @@ for _n in OPPONENT_ADJUSTED_FEATURE_NAMES:
     COVER_OVER_FEATURE_NAMES.append(f"away_{_n}")
 
 COVER_OVER_FEATURE_DIM = len(COVER_OVER_FEATURE_NAMES)
+
+# ── Static feature caps ──────────────────────────────────────────────────
+# Hand-set rather than data-derived so training and inference always agree
+# without shipping percentile tables next to every model.
+#   * rest_days / days_since_* — the off-season gap (up to 295 days) is not
+#     "rest"; this was the single biggest MLP-destabilising outlier.
+#   * *_ratio — ratio features explode when the denominator is near zero
+#     (starters/bench scoring ratio reached 392 while its p99 was 11).
+#   * *_pct — shooting percentages live in 0-1.
+REST_DAYS_CAP = 14.0
+RATIO_CAP = 50.0
+PCT_CAP = 1.0
+
+
+def feature_bounds(name: str) -> tuple[float, float]:
+    """(lower, upper) hard bounds for one feature name."""
+    if "rest_days" in name:
+        if name.endswith("_diff"):
+            return (-REST_DAYS_CAP, REST_DAYS_CAP)
+        return (0.0, REST_DAYS_CAP)
+    if "days_since" in name:
+        return (0.0, REST_DAYS_CAP)
+    if name.endswith("_ratio"):
+        return (-RATIO_CAP, RATIO_CAP)
+    if name.endswith("_pct"):
+        return (-PCT_CAP, PCT_CAP)
+    return (-1e6, 1e6)
+
+
+def _bounds_arrays(names: list[str]) -> tuple[np.ndarray, np.ndarray]:
+    lower = np.array([feature_bounds(n)[0] for n in names], dtype=np.float64)
+    upper = np.array([feature_bounds(n)[1] for n in names], dtype=np.float64)
+    return lower, upper
+
+
+_FEATURE_LOWER, _FEATURE_UPPER = _bounds_arrays(FEATURE_NAMES)
+_COVER_LOWER, _COVER_UPPER = _bounds_arrays(COVER_OVER_FEATURE_NAMES)
 
 # ── Chinese display name mapping for SHAP explanations ──
 
@@ -266,6 +333,7 @@ class TrainingDataset:
     y_spread: np.ndarray  # shape: (n_samples,) — home_score - away_score
     y_total: np.ndarray  # shape: (n_samples,) — home_score + away_score
     sample_info: list[dict]  # metadata per sample
+    cache_key: str | None = None
 
 
 @dataclass
@@ -309,6 +377,8 @@ class FeatureBuilder:
         self.lineup_features = LineupFeatures(session_factory)
         self.opponent_features = OpponentAdjustedFeatures(session_factory)
         self.roster_features = RosterContinuityFeatures(session_factory)
+        self.season_prior_features = SeasonPriorFeatures(session_factory)
+        self.injury_net_features = InjuryNetFeatures(session_factory)
 
     async def build_features(
         self,
@@ -319,6 +389,8 @@ class FeatureBuilder:
         session: AsyncSession | None = None,
         opponent_cache: dict[tuple[int, str], dict] | None = None,
         use_historical: bool = False,
+        as_of: datetime | None = None,
+        target_game_id: int | None = None,
     ) -> FeatureVector:
         """Build complete feature vector for a single matchup.
 
@@ -335,13 +407,19 @@ class FeatureBuilder:
             FeatureVector with numpy array and metadata.
         """
         async def _build(sess: AsyncSession) -> FeatureVector:
+            from app.models.game import Game
+
             warnings: list[str] = []
+            target_game = await sess.get(Game, target_game_id) if target_game_id else None
 
             # Normalize game_date to datetime (callers may pass date)
             nonlocal game_date
             from datetime import datetime as _dt
             if not isinstance(game_date, _dt):
                 game_date = _dt.combine(game_date, _dt.min.time())
+            cutoff_date = as_of or game_date
+            if not isinstance(cutoff_date, _dt):
+                cutoff_date = _dt.combine(cutoff_date, _dt.min.time())
 
             # Determine actual lookback for each team (adaptive)
             home_lookback = lookback_games
@@ -349,11 +427,41 @@ class FeatureBuilder:
 
             # 1. Team features
             home_team_f = await self.team_features.compute(
-                home_team_id, game_date, home_lookback, session=sess
+                home_team_id, cutoff_date, home_lookback, session=sess
             )
             away_team_f = await self.team_features.compute(
-                away_team_id, game_date, away_lookback, session=sess
+                away_team_id, cutoff_date, away_lookback, session=sess
             )
+
+            async def _latest_game_quality(team_id: int):
+                return (await sess.execute(
+                    select(
+                        Game.nba_game_id,
+                        Game.team_stats_complete,
+                        Game.player_stats_complete,
+                    )
+                    .where(
+                        Game.status == "Final",
+                        Game.game_type.in_(("regular", "play_in", "playoffs")),
+                        Game.score_complete.is_(True),
+                        Game.game_date < cutoff_date,
+                        or_(Game.home_team_id == team_id, Game.away_team_id == team_id),
+                    )
+                    .order_by(desc(Game.game_date))
+                    .limit(1)
+                )).one_or_none()
+
+            home_latest_quality = await _latest_game_quality(home_team_id)
+            away_latest_quality = await _latest_game_quality(away_team_id)
+            for side, quality in (("Home", home_latest_quality), ("Away", away_latest_quality)):
+                if quality is not None and not quality.team_stats_complete:
+                    warnings.append(
+                        f"{side} latest game {quality.nba_game_id} has incomplete team statistics"
+                    )
+                if quality is not None and not quality.player_stats_complete:
+                    warnings.append(
+                        f"{side} latest game {quality.nba_game_id} has incomplete player statistics"
+                    )
 
             home_games = int(home_team_f.get("games_available", 0))
             away_games = int(away_team_f.get("games_available", 0))
@@ -369,28 +477,31 @@ class FeatureBuilder:
 
             # 2. Player / injury features
             home_injury_f = await self.player_features.compute_injury_impact(
-                home_team_id, game_date, session=sess, use_historical=use_historical
+                home_team_id, cutoff_date, session=sess, use_historical=use_historical,
+                target_game_id=target_game_id,
             )
             away_injury_f = await self.player_features.compute_injury_impact(
-                away_team_id, game_date, session=sess, use_historical=use_historical
+                away_team_id, cutoff_date, session=sess, use_historical=use_historical,
+                target_game_id=target_game_id,
             )
 
             # 2b. Player form features (top scorer form, team depth)
             home_form_f = await self.player_form_features.compute(
-                home_team_id, game_date, lookback_games, session=sess
+                home_team_id, cutoff_date, lookback_games, session=sess
             )
             away_form_f = await self.player_form_features.compute(
-                away_team_id, game_date, lookback_games, session=sess
+                away_team_id, cutoff_date, lookback_games, session=sess
             )
 
             # 3. H2H features
             h2h_f = await self.h2h_features.compute(
-                home_team_id, away_team_id, game_date, session=sess
+                home_team_id, away_team_id, cutoff_date, session=sess
             )
 
             # 4. Context features
             context_f = await self.context_features.compute(
-                home_team_id, away_team_id, game_date, session=sess
+                home_team_id, away_team_id, cutoff_date, session=sess,
+                target_game_day=target_game.source_game_date if target_game else None,
             )
 
             # 5. Matchup interaction features (derived from home/away team stats)
@@ -398,59 +509,91 @@ class FeatureBuilder:
 
             # 6. Position match features
             home_pos_f = await self.position_features.compute(
-                home_team_id, game_date, lookback_games, session=sess
+                home_team_id, cutoff_date, lookback_games, session=sess
             )
             away_pos_f = await self.position_features.compute(
-                away_team_id, game_date, lookback_games, session=sess
+                away_team_id, cutoff_date, lookback_games, session=sess
             )
             pos_diff_f = PositionMatchFeatures.compute_diff(home_pos_f, away_pos_f)
 
             # 7. Bench depth features
             home_bench_f = await self.bench_features.compute(
-                home_team_id, game_date, lookback_games, session=sess
+                home_team_id, cutoff_date, lookback_games, session=sess
             )
             away_bench_f = await self.bench_features.compute(
-                away_team_id, game_date, lookback_games, session=sess
+                away_team_id, cutoff_date, lookback_games, session=sess
             )
 
             # 8. Lineup stability features
             home_lineup_f = await self.lineup_features.compute(
-                home_team_id, game_date, session=sess
+                home_team_id, cutoff_date, session=sess
             )
             away_lineup_f = await self.lineup_features.compute(
-                away_team_id, game_date, session=sess
+                away_team_id, cutoff_date, session=sess
             )
 
             # 9. Opponent-adjusted features (cache speeds up training ~100x)
             home_opp_f = await self.opponent_features.compute(
-                home_team_id, game_date, lookback_games,
+                home_team_id, cutoff_date, lookback_games,
                 session=sess, opponent_cache=opponent_cache,
             )
             away_opp_f = await self.opponent_features.compute(
-                away_team_id, game_date, lookback_games,
+                away_team_id, cutoff_date, lookback_games,
                 session=sess, opponent_cache=opponent_cache,
             )
 
             # 10. Roster continuity features (season-over-season player overlap)
             home_roster_f = await self.roster_features.compute(
-                home_team_id, game_date, session=sess
+                home_team_id, cutoff_date, session=sess
             )
             away_roster_f = await self.roster_features.compute(
-                away_team_id, game_date, session=sess
+                away_team_id, cutoff_date, session=sess
             )
+
+            # 11. Smoothed prior/current-season offense, defense and pace.
+            home_prior_f = await self.season_prior_features.compute(
+                home_team_id, cutoff_date, session=sess
+            )
+            away_prior_f = await self.season_prior_features.compute(
+                away_team_id, cutoff_date, session=sess
+            )
+            prior_pace = (
+                home_prior_f.get("bayes_pace", 0.0)
+                + away_prior_f.get("bayes_pace", 0.0)
+            ) / 2.0
+            shrunk_expected_total = prior_pace * (
+                home_prior_f.get("bayes_off_rtg", 0.0)
+                + away_prior_f.get("bayes_def_rtg", 0.0)
+                + away_prior_f.get("bayes_off_rtg", 0.0)
+                + home_prior_f.get("bayes_def_rtg", 0.0)
+            ) / 200.0
+
+            # 12. Net rotation change after injury-driven minute redistribution.
+            home_net_quality, away_net_quality = {}, {}
+            home_injury_net_f = await self.injury_net_features.compute(
+                home_team_id, cutoff_date, session=sess, use_historical=use_historical,
+                target_game_id=target_game_id, diagnostics=home_net_quality,
+            )
+            away_injury_net_f = await self.injury_net_features.compute(
+                away_team_id, cutoff_date, session=sess, use_historical=use_historical,
+                target_game_id=target_game_id, diagnostics=away_net_quality,
+            )
+            for side, quality in (("Home", home_net_quality), ("Away", away_net_quality)):
+                if quality.get('unavailable_reason'):
+                    warnings.append(f"{side} injury net unavailable: {quality['unavailable_reason']}")
 
             # Assemble ordered feature vector
             raw_features: dict[str, float] = {}
             feature_list: list[float] = []
 
             # Home team features
-            for name in TEAM_FEATURE_NAMES:
+            for name in BASE_TEAM_FEATURE_NAMES:
                 val = home_team_f.get(name, 0.0)
                 raw_features[f"home_{name}"] = val
                 feature_list.append(val)
 
             # Away team features
-            for name in TEAM_FEATURE_NAMES:
+            for name in BASE_TEAM_FEATURE_NAMES:
                 val = away_team_f.get(name, 0.0)
                 raw_features[f"away_{name}"] = val
                 feature_list.append(val)
@@ -552,21 +695,77 @@ class FeatureBuilder:
                 feature_list.append(val)
 
             # Home roster continuity features
-            for name in ROSTER_CONTINUITY_FEATURE_NAMES:
+            for name in BASE_ROSTER_FEATURE_NAMES:
                 val = home_roster_f.get(name, 0.0)
                 raw_features[f"home_{name}"] = val
                 feature_list.append(val)
 
             # Away roster continuity features
-            for name in ROSTER_CONTINUITY_FEATURE_NAMES:
+            for name in BASE_ROSTER_FEATURE_NAMES:
                 val = away_roster_f.get(name, 0.0)
                 raw_features[f"away_{name}"] = val
                 feature_list.append(val)
+
+            for name in TEAM_FEATURE_EXTENSION_NAMES:
+                val = home_team_f.get(name, 0.0)
+                raw_features[f"home_{name}"] = val
+                feature_list.append(val)
+            for name in TEAM_FEATURE_EXTENSION_NAMES:
+                val = away_team_f.get(name, 0.0)
+                raw_features[f"away_{name}"] = val
+                feature_list.append(val)
+            for name in ROSTER_FEATURE_EXTENSION_NAMES:
+                val = home_roster_f.get(name, 0.0)
+                raw_features[f"home_{name}"] = val
+                feature_list.append(val)
+            for name in ROSTER_FEATURE_EXTENSION_NAMES:
+                val = away_roster_f.get(name, 0.0)
+                raw_features[f"away_{name}"] = val
+                feature_list.append(val)
+
+            for name in SEASON_PRIOR_FEATURE_NAMES:
+                val = home_prior_f.get(name, 0.0)
+                raw_features[f"home_{name}"] = val
+                feature_list.append(val)
+
+            for name in SEASON_PRIOR_FEATURE_NAMES:
+                val = away_prior_f.get(name, 0.0)
+                raw_features[f"away_{name}"] = val
+                feature_list.append(val)
+
+            raw_features["shrunk_expected_total"] = shrunk_expected_total
+            feature_list.append(shrunk_expected_total)
+
+            for name in INJURY_NET_FEATURE_NAMES:
+                val = home_injury_net_f.get(name, 0.0)
+                raw_features[f"home_{name}"] = val
+                feature_list.append(val)
+
+            for name in INJURY_NET_FEATURE_NAMES:
+                val = away_injury_net_f.get(name, 0.0)
+                raw_features[f"away_{name}"] = val
+                feature_list.append(val)
+
+            if home_team_f.get("advanced_stats_coverage", 0.0) < 0.8:
+                warnings.append("Home recent advanced statistics are incomplete")
+            if away_team_f.get("advanced_stats_coverage", 0.0) < 0.8:
+                warnings.append("Away recent advanced statistics are incomplete")
+            if home_roster_f.get("roster_data_missing", 0.0) > 0:
+                warnings.append("Home roster continuity is unknown")
+            if away_roster_f.get("roster_data_missing", 0.0) > 0:
+                warnings.append("Away roster continuity is unknown")
+            if home_injury_net_f.get("injury_net_available", 0.0) == 0:
+                warnings.append("Home net injury replacement features unavailable")
+            if away_injury_net_f.get("injury_net_available", 0.0) == 0:
+                warnings.append("Away net injury replacement features unavailable")
 
             features = np.array(feature_list, dtype=np.float64)
 
             # Replace NaN/Inf with 0
             features = np.nan_to_num(features, nan=0.0, posinf=0.0, neginf=0.0)
+
+            # Apply static caps (identical at training and inference time)
+            features = np.clip(features, _FEATURE_LOWER, _FEATURE_UPPER)
 
             return FeatureVector(
                 features=features,
@@ -593,6 +792,7 @@ class FeatureBuilder:
         min_games_before: int = 10,
         session: AsyncSession | None = None,
         use_historical: bool = True,
+        use_cache: bool = True,
     ) -> TrainingDataset:
         """Build a complete training dataset from historical games.
 
@@ -607,13 +807,36 @@ class FeatureBuilder:
             session: Optional existing session.
             use_historical: Read injury features from the historical snapshot
                 table (default True — the live table has no historical variance).
+            use_cache: Reuse a cached `.npz` when the feature schema, build
+                parameters and database fingerprint are unchanged. A new game,
+                corrected score, roster move or injury edit invalidates it.
 
         Returns:
             TrainingDataset with X, y arrays and sample metadata.
         """
         from app.models.game import Game
 
+        cache: DatasetCache | None = None
+        cache_key: str | None = None
+
         async def _build(sess: AsyncSession) -> TrainingDataset:
+            nonlocal cache, cache_key
+
+            # ── Cache lookup (keyed by schema + parameters + DB fingerprint) ──
+            if use_cache:
+                cache = DatasetCache()
+                cache_key = await cache.key(
+                    sess,
+                    feature_names=FEATURE_NAMES,
+                    seasons=seasons,
+                    lookback_games=lookback_games,
+                    min_games_before=min_games_before,
+                    use_historical=use_historical,
+                )
+                cached = cache.load(cache_key, FEATURE_DIM)
+                if cached is not None:
+                    return cached
+
             # ── Precompute opponent season stats (one pass, O(games)) ──
             # Without this cache, build_features() fires ~600K DB queries for
             # opponent stats (N+1 pattern).  With it, the entire lookup is O(1).
@@ -621,24 +844,70 @@ class FeatureBuilder:
             opponent_cache = await OpponentAdjustedFeatures.precompute_opponent_cache(sess)
 
             # Query all completed games
-            query = select(Game).where(Game.status == "Final")
+            query = select(Game).where(
+                Game.status == "Final",
+                Game.score_complete.is_(True),
+                Game.game_type.in_(["regular", "play_in", "playoffs"]),
+            )
             if seasons:
                 query = query.where(Game.season.in_(seasons))
             query = query.order_by(Game.game_date.asc())
 
             result = await sess.execute(query)
             games = result.scalars().all()
+            games = sorted(games, key=lambda g: (
+                g.source_game_date or g.game_date.date(), g.game_date, g.id,
+            ))
 
             logger.info("Building dataset from %d completed games...", len(games))
+
+            # Reject rows with too little complete prior team history before
+            # computing the expensive player/roster feature groups. Counts use
+            # strictly earlier dates, exactly like TeamFeatures' SQL query.
+            prior_dates = defaultdict(list)
+            complete_games = (await sess.execute(
+                select(Game.home_team_id, Game.away_team_id, Game.game_date)
+                .where(
+                    Game.status == "Final", Game.team_stats_complete.is_(True),
+                    Game.game_type.in_(("regular", "play_in", "playoffs")),
+                ).order_by(Game.game_date.asc())
+            )).all()
+            for home_id, away_id, day in complete_games:
+                prior_dates[home_id].append(day)
+                prior_dates[away_id].append(day)
+            games = [g for g in games if all(
+                bisect_left(prior_dates[team_id], g.game_date) >= min_games_before
+                for team_id in (g.home_team_id, g.away_team_id)
+            )]
+            logger.info("%d games have sufficient complete prior team history", len(games))
 
             X_list: list[np.ndarray] = []
             y_win_list: list[float] = []
             y_spread_list: list[float] = []
             y_total_list: list[float] = []
             sample_info: list[dict] = []
+            failures = 0
 
             for i, game in enumerate(games):
                 if game.home_score is None or game.away_score is None:
+                    continue
+
+                # Guard against corrupted rows that would poison the targets:
+                # the Kaggle import produced a couple of 0-0 "Final" games and
+                # one 36-33 exhibition game.
+                game_total = game.home_score + game.away_score
+                if (
+                    game.home_score <= 0
+                    or game.away_score <= 0
+                    or game_total < 120
+                    or game_total > 400
+                ):
+                    logger.debug(
+                        "Skipping implausible final score %s-%s (%s)",
+                        game.home_score,
+                        game.away_score,
+                        game.nba_game_id,
+                    )
                     continue
 
                 try:
@@ -650,9 +919,12 @@ class FeatureBuilder:
                         session=sess,
                         opponent_cache=opponent_cache,
                         use_historical=use_historical,
+                        target_game_id=game.id,
                     )
                 except Exception as e:
-                    logger.debug("Failed to build features for game %s: %s", game.nba_game_id, e)
+                    failures += 1
+                    if failures <= 5:
+                        logger.warning("Failed to build features for game %s: %s", game.nba_game_id, e)
                     continue
 
                 # Skip if insufficient prior data
@@ -666,6 +938,14 @@ class FeatureBuilder:
                 sample_info.append({
                     "nba_game_id": game.nba_game_id,
                     "game_date": game.game_date.isoformat(),
+                    "source_game_date": str(game.source_game_date or game.game_date.date()),
+                    "time_precision": game.time_precision,
+                    "feature_mode": "reconstructed_replay",
+                    "season": game.season,
+                    "game_type": game.game_type,
+                    "score_complete": game.score_complete,
+                    "team_stats_complete": game.team_stats_complete,
+                    "player_stats_complete": game.player_stats_complete,
                     "home_team_id": game.home_team_id,
                     "away_team_id": game.away_team_id,
                     "home_score": game.home_score,
@@ -693,6 +973,9 @@ class FeatureBuilder:
                     sample_info=[],
                 )
 
+            if failures:
+                logger.warning("Feature build failed for %d/%d eligible games", failures, len(games))
+
             X = np.vstack(X_list)
             y_win = np.array(y_win_list)
             y_spread = np.array(y_spread_list)
@@ -710,18 +993,27 @@ class FeatureBuilder:
                 y_total.max(),
             )
 
-            return TrainingDataset(
+            dataset = TrainingDataset(
                 X=X,
                 y_win=y_win,
                 y_spread=y_spread,
                 y_total=y_total,
                 sample_info=sample_info,
+                cache_key=cache_key,
             )
+
+            if cache is not None and cache_key is not None:
+                cache.save(cache_key, dataset)
+
+            return dataset
 
         if session is not None:
             return await _build(session)
         else:
             async with self.session_factory() as sess:
+                # One immutable DB snapshot across a potentially long build.
+                # Concurrent score/stat imports must not mix revisions.
+                await sess.connection(execution_options={'isolation_level':'REPEATABLE READ'})
                 return await _build(sess)
 
     async def build_cover_over_features(
@@ -783,6 +1075,7 @@ class FeatureBuilder:
                 np.array(feature_list, dtype=np.float64),
                 nan=0.0, posinf=0.0, neginf=0.0,
             )
+            features = np.clip(features, _COVER_LOWER, _COVER_UPPER)
             return CoverOverFeatureVector(
                 features=features,
                 home_games_available=int(home_team_f.get("games_available", 0)),

@@ -26,7 +26,8 @@ import os
 import re
 import sys
 import unicodedata
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 # The ``app`` package lives at /app/backend/app inside this image (mirrors the
 # trainer layout). Make imports robust regardless of invocation directory.
@@ -42,6 +43,8 @@ from app.database import async_session_factory  # noqa: E402
 from app.models.team import Team  # noqa: E402
 from app.models.player import Player  # noqa: E402
 from app.models.historical_player_injuries import HistoricalPlayerInjury  # noqa: E402
+from app.models.injury_report import InjuryReport  # noqa: E402
+from app.models.game import Game  # noqa: E402
 
 # Imported once — starts the JVM (jpype) used by tabula.
 import nbainjuries  # noqa: E402
@@ -172,16 +175,17 @@ def _match_player(
 
 
 async def _fetch_report(dt: datetime):
-    """Return the parsed DataFrame for the report at the given datetime, or None."""
+    """Return ``(DataFrame, publication timestamp UTC)`` or ``(None, None)``."""
     for (hh, mm) in CANDIDATE_TIMES:
         ts = dt.replace(hour=hh, minute=mm, second=0, microsecond=0)
         try:
             df = nbainjuries.injury.get_reportdata(ts, return_df=True)
             if df is not None and not df.empty:
-                return df
+                published_at = ts.replace(tzinfo=ZoneInfo("America/New_York")).astimezone(timezone.utc)
+                return df, published_at
         except Exception:
             continue
-    return None
+    return None, None
 
 
 async def main() -> None:
@@ -201,10 +205,11 @@ async def main() -> None:
 
     if args.inspect:
         dt = datetime.strptime(args.inspect, "%Y-%m-%d")
-        df = await _fetch_report(dt)
+        df, published_at = await _fetch_report(dt)
         if df is None:
             print("no report found")
             return
+        print("publication timestamp (UTC):", published_at.isoformat())
         print(df.head(30).to_string())
         print("\n--- columns:", list(df.columns))
         print("\n--- distinct Teams:", sorted(df["Team"].dropna().unique().tolist()))
@@ -214,7 +219,6 @@ async def main() -> None:
     # Determine target dates that actually have games. The day-of report lists
     # that day's games (verified empirically), so game dates are sufficient.
     async with async_session_factory() as session:
-        from app.models.game import Game
         from sqlalchemy import distinct, func
         rows = (await session.execute(
             select(distinct(func.date(Game.game_date)))
@@ -225,6 +229,28 @@ async def main() -> None:
         dates = dates[: args.limit]
     print(f"game dates in range: {len(dates)}")
 
+    # Resolve each report team/date to the actual scheduled game. This binding
+    # is what lets training distinguish an explicit complete report from a
+    # missing report, including a complete report with zero injured players.
+    async with async_session_factory() as session:
+        game_rows = (await session.execute(
+            select(
+                Game.id,
+                Game.source_game_date,
+                Game.game_date,
+                Game.home_team_id,
+                Game.away_team_id,
+            ).where(
+                Game.game_date >= datetime.combine(start - timedelta(days=1), datetime.min.time()),
+                Game.game_date < datetime.combine(end + timedelta(days=2), datetime.min.time()),
+            )
+        )).all()
+    game_map: dict[tuple[object, int], list[int]] = {}
+    for gid, source_date, game_dt, home_id, away_id in game_rows:
+        game_day = source_date or game_dt.date()
+        game_map.setdefault((game_day, home_id), []).append(gid)
+        game_map.setdefault((game_day, away_id), []).append(gid)
+
     inserted = 0
     skipped_players = 0
     skipped_teams = 0
@@ -232,37 +258,87 @@ async def main() -> None:
     days_missed = 0
     unmatched_players: dict[str, int] = {}
     unmatched_teams: dict[str, int] = {}
+    ambiguous_games = 0
+    reports_upserted = 0
 
     # Keyed by (player_id, team_id, game_date) so the same game reported on
     # consecutive days (day-before + day-of) collapses to one row, and so a
     # single INSERT never contains two rows for the same unique constraint.
     pending: dict[tuple[int, int, object], dict] = {}
+    pending_reports: dict[tuple[int, int, str, datetime], dict] = {}
 
     async def flush(session):
-        nonlocal inserted
-        if not pending:
+        nonlocal inserted, reports_upserted
+        if not pending and not pending_reports:
             return
-        rows = list(pending.values())
-        stmt = pg_insert(HistoricalPlayerInjury).values(rows)
-        stmt = stmt.on_conflict_do_update(
-            index_elements=["player_id", "team_id", "game_date"],
-            set_={
-                "injury_status": stmt.excluded.injury_status,
-                "injury_type": stmt.excluded.injury_type,
-            },
-        )
-        await session.execute(stmt)
-        inserted += len(rows)
-        pending.clear()
+        if pending:
+            rows = list(pending.values())
+            stmt = pg_insert(HistoricalPlayerInjury).values(rows)
+            stmt = stmt.on_conflict_do_update(
+                index_elements=["player_id", "team_id", "game_date"],
+                set_={
+                    "injury_status": stmt.excluded.injury_status,
+                    "injury_type": stmt.excluded.injury_type,
+                    "game_id": stmt.excluded.game_id,
+                    "published_at": stmt.excluded.published_at,
+                    "observed_at": stmt.excluded.observed_at,
+                    "source": stmt.excluded.source,
+                },
+            )
+            await session.execute(stmt)
+            inserted += len(rows)
+            pending.clear()
+        if pending_reports:
+            report_rows = list(pending_reports.values())
+            report_stmt = pg_insert(InjuryReport).values(report_rows)
+            report_stmt = report_stmt.on_conflict_do_update(
+                constraint="uq_injury_report_snapshot",
+                set_={
+                    "published_at": report_stmt.excluded.published_at,
+                    "is_complete": report_stmt.excluded.is_complete,
+                },
+            )
+            await session.execute(report_stmt)
+            reports_upserted += len(report_rows)
+            pending_reports.clear()
+        from app.services.data_quality_service import bump_data_revision
+        await bump_data_revision(session, "historical-injury-report-import")
 
     async with async_session_factory() as session:
         for i, d in enumerate(dates):
             dt = datetime(d.year, d.month, d.day)
-            df = await _fetch_report(dt)
+            df, published_at = await _fetch_report(dt)
             if df is None:
                 days_missed += 1
                 continue
             days_fetched += 1
+
+            # Coverage is derived from every team represented in the official
+            # report, before filtering healthy/Available player rows. Do not
+            # create a healthy report for a team absent from the document.
+            report_bindings: dict[tuple[object, int], int] = {}
+            for _, coverage_row in df.iterrows():
+                report_game_date = _parse_game_date(coverage_row.get("Game Date"))
+                report_team = _norm(coverage_row.get("Team"))
+                report_team_id = team_map.get(report_team)
+                if report_game_date is None or report_team_id is None:
+                    continue
+                candidates = game_map.get((report_game_date, report_team_id), [])
+                if len(candidates) != 1:
+                    if len(candidates) > 1:
+                        ambiguous_games += 1
+                    continue
+                game_id = candidates[0]
+                report_bindings[(report_game_date, report_team_id)] = game_id
+                key = (game_id, report_team_id, "nbainjuries", published_at)
+                pending_reports[key] = {
+                    "game_id": game_id,
+                    "team_id": report_team_id,
+                    "source": "nbainjuries",
+                    "published_at": published_at,
+                    "observed_at": published_at,
+                    "is_complete": True,
+                }
 
             for _, row in df.iterrows():
                 status = str(row.get("Current Status", "") or "").strip()
@@ -276,6 +352,9 @@ async def main() -> None:
                 if tid is None:
                     skipped_teams += 1
                     unmatched_teams[team] = unmatched_teams.get(team, 0) + 1
+                    continue
+                game_id = report_bindings.get((game_date, tid))
+                if game_id is None:
                     continue
                 last, first = _parse_player_name(row.get("Player Name"))
                 pid = _match_player(last, first, player_map, fullname_map, player_map_nosuffix)
@@ -291,16 +370,20 @@ async def main() -> None:
                     "injury_status": status,
                     "injury_type": (str(row.get("Reason", "") or "")[:100] or None),
                     "source": "nbainjuries",
+                    "game_id": game_id,
+                    "published_at": published_at,
+                    "observed_at": published_at,
                 }
 
-            if len(pending) >= args.batch:
+            if len(pending) + len(pending_reports) >= args.batch:
                 await flush(session)
                 await session.commit()
 
             if (i + 1) % 50 == 0 or i == len(dates) - 1:
                 print(
                     f"  [{i+1}/{len(dates)}] fetched={days_fetched} missed={days_missed} "
-                    f"inserted={inserted} skip_player={skipped_players} skip_team={skipped_teams}"
+                    f"inserted={inserted} reports={reports_upserted} "
+                    f"skip_player={skipped_players} skip_team={skipped_teams}"
                 )
 
         await flush(session)
@@ -309,6 +392,7 @@ async def main() -> None:
     print("\n=== Backfill complete ===")
     print(f"days_fetched={days_fetched} days_missed={days_missed}")
     print(f"inserted={inserted} skipped_players={skipped_players} skipped_teams={skipped_teams}")
+    print(f"reports_upserted={reports_upserted} ambiguous_game_bindings={ambiguous_games}")
     if unmatched_players:
         top = sorted(unmatched_players.items(), key=lambda kv: -kv[1])[:20]
         print(f"top unmatched players: {top}")
@@ -317,4 +401,7 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    raise SystemExit(
+        'Legacy daily upserts are disabled because they cannot preserve collection time and snapshot completeness. '
+        'Run scripts/import_verified_injuries.py --start YYYY-MM-DD --end YYYY-MM-DD instead.'
+    )

@@ -38,25 +38,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.info("Scheduler started",
                      extra={"interval_min": settings.collection_interval_minutes})
 
-    # Auto-detect and preload the latest XGBoost model version
+    # Status must describe the published bundle, not the newest candidate.
     try:
-        from pathlib import Path
-
-        model_dir = Path("/app/ml/saved_models/xgboost")
-        if model_dir.is_dir():
-            versions = sorted(
-                d.name for d in model_dir.iterdir()
-                if d.is_dir() and (d / "win_model.json").exists()
-            )
-            if versions:
-                latest = versions[-1]
-                settings.active_model_version = f"xgboost_{latest}"
-                logger.info(
-                    "Model version detected",
-                    extra={"active_model_version": settings.active_model_version},
-                )
-            else:
-                logger.info("No trained models found on disk")
+        from app.services.model_release_service import read_active_release
+        release = read_active_release()
+        settings.active_model_version = release['version'] if release else ''
+        logger.info('Published model release detected',
+                    extra={'active_model_version':settings.active_model_version})
     except Exception as e:
         logger.warning("Could not detect model version: %s", e)
 

@@ -35,7 +35,7 @@ MATCHUP_FEATURE_NAMES = [
     "ftr_diff",                 # home_ftr - away_ftr (free throw rate — aggressiveness gap)
 
     # Expected scoring
-    "expected_total",           # theoretical total = expected_pace * (home_off + away_off) / 200
+    "expected_total",           # theoretical total = expected_pace * (home_off + away_off) / 100
 
     # Total points (over/under) specific — Task A1
     "pace_product",             # home_pace * away_pace / 10000 — multiplicative tempo interaction
@@ -99,11 +99,10 @@ def compute_matchup_features(
     ftr_diff = home_ftr - away_ftr      # positive = home draws more fouls
 
     # Expected total points
-    # Using the formula: Total ≈ Pace × (Off_Rtg_Home + Off_Rtg_Away) / 200
+    # Total = possessions × sum(points per 100 possessions).
     # where Pace = possessions per 48 min, ORtg = points per 100 possessions
-    # /200 because: (pts/100poss × poss/48min) / 2 → simplify to one number
     if expected_pace > 0:
-        expected_total = expected_pace * (home_off_rtg + away_off_rtg) / 200.0
+        expected_total = expected_pace * (home_off_rtg + away_off_rtg) / 100.0
     else:
         expected_total = 0.0
 

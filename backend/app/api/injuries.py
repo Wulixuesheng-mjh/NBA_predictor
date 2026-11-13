@@ -19,6 +19,8 @@ from app.schemas.injury import (
     InjuryResponse,
     InjuryListResponse,
     ConfirmAllResponse,
+    InjuryReportCreate,
+    InjuryReportResponse,
 )
 from app.schemas.common import ErrorResponse
 
@@ -32,6 +34,7 @@ router = APIRouter()
 )
 async def list_injuries(
     team_id: int | None = Query(None, description="Filter by team ID"),
+    game_id: int | None = Query(None, description="Filter by target game"),
     confirmation: str | None = Query(
         None, description="Filter by confirmation status: pending/confirmed/modified"
     ),
@@ -53,6 +56,7 @@ async def list_injuries(
         is_active=is_active,
         offset=offset,
         limit=limit,
+        game_id=game_id,
     )
     return InjuryListResponse(
         injuries=[InjuryResponse(**inj) for inj in injuries],
@@ -77,18 +81,48 @@ async def create_injury(
       - source='manual'
       - confirmation='confirmed'
     """
-    injury = await InjuryService.create_injury(
-        db,
-        player_id=body.player_id,
-        injury_status=body.injury_status,
-        injury_type=body.injury_type,
-        description=body.description,
-        expected_return=body.expected_return,
-    )
+    try:
+        injury = await InjuryService.create_injury(
+            db,
+            player_id=body.player_id,
+            injury_status=body.injury_status,
+            injury_type=body.injury_type,
+            description=body.description,
+            expected_return=body.expected_return,
+            game_id=body.game_id,
+            team_id=body.team_id,
+            published_at=body.published_at,
+        )
+    except ValueError as exc:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     await db.commit()
 
     # Fetch with player/team info for response
     return await _enrich_injury_response(db, injury)
+
+
+@router.post("/reports", response_model=InjuryReportResponse, status_code=201)
+async def create_injury_report(body: InjuryReportCreate, db: AsyncSession = Depends(get_db)):
+    """Archive report coverage, including an explicit no-injury complete report."""
+    from datetime import datetime, timezone
+    from app.models.game import Game
+    from app.models.injury_report import InjuryReport
+    from app.services.data_quality_service import bump_data_revision
+
+    game = await db.get(Game, body.game_id)
+    if game is None or body.team_id not in {game.home_team_id, game.away_team_id}:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="team_id is not part of game_id")
+    # The API records actual receipt time. Client supplied clocks cannot turn
+    # a late manual entry into a historical pregame snapshot.
+    report = await InjuryService.archive_bound_snapshot(
+        db, body.game_id, body.team_id, complete=body.is_complete,
+    )
+    await bump_data_revision(db, f"injury-report:{report.id}")
+    await db.commit()
+    await db.refresh(report)
+    return report
 
 
 @router.put(
@@ -180,6 +214,8 @@ async def _enrich_injury_response(
     return InjuryResponse(
         id=injury.id,
         player_id=injury.player_id,
+        game_id=injury.game_id,
+        team_id=injury.team_id,
         player_name=player_name,
         team_abbreviation=team_abbr,
         source=injury.source,

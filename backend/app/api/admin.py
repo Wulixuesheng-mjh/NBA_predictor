@@ -123,6 +123,34 @@ async def trigger_collection(
         )
 
 
+class RosterSyncResponse(BaseModel):
+    status: str
+    players_synced: int
+
+
+@router.post(
+    "/sync-rosters",
+    response_model=RosterSyncResponse,
+)
+async def sync_rosters() -> RosterSyncResponse:
+    """Re-sync every team's current-season roster from nba_api.
+
+    Updates team assignments (trades / signings), jersey numbers and
+    positions, and detaches players that left. Idempotent — safe to rerun
+    whenever rosters change.
+    """
+    try:
+        from app.collector.nba_collector import get_collector
+
+        collector = get_collector()
+        count = await collector.sync_players()
+    except Exception as e:
+        logger.error("Roster sync failed: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Roster sync failed: {e}")
+
+    return RosterSyncResponse(status="ok", players_synced=count)
+
+
 @router.get(
     "/collect/status",
     response_model=CollectionStatusResponse,
@@ -193,8 +221,10 @@ async def system_stats(db: AsyncSession = Depends(get_db)):
     last_collection = result.scalar_one_or_none()
 
     # Active model version (check disk)
-    model_version = settings.active_model_version or None
-    model_trained = None
+    from app.services.model_release_service import read_active_release
+    release = read_active_release()
+    model_version = release['version'] if release else None
+    model_trained = release.get('created_at') if release else None
 
     return SystemStatsResponse(
         teams_count=counts["teams"],
@@ -228,7 +258,10 @@ async def trigger_model_training(
         from ml.src.feedback import run_feedback_cycle
 
         season_list = seasons.split(",") if seasons else None
-        result = await run_feedback_cycle(force_retrain=force)
+        result = await run_feedback_cycle(force_retrain=force,seasons=season_list)
+
+        if result.errors:
+            return ModelTrainResponse(status="failed",message="; ".join(result.errors))
 
         return ModelTrainResponse(
             status="success" if result.retrained else "triggered",
@@ -310,6 +343,9 @@ async def manual_game_result(
         game.away_score = payload.away_score
         game.status = "Final"
         game.updated_at = datetime.now(timezone.utc)
+        from app.services.data_quality_service import bump_data_revision, refresh_game_quality
+        await refresh_game_quality(db, game.id)
+        await bump_data_revision(db, f"manual-game-result:{game.id}")
         await db.commit()
         return ManualGameResultResponse(
             status="updated",
@@ -360,6 +396,10 @@ async def manual_game_result(
         nba_game_id=payload.nba_game_id,
         season=season,
         game_date=game_date,
+        source_game_date=game_date.date(),
+        scheduled_start_utc=None,
+        time_precision="date",
+        game_type="regular",
         home_team_id=home_db_id,
         away_team_id=away_db_id,
         status="Final",
@@ -367,6 +407,10 @@ async def manual_game_result(
         away_score=payload.away_score,
     )
     db.add(new_game)
+    await db.flush()
+    from app.services.data_quality_service import bump_data_revision, refresh_game_quality
+    await refresh_game_quality(db, new_game.id)
+    await bump_data_revision(db, f"manual-game-result-create:{new_game.id}")
     await db.commit()
     await db.refresh(new_game)
 

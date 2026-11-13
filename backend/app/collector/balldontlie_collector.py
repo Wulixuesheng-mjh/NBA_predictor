@@ -19,7 +19,7 @@ Free API key: https://app.balldontlie.io (no credit card required)
 
 import asyncio
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import httpx
@@ -38,6 +38,14 @@ from app.utils.logging import get_logger
 logger = get_logger(__name__)
 
 BALLDONTLIE_BASE_URL = "https://api.balldontlie.io/v1"
+
+# Days re-checked on every sync run, plus a two-day schedule lookahead.
+# Catches results that appear after the UTC date flips and backfills any
+# window the stack was offline for.
+SYNC_LOOKBACK_DAYS = 3
+
+# Free tier allows 5 requests/minute; one request per day keeps backfills safe.
+BALLDONTLIE_REQUEST_INTERVAL_SECONDS = 13.0
 
 
 def _get_api_key() -> str:
@@ -98,13 +106,8 @@ class BallDontLieCollector(BaseCollector):
             result.status = "success"
             result.records_collected = count
 
-            # Trigger retraining if enough new games
-            if count >= 3:
-                logger.info(
-                    "Detected %d newly Final games via balldontlie — triggering retraining",
-                    count,
-                )
-                await self._trigger_model_retraining()
+            # Score-only updates are not sufficient to refresh team state.
+            # Retraining waits for the nightly box-score completeness gate.
 
         except Exception as e:
             result.status = "failed"
@@ -118,54 +121,75 @@ class BallDontLieCollector(BaseCollector):
 
     # ── Today's Score Sync ──────────────────────────────────────
 
-    async def sync_today_scores(self, date_str: str | None = None) -> int:
-        """Fetch today's games from balldontlie and update Final games.
+    async def sync_today_scores(
+        self, date_str: str | None = None, lookback_days: int | None = None
+    ) -> int:
+        """Fetch balldontlie games and update/insert Final scores.
+
+        By default re-checks the last ``SYNC_LOOKBACK_DAYS`` days (today
+        included) and the next two days for pregame capture. Two reasons:
+
+          * balldontlie dates are US-local, so a late West-coast game can land
+            on "yesterday" UTC while its result only appears afterwards;
+          * if the stack was down (or a sync failed) the missing results get
+            backfilled on the next run instead of being lost forever.
 
         Args:
-            date_str: ISO date string (e.g. "2026-08-06"). Defaults to today UTC.
+            date_str: ISO date (e.g. "2026-10-20") to sync a single day only.
+            lookback_days: Number of days to re-check when ``date_str`` is None.
 
         Returns:
             Number of games updated to Final.
         """
-        if date_str is None:
-            date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
-        logger.info("Fetching balldontlie games for %s", date_str)
-
-        games = await self._fetch_games(date_str)
-        if not games:
-            logger.info("No games found on balldontlie for %s", date_str)
-            return 0
-
-        # Separate Final vs non-Final games
-        final_games = [g for g in games if g.get("status") == "Final"]
-        upcoming_games = [g for g in games if g.get("status") != "Final"]
-
-        logger.info(
-            "Balldontlie: %d total, %d Final, %d upcoming",
-            len(games),
-            len(final_games),
-            len(upcoming_games),
-        )
+        if date_str is not None:
+            dates = [date_str]
+        else:
+            anchor = datetime.now(timezone.utc)
+            days = lookback_days if lookback_days is not None else SYNC_LOOKBACK_DAYS
+            dates = [
+                (anchor - timedelta(days=offset)).strftime("%Y-%m-%d")
+                for offset in range(-2, days)
+            ]
+            dates.reverse()  # oldest first
 
         count = 0
 
         async with self.db_session_factory() as session:
             team_map = await self._get_team_map(session)
 
-            # 1. Create/update upcoming games as Scheduled
-            for g in upcoming_games:
-                await self._upsert_game(session, g, team_map, status="Scheduled")
+            for day in dates:
+                logger.info("Fetching balldontlie games for %s", day)
+                games = await self._fetch_games(day)
+                if not games:
+                    logger.info("No games found on balldontlie for %s", day)
+                    continue
 
-            # 2. Update Final games with scores
-            for g in final_games:
-                updated = await self._upsert_game(
-                    session, g, team_map, status="Final"
+                final_games = [g for g in games if g.get("status") == "Final"]
+                upcoming_games = [g for g in games if g.get("status") != "Final"]
+                logger.info(
+                    "Balldontlie %s: %d total, %d Final, %d upcoming",
+                    day,
+                    len(games),
+                    len(final_games),
+                    len(upcoming_games),
                 )
-                if updated:
-                    count += 1
 
-            await session.commit()
+                # 1. Create/update upcoming games as Scheduled
+                for g in upcoming_games:
+                    await self._upsert_game(session, g, team_map, status="Scheduled")
+
+                # 2. Update Final games with scores
+                for g in final_games:
+                    updated = await self._upsert_game(
+                        session, g, team_map, status="Final"
+                    )
+                    if updated:
+                        count += 1
+
+                await session.commit()
+
+                # Free tier allows 5 requests/minute — keep backfill runs gentle
+                await asyncio.sleep(BALLDONTLIE_REQUEST_INTERVAL_SECONDS)
 
         logger.info("Updated %d games to Final via balldontlie", count)
         return count
@@ -196,9 +220,21 @@ class BallDontLieCollector(BaseCollector):
         # Parse date
         date_str = api_game.get("date", "")
         try:
-            game_date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+            source_day = datetime.fromisoformat(str(date_str).replace("Z", "+00:00")).date()
         except (ValueError, TypeError):
-            game_date = datetime.now(timezone.utc)
+            logger.warning('Invalid source game date; refusing fabricated date for %s', balldontlie_game_id)
+            return False
+        game_date = datetime.combine(source_day, datetime.min.time(), tzinfo=timezone.utc)
+        has_exact_time = False
+        exact_value = api_game.get('datetime')
+        if exact_value:
+            try:
+                parsed = datetime.fromisoformat(str(exact_value).replace('Z', '+00:00'))
+                if parsed.tzinfo is not None:
+                    game_date = parsed.astimezone(timezone.utc)
+                    has_exact_time = True
+            except ValueError:
+                logger.warning('Invalid source datetime for %s', balldontlie_game_id)
 
         # Scores
         home_score = api_game.get("home_team_score")
@@ -209,28 +245,58 @@ class BallDontLieCollector(BaseCollector):
         # Use balldontlie game ID as nba_game_id (prefixed to avoid collision)
         nba_game_id = f"bdl-{balldontlie_game_id}"
 
-        # Check if game already exists by looking up scheduled games with matching teams + date
+        # Source ID remains stable when an older importer stored the wrong
+        # calendar day. Repair that row before considering a date-based match.
+        stable = await session.scalar(select(Game).where(Game.nba_game_id == nba_game_id))
+        if stable is not None and (stable.home_team_id, stable.away_team_id) != (home_db_id, away_db_id):
+            logger.error('Source-ID team conflict for %s; refusing update', nba_game_id)
+            return False
         existing = await session.execute(
             select(Game).where(
                 Game.home_team_id == home_db_id,
                 Game.away_team_id == away_db_id,
-                Game.game_date >= game_date.replace(hour=0, minute=0, second=0),
-                Game.game_date < game_date.replace(hour=23, minute=59, second=59),
+                (Game.source_game_date == source_day) | (
+                    Game.source_game_date.is_(None)
+                    & (Game.game_date >= datetime.combine(source_day, datetime.min.time(), tzinfo=timezone.utc))
+                    & (Game.game_date < datetime.combine(source_day + timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc))
+                ),
             )
         )
-        existing_game = existing.scalar_one_or_none()
+        matches = [stable] if stable is not None else list(existing.scalars())
+        if len(matches) > 1:
+            logger.error('Ambiguous game binding for %s; refusing to modify duplicate matches', nba_game_id)
+            return False
+        existing_game = matches[0] if matches else None
 
         is_new_final = False
 
         if existing_game:
-            # Update if now Final and we didn't have scores before
+            metadata_before = (existing_game.source_game_date, existing_game.scheduled_start_utc, existing_game.time_precision)
+            existing_game.source_game_date = source_day
+            if has_exact_time:
+                existing_game.scheduled_start_utc = game_date
+                existing_game.time_precision = "exact"
+                existing_game.game_date = game_date
+            if metadata_before != (existing_game.source_game_date, existing_game.scheduled_start_utc, existing_game.time_precision):
+                from app.services.data_quality_service import bump_data_revision
+                await bump_data_revision(session, f'balldontlie-schedule:{existing_game.id}')
+            # Update new finals and later score corrections. Any correction
+            # invalidates the feature cache even if completeness stays true.
             was_scheduled = existing_game.status == "Scheduled"
-            if was_scheduled and status == "Final" and home_score and away_score:
+            score_changed = (
+                existing_game.home_score != home_score
+                or existing_game.away_score != away_score
+            )
+            if status == "Final" and home_score and away_score and (was_scheduled or score_changed):
                 existing_game.home_score = home_score
                 existing_game.away_score = away_score
                 existing_game.status = "Final"
                 existing_game.updated_at = datetime.now(timezone.utc)
-                is_new_final = True
+                is_new_final = was_scheduled
+                from app.services.data_quality_service import bump_data_revision
+                await bump_data_revision(session, f"balldontlie-final:{existing_game.id}")
+                from app.services.data_quality_service import refresh_game_quality
+                await refresh_game_quality(session, existing_game.id)
                 logger.info(
                     "Updated %s → Final: %s %d-%d %s",
                     existing_game.nba_game_id,
@@ -245,6 +311,10 @@ class BallDontLieCollector(BaseCollector):
                 nba_game_id=nba_game_id,
                 season=season,
                 game_date=game_date,
+                source_game_date=source_day,
+                scheduled_start_utc=game_date if has_exact_time else None,
+                time_precision="exact" if has_exact_time else "date",
+                game_type="regular",
                 home_team_id=home_db_id,
                 away_team_id=away_db_id,
                 status=status,
@@ -256,10 +326,18 @@ class BallDontLieCollector(BaseCollector):
                     "status": status,
                     "home_score": home_score,
                     "away_score": away_score,
+                    "source_game_date": source_day,
+                    "scheduled_start_utc": game_date if has_exact_time else None,
+                    "time_precision": "exact" if has_exact_time else "date",
                     "updated_at": datetime.now(timezone.utc),
                 },
             )
-            await session.execute(stmt)
+            game_db_id = (await session.execute(stmt.returning(Game.id))).scalar_one()
+            from app.services.data_quality_service import bump_data_revision
+            await bump_data_revision(session, f"balldontlie-game:{nba_game_id}")
+            if status == "Final" and home_score and away_score:
+                from app.services.data_quality_service import refresh_game_quality
+                await refresh_game_quality(session, game_db_id)
 
             if status == "Final" and home_score and away_score:
                 is_new_final = True
@@ -356,6 +434,9 @@ class BallDontLieCollector(BaseCollector):
                 await session.execute(stmt)
                 count += 1
 
+            from app.services.data_quality_service import bump_data_revision, refresh_game_quality
+            await refresh_game_quality(session, game.id)
+            await bump_data_revision(session, f"balldontlie-player-stats:{game.id}")
             await session.commit()
 
         return count

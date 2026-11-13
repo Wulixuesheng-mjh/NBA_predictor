@@ -93,6 +93,8 @@ class H2HFeatures:
                 .where(
                     and_(
                         Game.status == "Final",
+                        Game.game_type.in_(("regular", "play_in", "playoffs")),
+                        Game.score_complete.is_(True),
                         Game.game_date < before_date,
                         or_(
                             and_(

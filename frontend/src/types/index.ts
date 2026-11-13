@@ -91,6 +91,10 @@ export interface Game {
   nba_game_id: string;
   season: string;
   game_date: string;
+  source_game_date?: string | null;
+  scheduled_start_utc?: string | null;
+  time_precision?: "exact" | "date";
+  game_type?: string;
   home_team_id: number;
   away_team_id: number;
   home_team_name: string | null;
@@ -102,6 +106,10 @@ export interface Game {
   away_score: number | null;
   quarter: number | null;
   time_remaining: string | null;
+  score_complete?: boolean;
+  team_stats_complete?: boolean;
+  player_stats_complete?: boolean;
+  stats_updated_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -161,6 +169,8 @@ export interface UpcomingGame {
   id: number;
   nba_game_id: string;
   game_date: string;
+  scheduled_start_utc?: string | null;
+  time_precision?: "exact" | "date";
   home_team_id: number;
   away_team_id: number;
   home_team_name: string | null;
@@ -174,6 +184,8 @@ export interface UpcomingGame {
 
 export interface PlayerInjury {
   id: number;
+  game_id?: number | null;
+  team_id?: number | null;
   player_id: number;
   player_name: string | null;
   team_abbreviation: string | null;
@@ -191,6 +203,8 @@ export interface PlayerInjury {
 
 export interface InjuryCreatePayload {
   player_id: number;
+  game_id?: number;
+  team_id?: number;
   injury_status: string;
   injury_type?: string | null;
   description?: string | null;
@@ -248,6 +262,9 @@ export interface PredictionResponse {
   actual_games_home: number;
   actual_games_away: number;
   predicted_at: string;
+  game_id?: number | null;
+  as_of?: string | null;
+  prediction_mode?: "pregame" | "hypothetical_preview" | "reconstructed_replay";
   xgboost: ModelPredictionOutput | null;
   mlp: ModelPredictionOutput | null;
   consensus: ConsensusOutput | null;
@@ -257,6 +274,58 @@ export interface PredictionResponse {
   confidence?: ConfidenceOutput | null;
   explanation?: ExplanationOutput | null;
   cover_over?: CoverOverOutput | null;
+  market?: MarketOdds | null;
+  baseline?: BaselineOutput | null;
+  model_release?: ModelRelease | null;
+  prediction_intervals?: Record<string, unknown> | null;
+  shadow_totals?: {
+    status: "diagnostic_shadow" | "unavailable";
+    reason?: string;
+    candidates: Array<{
+      strategy: "direct" | "residual";
+      version: string;
+      predicted_total: number;
+      training_data_until: string;
+      injury_adjustment_enabled: boolean;
+    }>;
+  } | null;
+}
+
+/** 节奏 × 效率基线（独立于模型的总分交叉校验） */
+export interface BaselineOutput {
+  pace: number;
+  expected_home: number;
+  expected_away: number;
+  baseline_total: number;
+  model_total: number | null;
+  diff_vs_model: number | null;
+  status: "ok" | "divergent";
+}
+
+/** 发布包信息：模型版本与训练数据截止日 */
+export interface ModelRelease {
+  xgboost_version: string | null;
+  mlp_version: string | null;
+  training_data_until: string | null;
+  feature_dim: number | null;
+  calibration_enabled: boolean | null;
+}
+
+/** 体彩胜负赔率 vs 模型概率 */
+export interface MarketOdds {
+  home_odds: number;
+  away_odds: number;
+  overround: number;
+  implied_home: number;
+  implied_away: number;
+  fair_home_odds: number;
+  fair_away_odds: number;
+  model_home: number;
+  model_source: string;
+  edge_home: number;
+  edge_away: number;
+  value_side: "home" | "away" | "none";
+  value_edge: number;
 }
 
 export interface ExplanationFeature {
@@ -273,11 +342,18 @@ export interface ExplanationOutput {
 }
 
 export interface PredictionRequest {
-  home_team_id: number;
-  away_team_id: number;
+  game_id?: number;
+  home_team_id?: number;
+  away_team_id?: number;
+  as_of?: string;
+  mode?: "pregame" | "hypothetical_preview" | "reconstructed_replay";
+  persist?: boolean;
   lookback_games: number;
   spread_line?: number;
+  market_home_handicap?: number;
   total_line?: number;
+  home_odds?: number;
+  away_odds?: number;
 }
 
 export interface CoverOverExplanationFeature {
@@ -303,6 +379,10 @@ export interface CoverOverOutput {
   cover_direction_cn: string;
   over_prob: number;
   under_prob: number;
+  cover_push_prob: number;
+  total_push_prob: number;
+  calibrated: boolean;
+  residual_samples: number;
   over_direction: "over" | "under";
   over_direction_cn: string;
   explanation: CoverOverExplanation | null;

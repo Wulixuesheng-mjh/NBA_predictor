@@ -1,8 +1,8 @@
 """Game ORM model — the central fact table."""
 
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -15,6 +15,10 @@ class Game(Base):
     nba_game_id: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
     season: Mapped[str] = mapped_column(String(7), nullable=False)
     game_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    source_game_date: Mapped[date | None] = mapped_column(Date)
+    scheduled_start_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    time_precision: Mapped[str] = mapped_column(String(10), nullable=False, default="date")
+    game_type: Mapped[str] = mapped_column(String(20), nullable=False, default="regular")
     home_team_id: Mapped[int] = mapped_column(Integer, ForeignKey("teams.id"), nullable=False)
     away_team_id: Mapped[int] = mapped_column(Integer, ForeignKey("teams.id"), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="Scheduled")
@@ -22,6 +26,10 @@ class Game(Base):
     away_score: Mapped[int | None] = mapped_column(Integer)
     quarter: Mapped[int | None] = mapped_column(Integer)
     time_remaining: Mapped[str | None] = mapped_column(String(10))
+    score_complete: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    team_stats_complete: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    player_stats_complete: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    stats_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

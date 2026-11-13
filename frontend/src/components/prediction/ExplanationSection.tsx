@@ -44,7 +44,7 @@ export default function ExplanationSection({ explanation }: Props) {
               <span className={`font-mono text-xs font-semibold ${
                 f.contribution === "positive" ? "text-emerald-400" : "text-red-400"
               }`}>
-                {f.contribution === "positive" ? "+" : ""}{(f.shap_value * 100).toFixed(1)}%
+                {f.contribution === "positive" ? "+" : ""}{f.shap_value.toFixed(3)} log-odds
               </span>
             </div>
           ))}
@@ -66,7 +66,7 @@ export default function ExplanationSection({ explanation }: Props) {
                   <span className={`font-mono text-xs ${
                     f.contribution === "positive" ? "text-emerald-400" : "text-red-400"
                   }`}>
-                    {f.contribution === "positive" ? "+" : ""}{(f.shap_value * 100).toFixed(1)}%
+                    {f.contribution === "positive" ? "+" : ""}{f.shap_value.toFixed(3)} log-odds
                   </span>
                 </div>
                 <div className="h-1.5 bg-gray-900 rounded-full overflow-hidden">
@@ -81,7 +81,7 @@ export default function ExplanationSection({ explanation }: Props) {
             );
           })}
           <p className="text-xs text-gray-600 mt-3">
-            基于 {explanation.explained_model} 模型，SHAP 值表示每个特征对预测结果的边际贡献。
+            基于 {explanation.explained_model} 模型，SHAP 值为胜负模型 log-odds 空间的边际贡献。
             正值 = 增加主胜概率，负值 = 降低主胜概率。
           </p>
         </div>

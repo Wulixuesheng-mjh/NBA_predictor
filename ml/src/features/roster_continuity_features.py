@@ -30,6 +30,7 @@ ROSTER_CONTINUITY_FEATURE_NAMES = [
     "core_retention",
     "roster_turnover_rate",
     "minutes_continuity",
+    "roster_data_missing",
 ]
 
 
@@ -78,9 +79,12 @@ class RosterContinuityFeatures:
         prev_season = _previous_season(season)
 
         async def _query(sess: AsyncSession) -> dict[str, float]:
-            # Get current season roster with minutes
-            current = await self._get_season_roster(sess, team_id, season)
-            # Get previous season roster with minutes
+            # Current season roster with minutes — only games already played,
+            # otherwise a mid-season game would "know" who played in April.
+            current = await self._get_season_roster(
+                sess, team_id, season, before_date=game_date
+            )
+            # Previous season is entirely in the past, no cut-off needed
             previous = await self._get_season_roster(sess, team_id, prev_season)
 
             return self._compute_continuity(current, previous)
@@ -96,8 +100,13 @@ class RosterContinuityFeatures:
         sess: AsyncSession,
         team_id: int,
         season: str,
+        before_date: datetime | None = None,
     ) -> dict[int, int]:
         """Get {player_id: total_minutes} for a team in a given season.
+
+        Args:
+            before_date: When set, only games strictly before this date count
+                (prevents using information from games not yet played).
 
         Minutes is stored as a decimal string (e.g. "29.5"). We cast to
         float and sum, then convert to integer seconds for comparison.
@@ -108,6 +117,16 @@ class RosterContinuityFeatures:
         from app.models.game_player_stats import GamePlayerStats
         from sqlalchemy import Float
 
+        conditions = [
+            Game.season == season,
+            GamePlayerStats.team_id == team_id,
+            Game.status == "Final",
+            Game.game_type.in_(("regular", "play_in", "playoffs")),
+            Game.player_stats_complete.is_(True),
+        ]
+        if before_date is not None:
+            conditions.append(Game.game_date < before_date)
+
         query = (
             select(
                 GamePlayerStats.player_id,
@@ -116,13 +135,7 @@ class RosterContinuityFeatures:
                 ).label("total_min"),
             )
             .join(Game, GamePlayerStats.game_id == Game.id)
-            .where(
-                and_(
-                    Game.season == season,
-                    GamePlayerStats.team_id == team_id,
-                    Game.status == "Final",
-                )
-            )
+            .where(and_(*conditions))
             .group_by(GamePlayerStats.player_id)
         )
         result = await sess.execute(query)
@@ -142,13 +155,14 @@ class RosterContinuityFeatures:
     ) -> dict[str, float]:
         """Compute continuity metrics from two season rosters."""
         if not current:
-            # No data yet for current season (very early). Default to high
-            # continuity — assume roster is similar until proven otherwise.
+            # Unknown is represented explicitly.  Neutral numeric values keep
+            # old models stable while the mask prevents treating them as fact.
             return {
-                "roster_continuity": 1.0,
-                "core_retention": 1.0,
-                "roster_turnover_rate": 0.0,
-                "minutes_continuity": 1.0,
+                "roster_continuity": 0.5,
+                "core_retention": 0.5,
+                "roster_turnover_rate": 0.5,
+                "minutes_continuity": 0.5,
+                "roster_data_missing": 1.0,
             }
 
         if not previous:
@@ -159,6 +173,7 @@ class RosterContinuityFeatures:
                 "core_retention": 0.5,
                 "roster_turnover_rate": 0.5,
                 "minutes_continuity": 0.5,
+                "roster_data_missing": 1.0,
             }
 
         current_players = set(current.keys())
@@ -199,6 +214,7 @@ class RosterContinuityFeatures:
             "core_retention": round(core_retention, 4),
             "roster_turnover_rate": round(roster_turnover_rate, 4),
             "minutes_continuity": round(minutes_continuity, 4),
+            "roster_data_missing": 0.0,
         }
 
 

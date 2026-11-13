@@ -217,13 +217,18 @@ class GameService:
         """Get upcoming scheduled games for the next N days."""
         now = datetime.now(timezone.utc)
         future = now + timedelta(days=days)
+        # Some collectors (BallDontLie) only expose the game date, which we store
+        # as 00:00 UTC of that day. Comparing against `now` would therefore drop
+        # every game scheduled later today, so anchor the window at the start of
+        # the current UTC day instead.
+        window_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
         query = (
             select(Game)
             .where(
                 and_(
                     Game.status.in_(["Scheduled", "PreGame"]),
-                    Game.game_date >= now,
+                    Game.game_date >= window_start,
                     Game.game_date <= future,
                 )
             )

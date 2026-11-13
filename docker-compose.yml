@@ -134,6 +134,28 @@ services:
       - nba-network
     command: ${TRAINER_ARGS:---lookback 10}
 
+  data-worker:
+    profiles: [data]
+    image: nba-injury-importer
+    build:
+      context: .
+      dockerfile: ml/Dockerfile.injuries
+    entrypoint: [python]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-nba_admin}:${DB_PASSWORD:-nba_predictor_2024}@postgres:5432/${DB_NAME:-nba_predictor}
+      BALLDONTLIE_API_KEY: "${BALLDONTLIE_API_KEY:-}"
+      PYTHONPATH: /app:/app/backend
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - model_data:/app/ml/saved_models
+      - ./backend/app:/app/backend/app:ro
+      - ./scripts:/app/scripts:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [nba-network]
+    command: [/app/scripts/import_verified_injuries.py, --help]
+
 volumes:
   postgres_data:
     name: nba-postgres-data

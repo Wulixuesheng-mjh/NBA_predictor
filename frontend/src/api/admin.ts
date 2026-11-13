@@ -26,6 +26,14 @@ export async function fetchSystemStats(): Promise<SystemStats> {
   return res.data;
 }
 
+export async function syncRosters(): Promise<{
+  status: string;
+  players_synced: number;
+}> {
+  const res = await apiClient.post("/admin/sync-rosters");
+  return res.data;
+}
+
 export async function triggerModelTraining(params?: {
   seasons?: string;
   force?: boolean;

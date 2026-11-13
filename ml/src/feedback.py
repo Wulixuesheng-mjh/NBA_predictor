@@ -1,18 +1,7 @@
-"""Daily feedback loop — close the prediction-verification-retraining cycle.
+"""Settle predictions automatically; stage training only on explicit requests.
 
-Triggered when the collector detects ≥3 new Final games (see
-_collector.py:_trigger_model_retraining()).
-
-Workflow:
-  1. Load latest predictions from database
-  2. Load new game results
-  3. Compare predictions vs actuals → store in prediction_results table
-  4. Trigger XGBoost full retraining (incorporating new data)
-  5. Optionally fine-tune MLP
-  6. Update calibration coefficients
-  7. Log the feedback cycle
-
-This ensures the model continuously improves as the season progresses.
+Collectors and the online scheduler use evaluation-only cycles. Candidate
+training runs separately and never promotes a release through this module.
 """
 
 import logging
@@ -49,12 +38,16 @@ class FeedbackLoop:
         self,
         force_retrain: bool = False,
         seasons: list[str] | None = None,
+        *,
+        evaluate_only: bool = True,
     ) -> FeedbackResult:
         """Execute one feedback cycle.
 
         Args:
             force_retrain: Retrain even if fewer than min_new_games_for_retrain.
             seasons: Seasons to include in retraining.
+            evaluate_only: Settle results without training or changing calibration.
+                False is reserved for explicit training requests.
 
         Returns:
             FeedbackResult summarizing the cycle.
@@ -70,8 +63,8 @@ class FeedbackLoop:
 
         # 1. Evaluate pending predictions against new results
         try:
-            new_games = await self._evaluate_predictions()
-            evaluated = new_games
+            evaluated = await self._evaluate_predictions()
+            new_games = await self._count_ready_games_since_release()
         except Exception as e:
             msg = f"Failed to evaluate predictions: {e}"
             logger.error(msg)
@@ -80,7 +73,9 @@ class FeedbackLoop:
         # 2. Determine if retraining is needed
         should_retrain = force_retrain or new_games >= ml_settings.min_new_games_for_retrain
 
-        if should_retrain and ml_settings.auto_retrain:
+        if evaluate_only:
+            logger.info("Evaluation-only cycle: %d complete new games; training deferred to trainer", new_games)
+        elif should_retrain and ml_settings.auto_retrain:
             logger.info(
                 "Triggering model retraining (%d new games)", new_games
             )
@@ -89,17 +84,17 @@ class FeedbackLoop:
                 result = await trainer.train_full_pipeline(
                     seasons=seasons,
                     lookback_games=ml_settings.default_lookback_games,
-                    calibrate=True,
+                    calibrate=ml_settings.calibration_enabled,
                 )
                 retrained = True
                 retrain_version = result.version
-                calibration_updated = True
+                calibration_updated = bool(result.calibration)
                 logger.info("Retraining complete: v%s", result.version)
             except Exception as e:
                 msg = f"Retraining failed: {e}"
                 logger.error(msg, exc_info=True)
                 errors.append(msg)
-        elif new_games > 0:
+        elif new_games > 0 and getattr(ml_settings, "calibration_enabled", False):
             # Update calibration only (no full retrain needed yet)
             logger.info(
                 "Updating calibration with %d new games (below retrain threshold of %d)",
@@ -151,6 +146,10 @@ class FeedbackLoop:
                         Game.status == "Final",
                         Game.home_score.isnot(None),
                         Game.away_score.isnot(None),
+                        Prediction.prediction_mode == "pregame",
+                        Prediction.as_of.isnot(None),
+                        Game.scheduled_start_utc.isnot(None),
+                        Prediction.as_of < Game.scheduled_start_utc,
                         PredictionResult.id.is_(None),  # No result recorded yet
                     )
                 )
@@ -168,21 +167,21 @@ class FeedbackLoop:
                     pred_winner = "home" if pred.win_prob_home > 0.5 else "away"
                     win_correct = pred_winner == actual_winner
 
-                    # For spread: correct if predicted direction is right
-                    # (not checking exact value since spread betting is directional)
+                    # Market correctness uses the exact archived line.
                     spread_correct = None
-                    if pred.predicted_spread is not None:
-                        predicted_dir = "home" if pred.predicted_spread > 0 else "away"
-                        actual_dir = "home" if actual_spread > 0 else "away"
-                        spread_correct = predicted_dir == actual_dir
+                    if pred.market_home_handicap is not None:
+                        market_result = actual_spread + pred.market_home_handicap
+                        if market_result != 0:
+                            model_home_cover = (pred.predicted_spread or 0) + pred.market_home_handicap > 0
+                            spread_correct = model_home_cover == (market_result > 0)
 
                     # For total: correct if both above or below league average
                     total_correct = None
-                    if pred.predicted_total is not None:
-                        league_avg = 225.0
-                        pred_over = pred.predicted_total > league_avg
-                        actual_over = actual_total > league_avg
-                        total_correct = pred_over == actual_over
+                    if pred.predicted_total is not None and pred.market_total is not None:
+                        if actual_total != pred.market_total:
+                            pred_over = pred.predicted_total > pred.market_total
+                            actual_over = actual_total > pred.market_total
+                            total_correct = pred_over == actual_over
 
                     # Store result
                     pr = PredictionResult(
@@ -204,8 +203,77 @@ class FeedbackLoop:
             if count > 0:
                 await sess.commit()
                 logger.info("Evaluated %d predictions against actual results", count)
+            await self._refresh_residuals(sess)
 
         return count
+
+    @staticmethod
+    async def _refresh_residuals(session) -> None:
+        """Rebuild a versioned store; retries cannot multiply one game's weight."""
+        import json
+        import os
+        import tempfile
+        from pathlib import Path
+        from sqlalchemy import select
+        from app.models.game import Game
+        from app.models.prediction import Prediction
+        from app.models.prediction_results import PredictionResult
+        from ml.src.uncertainty import build_residual_payload
+
+        path = Path(ml_settings.models_dir) / "residuals.json"
+        pairs = (await session.execute(select(Prediction,Game,PredictionResult)
+            .join(Game,Prediction.game_id==Game.id)
+            .join(PredictionResult,PredictionResult.prediction_id==Prediction.id)
+            .where(Prediction.prediction_mode=='pregame',Prediction.as_of.isnot(None),
+                   Game.status=='Final',Game.score_complete.is_(True)))).all()
+        payload = build_residual_payload(pairs)
+        temporary = None
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=path.parent,
+                    prefix='residuals.', suffix='.tmp', delete=False) as stream:
+                temporary=Path(stream.name)
+                json.dump(payload,stream,indent=2,allow_nan=False)
+                stream.flush(); os.fsync(stream.fileno())
+            os.replace(temporary,path)
+        except OSError as exc:
+            logger.warning("Could not update residual store: %s", exc)
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
+
+    async def _count_ready_games_since_release(self) -> int:
+        """Count new games whose score and both box-score layers are usable."""
+        import json
+        import os
+        from datetime import date
+
+        from app.models.game import Game
+        from sqlalchemy import func, select
+
+        cutoff = None
+        manifest_path = os.path.join(ml_settings.models_dir, "active.json")
+        try:
+            with open(manifest_path, encoding="utf-8") as handle:
+                raw = json.load(handle).get("training_data_until")
+            if raw:
+                cutoff = date.fromisoformat(str(raw)[:10])
+        except (OSError, ValueError, TypeError):
+            pass
+
+        clauses = [
+            Game.status == "Final",
+            Game.score_complete.is_(True),
+            Game.team_stats_complete.is_(True),
+            Game.player_stats_complete.is_(True),
+        ]
+        if cutoff is not None:
+            # The manifest cutoff is an NBA game day, not UTC midnight.
+            # Unknown source days cannot certify a game as new training data.
+            clauses.append(Game.source_game_date > cutoff)
+        async with self.session_factory() as sess:
+            value = await sess.scalar(select(func.count(Game.id)).where(*clauses))
+        return int(value or 0)
 
     async def _update_calibration_only(self) -> None:
         """Update calibration coefficients without full retraining.
@@ -283,7 +351,8 @@ class FeedbackLoop:
 
 async def run_feedback_cycle(
     force_retrain: bool = False,
+    seasons: list[str] | None = None,
 ) -> FeedbackResult:
-    """Convenience function to run one feedback cycle."""
+    """Explicit manual training entry; automatic jobs call evaluation-only cycles."""
     loop = FeedbackLoop()
-    return await loop.run_cycle(force_retrain=force_retrain)
+    return await loop.run_cycle(force_retrain=force_retrain,seasons=seasons,evaluate_only=False)

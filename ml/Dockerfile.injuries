@@ -34,6 +34,6 @@ RUN pip install --no-cache-dir --no-compile --default-timeout=600 --retries 5 \
 COPY backend/app/ ./backend/app/
 
 # Import script
-COPY scripts/import_historical_injuries.py ./scripts/
+COPY scripts/import_historical_injuries.py scripts/import_verified_injuries.py ./scripts/
 
-ENTRYPOINT ["python", "scripts/import_historical_injuries.py"]
+ENTRYPOINT ["python", "scripts/import_verified_injuries.py"]

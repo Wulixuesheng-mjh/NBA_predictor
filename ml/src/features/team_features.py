@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 import numpy as np
-from sqlalchemy import select, and_, desc
+from sqlalchemy import select, and_, desc, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ml.src.database import async_session_factory
@@ -44,6 +44,7 @@ TEAM_FEATURE_NAMES = [
     # Shooting
     "fg_pct",
     "fg3_pct",
+    "avg_fg3a_rate",
     "ft_pct",
     "avg_ts_pct",
     # NOTE: avg_efg_pct removed — redundant with avg_ts_pct (r=0.964, TS includes FTs)
@@ -71,6 +72,12 @@ TEAM_FEATURE_NAMES = [
     "total_trend",             # linear slope of (pts + pts_allowed) — momentum toward over/under
     "over_league_avg_ratio",   # fraction of recent games over league average total
     "avg_total_last3",         # mean total points over last 3 games
+    # Long layoff / season opener (Task B3): rest_days is capped at 14, so a
+    # 5-month off-season otherwise looks like a normal two-week break.
+    "layoff_days",             # days since the last game, capped at 120
+    "is_season_opener",        # 1.0 when the gap exceeds 45 days (opener-ish)
+    "season_games_played",
+    "advanced_stats_coverage",
     "games_available",
 ]
 
@@ -81,6 +88,8 @@ class TeamGameRow:
 
     pts: float
     pts_allowed: float
+    game_date: datetime
+    season: str
     reb: float
     ast: float
     stl: float
@@ -125,8 +134,32 @@ class TeamFeatures:
         Returns:
             Dict mapping feature_name -> float value.
         """
+        from app.models.game import Game
+
+        if session is None:
+            async with self.session_factory() as sess:
+                return await self.compute(team_id, before_date, n_games, sess)
+
         rows = await self._query_recent_games(team_id, before_date, n_games, session)
-        return self._compute_from_rows(rows, n_games)
+        season_start = before_date.year if before_date.month >= 10 else before_date.year - 1
+        season_start_at = before_date.replace(
+            year=season_start, month=10, day=1, hour=0, minute=0, second=0, microsecond=0
+        )
+        season_games = await session.scalar(
+            select(func.count(Game.id)).where(
+                Game.status == "Final",
+                Game.game_date >= season_start_at,
+                Game.game_date < before_date,
+                Game.game_type.in_(("regular", "play_in", "playoffs")),
+                or_(Game.home_team_id == team_id, Game.away_team_id == team_id),
+            )
+        )
+        return self._compute_from_rows(
+            rows,
+            n_games,
+            before_date=before_date,
+            season_games_played_override=int(season_games or 0),
+        )
 
     async def _query_recent_games(
         self,
@@ -153,6 +186,8 @@ class TeamFeatures:
                         TeamGameStats.team_id == team_id,
                         Game.game_date < before_date,
                         Game.status == "Final",
+                        Game.game_type.in_(("regular", "play_in", "playoffs")),
+                        Game.team_stats_complete.is_(True),
                     )
                 )
                 .order_by(desc(Game.game_date))
@@ -173,6 +208,8 @@ class TeamFeatures:
                     TeamGameRow(
                         pts=float(tgs.pts),
                         pts_allowed=float(pts_allowed),
+                        game_date=game.game_date,
+                        season=game.season or "",
                         reb=float(tgs.reb),
                         ast=float(tgs.ast),
                         stl=float(tgs.stl),
@@ -203,14 +240,39 @@ class TeamFeatures:
 
     @staticmethod
     def _compute_from_rows(
-        rows: list[TeamGameRow], requested_n: int
+        rows: list[TeamGameRow],
+        requested_n: int,
+        before_date: datetime | None = None,
+        season_games_played_override: int | None = None,
     ) -> dict[str, float]:
         """Compute all team features from a list of recent game rows."""
         n = len(rows)
 
         # If no games available, return zeros with games_available=0
         if n == 0:
-            return {name: 0.0 for name in TEAM_FEATURE_NAMES}
+            values = {name: 0.0 for name in TEAM_FEATURE_NAMES}
+            if season_games_played_override is not None:
+                values["season_games_played"] = float(season_games_played_override)
+                values["is_season_opener"] = 1.0 if season_games_played_override == 0 else 0.0
+            return values
+
+        # ── Long layoff / season opener ──
+        # Measured from the most recent game before the reference date, so a
+        # 5-month off-season is represented explicitly instead of being
+        # flattened into rest_days' 14-day cap.
+        layoff_days = 0.0
+        is_opener = 0.0
+        season_games_played = 0.0
+        if before_date is not None:
+            gap = (before_date - rows[0].game_date).days
+            layoff_days = float(max(0, min(gap, 120)))
+            season_start = before_date.year if before_date.month >= 10 else before_date.year - 1
+            current_season = f"{season_start}-{str(season_start + 1)[-2:]}"
+            season_games_played = float(sum(1 for row in rows if row.season == current_season))
+            is_opener = 1.0 if season_games_played == 0 else 0.0
+        if season_games_played_override is not None:
+            season_games_played = float(season_games_played_override)
+            is_opener = 1.0 if season_games_played_override == 0 else 0.0
 
         # ── Exponential decay weights (Task B) ──
         # rows are in DESC order (index 0 = most recent). Weight recent games
@@ -353,6 +415,7 @@ class TeamFeatures:
             # avg_tov removed (r=0.966 vs avg_tov_pct)
             "fg_pct": total_fgm / total_fga if total_fga > 0 else 0.0,
             "fg3_pct": total_fg3m / total_fg3a if total_fg3a > 0 else 0.0,
+            "avg_fg3a_rate": total_fg3a / total_fga if total_fga > 0 else 0.0,
             "ft_pct": total_ftm / total_fta if total_fta > 0 else 0.0,
             "avg_ts_pct": float(np.average(ts_pct_vals, weights=ts_pct_w)) if ts_pct_vals else 0.0,
             # avg_efg_pct removed (r=0.964 vs avg_ts_pct)
@@ -376,6 +439,10 @@ class TeamFeatures:
             "total_trend": total_trend,
             "over_league_avg_ratio": over_league_avg_ratio,
             "avg_total_last3": avg_total_last3,
+            "layoff_days": layoff_days,
+            "is_season_opener": is_opener,
+            "season_games_played": season_games_played,
+            "advanced_stats_coverage": float(sum(r.pace is not None and r.off_rtg is not None for r in rows) / n),
             "games_available": float(n),
         }
 

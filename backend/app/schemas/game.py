@@ -1,6 +1,6 @@
 """Game schemas."""
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel
 
@@ -11,6 +11,10 @@ class GameBase(BaseModel):
     nba_game_id: str
     season: str
     game_date: datetime
+    source_game_date: date | None = None
+    scheduled_start_utc: datetime | None = None
+    time_precision: str = "date"
+    game_type: str = "regular"
     status: str = "Scheduled"
 
 
@@ -28,6 +32,10 @@ class GameResponse(GameBase):
     away_score: int | None = None
     quarter: int | None = None
     time_remaining: str | None = None
+    score_complete: bool = False
+    team_stats_complete: bool = False
+    player_stats_complete: bool = False
+    stats_updated_at: datetime | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
@@ -110,6 +118,8 @@ class UpcomingGameResponse(BaseModel):
     id: int
     nba_game_id: str
     game_date: datetime
+    scheduled_start_utc: datetime | None = None
+    time_precision: str = "date"
     home_team_id: int
     away_team_id: int
     home_team_name: str | None = None

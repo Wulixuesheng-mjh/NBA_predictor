@@ -58,3 +58,15 @@ Desktop.ini
 
 # ── AI tooling (personal notes/config, not project code) ──
 .claude/
+
+# Local research data, backups, images and generated evidence (publish by allowlist).
+/tmp/
+/reports/
+/ml/saved_models/candidates/
+*.dump
+*.tar
+*.tar.gz
+*.zip
+!/releases/*/artifacts.zip
+.env.*
+!.env.example

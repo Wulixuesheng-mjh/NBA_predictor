@@ -425,8 +425,17 @@ async def test_admin_collect_status(client: AsyncClient, seeded_db: AsyncSession
 
 
 @pytest.mark.asyncio
-async def test_admin_collect_trigger(client: AsyncClient, seeded_db: AsyncSession):
+async def test_admin_collect_trigger(client: AsyncClient, seeded_db: AsyncSession, monkeypatch):
     """Manual collection trigger should return triggered status."""
+    from types import SimpleNamespace
+    from datetime import datetime, timezone
+    from app.collector.nba_collector import NBACollector
+
+    async def collect_stub(self):
+        return SimpleNamespace(status='success', records_collected=0,
+            completed_at=datetime.now(timezone.utc), error_message=None)
+
+    monkeypatch.setattr(NBACollector, 'collect', collect_stub)
     resp = await client.post("/api/v1/admin/collect?source=nba_api")
     assert resp.status_code == 200
     data = resp.json()

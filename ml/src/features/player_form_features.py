@@ -82,6 +82,8 @@ class PlayerFormFeatures:
                 .where(
                     and_(
                         Game.status == "Final",
+                        Game.game_type.in_(("regular", "play_in", "playoffs")),
+                        Game.player_stats_complete.is_(True),
                         Game.game_date < before_date,
                         (Game.home_team_id == team_id)
                         | (Game.away_team_id == team_id),

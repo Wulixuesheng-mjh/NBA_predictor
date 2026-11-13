@@ -17,7 +17,10 @@ from app.config import settings
 from app.scheduler.jobs import (
     run_kaggle_collection,
     run_balldontlie_collection,
+    run_roster_sync,
     run_nightly_retraining,
+    run_prospective_capture,
+    run_shadow_observation_cycle,
 )
 
 _scheduler: AsyncIOScheduler | None = None
@@ -34,6 +37,18 @@ def get_scheduler() -> AsyncIOScheduler:
 def start_scheduler() -> None:
     """Start the APScheduler with all configured jobs."""
     scheduler = get_scheduler()
+
+    import os
+    if os.getenv('SHADOW_CAPTURE_ENABLED','true').lower()=='true':
+        scheduler.add_job(run_shadow_observation_cycle,trigger=IntervalTrigger(minutes=5),
+            id='shadow_observation_capture',name='Diagnostic shadow capture and settlement',
+            replace_existing=True,max_instances=1,coalesce=True,misfire_grace_time=60)
+
+    scheduler.add_job(
+        run_prospective_capture, trigger=IntervalTrigger(minutes=5),
+        id='prospective_capture', name='Locked paired pregame capture',
+        replace_existing=True, max_instances=1,
+    )
 
     # Kaggle: historical data + full box scores (nightly update)
     scheduler.add_job(
@@ -56,12 +71,21 @@ def start_scheduler() -> None:
             replace_existing=True,
         )
 
+    # Current-season rosters: trades/signings change team assignments
+    scheduler.add_job(
+        run_roster_sync,
+        trigger=CronTrigger(hour=4, minute=17),
+        id="roster_sync",
+        name="Daily roster sync",
+        replace_existing=True,
+    )
+
     # Nightly model retraining: once per day at 2:37am local time
     scheduler.add_job(
         run_nightly_retraining,
         trigger=CronTrigger(hour=2, minute=37),
         id="nightly_retraining",
-        name="Nightly model retraining",
+        name="Nightly prediction evaluation",
         replace_existing=True,
     )
 
