@@ -1,2 +1,0 @@
-select vdisk file="C:\Users\马俊浩\AppData\Local\Docker\wsl\disk\docker_data.vhdx"
-compact vdisk

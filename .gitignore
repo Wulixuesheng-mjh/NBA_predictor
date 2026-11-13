@@ -61,6 +61,7 @@ Desktop.ini
 
 # Local research data, backups, images and generated evidence (publish by allowlist).
 /tmp/
+/notes/local/
 /reports/
 /ml/saved_models/candidates/
 *.dump

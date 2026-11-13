@@ -1,0 +1,3 @@
+REM Reference only: replace the example path after verifying your own disk.
+select vdisk file="C:\path\to\docker_data.vhdx"
+compact vdisk

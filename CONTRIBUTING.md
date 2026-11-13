@@ -11,3 +11,5 @@
 - 仅在必要验证通过后推送。后端运行 `pytest backend/tests -q`（安装 backend dev 与 ML 依赖，设置 `PYTHONPATH` 为项目根与 backend）；前端运行 `npm run build`。测试使用隔离数据库，不连接生产。
 
 生产启动使用 `scripts/production_stack.ps1`，不随意省略冻结观察器配置。发布与回滚遵循对应版本报告，不通过手改历史协议取得通过状态。
+
+仓库目录职责见 README。个人笔记放入忽略的 `notes/local/`；Windows 磁盘维护工具只归档在 `tools/windows/legacy/`，不混入应用启动。已发布历史文档、脚本导入路径和证据不为分类而随意移动。暂存目录调整后运行 `python scripts/check_repository_layout.py`，检查链接与固定包哈希。
