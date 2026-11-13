@@ -1,0 +1,1 @@
+{"run": "mlp_repair_safety_20261112_v1", "captured": 0, "nba_days": 0, "settled": 0, "cohort_locked": false, "ready_for_final_analysis": false, "guard_rejections": {"baseline": 0, "candidate": 0}, "integrity_errors": 0, "production_promoted": false, "legacy_formal_database_rows_added": 0}

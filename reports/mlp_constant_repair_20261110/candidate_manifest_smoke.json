@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "manifest_version": "mlp_input_repair_20261110_v1",
+  "compatibility": "legacy_mlp_1022_constant_ast_v1",
+  "mlp_output_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+  "active_sha256": "9824b2248129c7c9a71348807660883ca2a620416725bf78290a1b626e42ff3a",
+  "primary_unchanged": true
+}

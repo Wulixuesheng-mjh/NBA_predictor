@@ -1,0 +1,44 @@
+{
+  "start": "2026-11-05",
+  "end": "2026-11-11",
+  "days": [
+    {
+      "day": "2026-11-05",
+      "games": 2,
+      "finals": 2
+    },
+    {
+      "day": "2026-11-06",
+      "games": 9,
+      "finals": 9
+    },
+    {
+      "day": "2026-11-07",
+      "games": 7,
+      "finals": 7
+    },
+    {
+      "day": "2026-11-08",
+      "games": 7,
+      "finals": 7
+    },
+    {
+      "day": "2026-11-09",
+      "games": 8,
+      "finals": 0
+    },
+    {
+      "day": "2026-11-10",
+      "games": 6,
+      "finals": 0
+    },
+    {
+      "day": "2026-11-11",
+      "games": 10,
+      "finals": 0
+    }
+  ],
+  "failed_days": [],
+  "new_finals": 25,
+  "invalid": []
+}

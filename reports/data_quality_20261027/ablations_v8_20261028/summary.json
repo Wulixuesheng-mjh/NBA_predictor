@@ -1,0 +1,639 @@
+{
+  "development": {
+    "metrics": {
+      "no_injury": {
+        "samples": 1516,
+        "win": {
+          "accuracy": 0.6470976253298153,
+          "brier": 0.22065591546154117,
+          "logloss": 0.6319416668980643
+        },
+        "spread": {
+          "mae": 11.458696731270383,
+          "rmse": 14.636063616126199,
+          "bias": 0.07706836796805538,
+          "p90_absolute_error": 23.836236238479614
+        },
+        "total": {
+          "mae": 14.783493535185238,
+          "rmse": 18.540187593086333,
+          "bias": 0.32217684018580456,
+          "p90_absolute_error": 29.964004516601562
+        },
+        "implausible_output_count": 0,
+        "slices": {
+          "playoffs": {
+            "samples": 166,
+            "win": {
+              "accuracy": 0.6385542168674698,
+              "brier": 0.23422536032519184,
+              "logloss": 0.6612691697596005
+            },
+            "spread": {
+              "mae": 12.505983053830015,
+              "rmse": 16.066839350130735,
+              "bias": -1.853363447250372,
+              "p90_absolute_error": 26.002201937139034
+            },
+            "total": {
+              "mae": 15.23394609933876,
+              "rmse": 18.918637928100228,
+              "bias": 5.555277445230139,
+              "p90_absolute_error": 31.40442657470703
+            },
+            "implausible_output_count": 0
+          },
+          "early_season": {
+            "samples": 155,
+            "win": {
+              "accuracy": 0.6451612903225806,
+              "brier": 0.218264840113249,
+              "logloss": 0.6277123418755673
+            },
+            "spread": {
+              "mae": 10.183585148280667,
+              "rmse": 12.830374376646368,
+              "bias": 0.4740407980257465,
+              "p90_absolute_error": 20.14776573181152
+            },
+            "total": {
+              "mae": 14.943329349640877,
+              "rmse": 18.81726472107412,
+              "bias": -0.6935669929750504,
+              "p90_absolute_error": 30.1713134765625
+            },
+            "implausible_output_count": 0
+          }
+        },
+        "loss_difference_95ci_vs_T0": {
+          "win": [
+            0.0,
+            0.0
+          ],
+          "spread": [
+            0.0,
+            0.0
+          ],
+          "total": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "aggregate": {
+        "samples": 1516,
+        "win": {
+          "accuracy": 0.6470976253298153,
+          "brier": 0.22065591546154117,
+          "logloss": 0.6319416668980643
+        },
+        "spread": {
+          "mae": 11.458696731270383,
+          "rmse": 14.636063616126199,
+          "bias": 0.07706836796805538,
+          "p90_absolute_error": 23.836236238479614
+        },
+        "total": {
+          "mae": 14.783493535185238,
+          "rmse": 18.540187593086333,
+          "bias": 0.32217684018580456,
+          "p90_absolute_error": 29.964004516601562
+        },
+        "implausible_output_count": 0,
+        "slices": {
+          "playoffs": {
+            "samples": 166,
+            "win": {
+              "accuracy": 0.6385542168674698,
+              "brier": 0.23422536032519184,
+              "logloss": 0.6612691697596005
+            },
+            "spread": {
+              "mae": 12.505983053830015,
+              "rmse": 16.066839350130735,
+              "bias": -1.853363447250372,
+              "p90_absolute_error": 26.002201937139034
+            },
+            "total": {
+              "mae": 15.23394609933876,
+              "rmse": 18.918637928100228,
+              "bias": 5.555277445230139,
+              "p90_absolute_error": 31.40442657470703
+            },
+            "implausible_output_count": 0
+          },
+          "early_season": {
+            "samples": 155,
+            "win": {
+              "accuracy": 0.6451612903225806,
+              "brier": 0.218264840113249,
+              "logloss": 0.6277123418755673
+            },
+            "spread": {
+              "mae": 10.183585148280667,
+              "rmse": 12.830374376646368,
+              "bias": 0.4740407980257465,
+              "p90_absolute_error": 20.14776573181152
+            },
+            "total": {
+              "mae": 14.943329349640877,
+              "rmse": 18.81726472107412,
+              "bias": -0.6935669929750504,
+              "p90_absolute_error": 30.1713134765625
+            },
+            "implausible_output_count": 0
+          }
+        },
+        "loss_difference_95ci_vs_T0": {
+          "win": [
+            0.0,
+            0.0
+          ],
+          "spread": [
+            0.0,
+            0.0
+          ],
+          "total": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "net_only": {
+        "samples": 1516,
+        "win": {
+          "accuracy": 0.6470976253298153,
+          "brier": 0.22065591546154117,
+          "logloss": 0.6319416668980643
+        },
+        "spread": {
+          "mae": 11.458696731270383,
+          "rmse": 14.636063616126199,
+          "bias": 0.07706836796805538,
+          "p90_absolute_error": 23.836236238479614
+        },
+        "total": {
+          "mae": 14.783493535185238,
+          "rmse": 18.540187593086333,
+          "bias": 0.32217684018580456,
+          "p90_absolute_error": 29.964004516601562
+        },
+        "implausible_output_count": 0,
+        "slices": {
+          "playoffs": {
+            "samples": 166,
+            "win": {
+              "accuracy": 0.6385542168674698,
+              "brier": 0.23422536032519184,
+              "logloss": 0.6612691697596005
+            },
+            "spread": {
+              "mae": 12.505983053830015,
+              "rmse": 16.066839350130735,
+              "bias": -1.853363447250372,
+              "p90_absolute_error": 26.002201937139034
+            },
+            "total": {
+              "mae": 15.23394609933876,
+              "rmse": 18.918637928100228,
+              "bias": 5.555277445230139,
+              "p90_absolute_error": 31.40442657470703
+            },
+            "implausible_output_count": 0
+          },
+          "early_season": {
+            "samples": 155,
+            "win": {
+              "accuracy": 0.6451612903225806,
+              "brier": 0.218264840113249,
+              "logloss": 0.6277123418755673
+            },
+            "spread": {
+              "mae": 10.183585148280667,
+              "rmse": 12.830374376646368,
+              "bias": 0.4740407980257465,
+              "p90_absolute_error": 20.14776573181152
+            },
+            "total": {
+              "mae": 14.943329349640877,
+              "rmse": 18.81726472107412,
+              "bias": -0.6935669929750504,
+              "p90_absolute_error": 30.1713134765625
+            },
+            "implausible_output_count": 0
+          }
+        },
+        "loss_difference_95ci_vs_T0": {
+          "win": [
+            0.0,
+            0.0
+          ],
+          "spread": [
+            0.0,
+            0.0
+          ],
+          "total": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    "comparisons": {
+      "aggregate": {
+        "win": {
+          "loss_improvement": 0.0,
+          "loss_difference_95ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "spread": {
+          "loss_improvement": 0.0,
+          "loss_difference_95ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "total": {
+          "loss_improvement": 0.0,
+          "loss_difference_95ci": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "net_only": {
+        "win": {
+          "loss_improvement": 0.0,
+          "loss_difference_95ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "spread": {
+          "loss_improvement": 0.0,
+          "loss_difference_95ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "total": {
+          "loss_improvement": 0.0,
+          "loss_difference_95ci": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    "exposure": {
+      "no_injury": {
+        "2023-24": {
+          "aggregate_nonzero": 0,
+          "net_nonzero": 0
+        },
+        "2024-25": {
+          "aggregate_nonzero": 0,
+          "net_nonzero": 0
+        }
+      },
+      "aggregate": {
+        "2023-24": {
+          "aggregate_nonzero": 0,
+          "net_nonzero": 0
+        },
+        "2024-25": {
+          "aggregate_nonzero": 0,
+          "net_nonzero": 0
+        }
+      },
+      "net_only": {
+        "2023-24": {
+          "aggregate_nonzero": 0,
+          "net_nonzero": 0
+        },
+        "2024-25": {
+          "aggregate_nonzero": 0,
+          "net_nonzero": 0
+        }
+      }
+    }
+  },
+  "audit": {
+    "metrics": {
+      "no_injury": {
+        "samples": 1321,
+        "win": {
+          "accuracy": 0.6775170325510976,
+          "brier": 0.21094175639460372,
+          "logloss": 0.6108383896068086
+        },
+        "spread": {
+          "mae": 11.652725014669214,
+          "rmse": 14.89172700304119,
+          "bias": 0.10699005311892215,
+          "p90_absolute_error": 24.482023239135742
+        },
+        "total": {
+          "mae": 15.389996097631116,
+          "rmse": 19.272444497890653,
+          "bias": -0.4243726593179291,
+          "p90_absolute_error": 32.341461181640625
+        },
+        "implausible_output_count": 0,
+        "slices": {
+          "playoffs": {
+            "samples": 85,
+            "win": {
+              "accuracy": 0.6352941176470588,
+              "brier": 0.21973021932607745,
+              "logloss": 0.6301810993108019
+            },
+            "spread": {
+              "mae": 12.313816276806243,
+              "rmse": 15.9043525625278,
+              "bias": 1.4514070450383074,
+              "p90_absolute_error": 25.407609748840336
+            },
+            "total": {
+              "mae": 14.443865607766543,
+              "rmse": 18.238835542163013,
+              "bias": 5.993144674862132,
+              "p90_absolute_error": 31.561236572265678
+            },
+            "implausible_output_count": 0
+          },
+          "early_season": {
+            "samples": 155,
+            "win": {
+              "accuracy": 0.6709677419354839,
+              "brier": 0.20810449659873828,
+              "logloss": 0.6051175950802918
+            },
+            "spread": {
+              "mae": 10.892070531136087,
+              "rmse": 13.767877113574546,
+              "bias": -0.8212049184907828,
+              "p90_absolute_error": 23.102814865112304
+            },
+            "total": {
+              "mae": 14.843460476783013,
+              "rmse": 18.80605806166922,
+              "bias": -3.618562661447833,
+              "p90_absolute_error": 31.85919494628906
+            },
+            "implausible_output_count": 0
+          }
+        },
+        "loss_difference_95ci_vs_T0": {
+          "win": [
+            0.0,
+            0.0
+          ],
+          "spread": [
+            0.0,
+            0.0
+          ],
+          "total": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "aggregate": {
+        "samples": 1321,
+        "win": {
+          "accuracy": 0.6790310370931113,
+          "brier": 0.21096726656290643,
+          "logloss": 0.6108609121289912
+        },
+        "spread": {
+          "mae": 11.662997179704858,
+          "rmse": 14.89484389927755,
+          "bias": 0.11089113880481845,
+          "p90_absolute_error": 24.484302043914795
+        },
+        "total": {
+          "mae": 15.377459483467929,
+          "rmse": 19.25596255424227,
+          "bias": -0.40688642202950537,
+          "p90_absolute_error": 32.240692138671875
+        },
+        "implausible_output_count": 0,
+        "slices": {
+          "playoffs": {
+            "samples": 85,
+            "win": {
+              "accuracy": 0.6705882352941176,
+              "brier": 0.22064551160618281,
+              "logloss": 0.632193415481364
+            },
+            "spread": {
+              "mae": 12.442177029742915,
+              "rmse": 15.93745067236255,
+              "bias": 1.5114624053239822,
+              "p90_absolute_error": 25.51321783065796
+            },
+            "total": {
+              "mae": 14.446933880974266,
+              "rmse": 18.188211610051912,
+              "bias": 5.889073988970588,
+              "p90_absolute_error": 30.700497436523484
+            },
+            "implausible_output_count": 0
+          },
+          "early_season": {
+            "samples": 155,
+            "win": {
+              "accuracy": 0.6709677419354839,
+              "brier": 0.20810449659873828,
+              "logloss": 0.6051175950802918
+            },
+            "spread": {
+              "mae": 10.892070531136087,
+              "rmse": 13.767877113574546,
+              "bias": -0.8212049184907828,
+              "p90_absolute_error": 23.102814865112304
+            },
+            "total": {
+              "mae": 14.843460476783013,
+              "rmse": 18.80605806166922,
+              "bias": -3.618562661447833,
+              "p90_absolute_error": 31.85919494628906
+            },
+            "implausible_output_count": 0
+          }
+        },
+        "loss_difference_95ci_vs_T0": {
+          "win": [
+            0.0,
+            0.0
+          ],
+          "spread": [
+            0.0,
+            0.0
+          ],
+          "total": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "net_only": {
+        "samples": 1321,
+        "win": {
+          "accuracy": 0.6775170325510976,
+          "brier": 0.21097792194036907,
+          "logloss": 0.6109116261203854
+        },
+        "spread": {
+          "mae": 11.655486813978342,
+          "rmse": 14.893108699542468,
+          "bias": 0.10975185242805131,
+          "p90_absolute_error": 24.482023239135742
+        },
+        "total": {
+          "mae": 15.373464764833992,
+          "rmse": 19.254797697953016,
+          "bias": -0.4355935407894114,
+          "p90_absolute_error": 32.341461181640625
+        },
+        "implausible_output_count": 0,
+        "slices": {
+          "playoffs": {
+            "samples": 85,
+            "win": {
+              "accuracy": 0.6352941176470588,
+              "brier": 0.2203133968183335,
+              "logloss": 0.6313627201989839
+            },
+            "spread": {
+              "mae": 12.356737887245767,
+              "rmse": 15.924446798686029,
+              "bias": 1.4943286554778323,
+              "p90_absolute_error": 25.407609748840336
+            },
+            "total": {
+              "mae": 14.327869908949909,
+              "rmse": 18.089903981253496,
+              "bias": 5.733828376321232,
+              "p90_absolute_error": 31.541000366211
+            },
+            "implausible_output_count": 0
+          },
+          "early_season": {
+            "samples": 155,
+            "win": {
+              "accuracy": 0.6709677419354839,
+              "brier": 0.20810449659873828,
+              "logloss": 0.6051175950802918
+            },
+            "spread": {
+              "mae": 10.892070531136087,
+              "rmse": 13.767877113574546,
+              "bias": -0.8212049184907828,
+              "p90_absolute_error": 23.102814865112304
+            },
+            "total": {
+              "mae": 14.843460476783013,
+              "rmse": 18.80605806166922,
+              "bias": -3.618562661447833,
+              "p90_absolute_error": 31.85919494628906
+            },
+            "implausible_output_count": 0
+          }
+        },
+        "loss_difference_95ci_vs_T0": {
+          "win": [
+            0.0,
+            0.0
+          ],
+          "spread": [
+            0.0,
+            0.0
+          ],
+          "total": [
+            0.0,
+            0.0
+          ]
+        }
+      }
+    },
+    "comparisons": {
+      "aggregate": {
+        "win": {
+          "loss_improvement": -0.0001209346539003411,
+          "loss_difference_95ci": [
+            -0.00018276608407652962,
+            0.000247348189293619
+          ]
+        },
+        "spread": {
+          "loss_improvement": -0.0008815247096891968,
+          "loss_difference_95ci": [
+            -0.0035376775798800293,
+            0.02412228987896039
+          ]
+        },
+        "total": {
+          "loss_improvement": 0.0008145950189757706,
+          "loss_difference_95ci": [
+            -0.02950141242133898,
+            0.004380507862902478
+          ]
+        }
+      },
+      "net_only": {
+        "win": {
+          "loss_improvement": -0.00017144801666342543,
+          "loss_difference_95ci": [
+            -2.4514662058938562e-05,
+            0.00010432025122716886
+          ]
+        },
+        "spread": {
+          "loss_improvement": -0.00023700888038222326,
+          "loss_difference_95ci": [
+            0.000563711677044027,
+            0.005941642051758822
+          ]
+        },
+        "total": {
+          "loss_improvement": 0.0010741609479464568,
+          "loss_difference_95ci": [
+            -0.03309645595431611,
+            -0.0012358585412370147
+          ]
+        }
+      }
+    },
+    "exposure": {
+      "no_injury": {
+        "2025-26": {
+          "aggregate_nonzero": 0,
+          "net_nonzero": 0
+        }
+      },
+      "aggregate": {
+        "2025-26": {
+          "aggregate_nonzero": 182,
+          "net_nonzero": 0
+        }
+      },
+      "net_only": {
+        "2025-26": {
+          "aggregate_nonzero": 0,
+          "net_nonzero": 17
+        }
+      }
+    }
+  },
+  "decision": {
+    "promote": false,
+    "lock_final_candidate": false,
+    "reason": "No credible injury variation in development; audit-only coverage cannot select the injury strategy",
+    "audit_is_pristine_test": false,
+    "prospective_completed": 0
+  }
+}

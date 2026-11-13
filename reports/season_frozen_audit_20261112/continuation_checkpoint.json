@@ -1,0 +1,13 @@
+{
+  "report": "docs/current-season-prelaunch-review-2026-11-12.md",
+  "season_games": 156,
+  "source_days": 20,
+  "additional_since_previous_cohort": 24,
+  "repair_season_safety_pass": true,
+  "production_promoted": false,
+  "old_200_observer_unchanged": true,
+  "next": "Prepare controlled fixed-repair release with explicit compatibility admission and rollback; do not require a new 200-game wait or expand search",
+  "totals_shadows": "no stable superiority, remain diagnostic",
+  "true_safety_records": 0,
+  "training": false
+}

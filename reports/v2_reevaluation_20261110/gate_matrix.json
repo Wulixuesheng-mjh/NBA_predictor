@@ -1,0 +1,80 @@
+{
+  "rules": "V2 applied retrospectively at user request; publisher unchanged",
+  "rows": [
+    {
+      "model": "production_xgb_1022",
+      "role": "baseline",
+      "admission": "NOT_RECERTIFIED",
+      "evidence": "7 real total diagnostics; MAE 12.4016",
+      "blocker": "shared input/persistence chain"
+    },
+    {
+      "model": "production_mlp_1022",
+      "role": "legacy",
+      "admission": "FAIL_CORRECTNESS",
+      "evidence": "2 real paired games, raw total MAE 26.8319, guard rejected 1",
+      "blocker": "known constant-coordinate inference mismatch remains in active version"
+    },
+    {
+      "model": "repaired_mlp_constant_ast_v1",
+      "role": "A_fix",
+      "admission": "INSUFFICIENT_REAL_SAFETY",
+      "engineering": "PASS_ARCHIVED",
+      "reconstructed_three_head_safety": "PASS",
+      "real_manual_games": 1,
+      "blocker": "no formal safety cohort; shared chain"
+    },
+    {
+      "model": "live_total_direct_T5",
+      "role": "B_upgrade",
+      "admission": "NOT_QUALIFIED",
+      "engineering": "PASS_ARCHIVED_AND_LIVE_HASH",
+      "development_direction": "INSUFFICIENT",
+      "real_games": 7,
+      "real_days": 3,
+      "real_loss_direction": "INSUFFICIENT"
+    },
+    {
+      "model": "live_total_residual_T4",
+      "role": "B_upgrade",
+      "admission": "NOT_QUALIFIED",
+      "engineering": "PASS_ARCHIVED_AND_LIVE_HASH",
+      "development_direction": "INSUFFICIENT",
+      "real_games": 7,
+      "real_days": 3,
+      "real_loss_direction": "INSUFFICIENT"
+    },
+    {
+      "model": "win_T5",
+      "role": "B_upgrade",
+      "admission": "NOT_QUALIFIED",
+      "engineering": "PASS_ARCHIVED",
+      "original_reference_development": "PASS_RETROSPECTIVE",
+      "same_cache_direction": "INSUFFICIENT",
+      "real_games": 4,
+      "real_days": 2,
+      "historical_audit": "DIRECTION_POSITIVE_UNCERTAIN"
+    },
+    {
+      "model": "research_spread_T4",
+      "role": "B_upgrade",
+      "admission": "NOT_QUALIFIED",
+      "original_reference_development": "PASS_RETROSPECTIVE",
+      "same_cache_direction": "INSUFFICIENT"
+    },
+    {
+      "model": "research_total_T1_and_median",
+      "role": "B_upgrade",
+      "admission": "NOT_QUALIFIED",
+      "original_reference_development": "PASS_RETROSPECTIVE",
+      "expanded_2631_direction": "INSUFFICIENT"
+    }
+  ],
+  "shared_functional_chain": "FAIL",
+  "formal_games": 0,
+  "formal_days": 0,
+  "required_formal_games": 200,
+  "required_formal_days": 20,
+  "probability_intervals": "NOT_CERTIFIED",
+  "promotion_allowed": false
+}

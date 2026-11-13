@@ -1,0 +1,3 @@
+FROM nba-injury-chain:20261112
+COPY scripts/fixed_mlp_release.py /app/scripts/fixed_mlp_release.py
+COPY scripts/accept_fixed_mlp_release.py /app/scripts/accept_fixed_mlp_release.py

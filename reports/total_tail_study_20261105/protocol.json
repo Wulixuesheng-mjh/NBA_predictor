@@ -1,0 +1,119 @@
+{
+  "locked_at": "2026-11-05T01:58:29.972626+00:00",
+  "protocol": {
+    "kind": "prespecified_total_development_study",
+    "targets": [
+      "total"
+    ],
+    "feature_cache_key": "bbeb026e149ba7b9",
+    "feature_dim": 213,
+    "feature_semantics": 9,
+    "feature_cache_sha256": "f1a859fe94ab439f2edf68f824456f67e4df7ee904a83293b47b7380ccaafbdb",
+    "references": {
+      "original": {
+        "path": "/app/ml/saved_models/totals_time_v9_20261029/development_direct.json",
+        "sha256": "1e9ed59bf959915db931ab126868b7e0a8989031deef7fce6cec05841043e096"
+      },
+      "direct": {
+        "path": "/app/ml/saved_models/complete_history_20261104/development_direct.json",
+        "sha256": "9784446ad96d7e73f9bcafcf8aafbceea6f0afc001965f60a7ba2d2e8d71b7a3"
+      },
+      "residual": {
+        "path": "/app/ml/saved_models/complete_history_20261104/development_residual.json",
+        "sha256": "f6540042c151fdb2f8ab15d38656c76dd456dc4e79b11eb12606507f90f2046e"
+      }
+    },
+    "source_sha256": "9bf5703c30633554e29488741e31d47453e0fa57da656e9a4426f3ca656190e6",
+    "xgboost_version": "3.4.1",
+    "cohort": "exact original 1516 development games, labels, folds and slice flags",
+    "development_seasons": [
+      "2023-24",
+      "2024-25"
+    ],
+    "audit_used": false,
+    "candidate": {
+      "name": "residual_T1_depth3",
+      "policy": "T1",
+      "max_depth": 3,
+      "parameters": {
+        "n_estimators": 400,
+        "max_depth": 5,
+        "learning_rate": 0.0153,
+        "subsample": 0.6378,
+        "colsample_bytree": 0.8974,
+        "reg_alpha": 0.3418,
+        "reg_lambda": 1.3977,
+        "min_child_weight": 4,
+        "gamma": 0.7319,
+        "random_state": 42,
+        "n_jobs": 2
+      },
+      "objective": "reg:squarederror",
+      "stopping_metric": "rmse",
+      "early_stopping_rounds": 80,
+      "intervention": "only max_depth 5 -> 3; same residual baseline and T1 window"
+    },
+    "stopping": "last 15% complete NBA days within policy window; best_iteration+1; full past refit",
+    "weights": "mean one at each actual fit; test metrics unweighted",
+    "disabled_features": [
+      "home_injury_firepower_loss",
+      "home_total_minutes_share_lost",
+      "home_key_player_out",
+      "home_defensive_anchor_out",
+      "home_players_out_count",
+      "home_questionable_count",
+      "home_injury_defense_lost",
+      "home_injury_probable_count",
+      "home_injury_net_offense_delta",
+      "home_injury_net_defense_events_delta",
+      "home_injury_replacement_minutes",
+      "home_injury_newly_lost_minutes",
+      "home_injury_position_gap_minutes",
+      "home_injury_guard_gap_minutes",
+      "home_injury_forward_gap_minutes",
+      "home_injury_center_gap_minutes",
+      "home_injury_transferred_role_minutes_share",
+      "home_injury_estimated_minutes_share",
+      "home_injury_net_available",
+      "home_injury_report_complete",
+      "away_injury_firepower_loss",
+      "away_total_minutes_share_lost",
+      "away_key_player_out",
+      "away_defensive_anchor_out",
+      "away_players_out_count",
+      "away_questionable_count",
+      "away_injury_defense_lost",
+      "away_injury_probable_count",
+      "away_injury_net_offense_delta",
+      "away_injury_net_defense_events_delta",
+      "away_injury_replacement_minutes",
+      "away_injury_newly_lost_minutes",
+      "away_injury_position_gap_minutes",
+      "away_injury_guard_gap_minutes",
+      "away_injury_forward_gap_minutes",
+      "away_injury_center_gap_minutes",
+      "away_injury_transferred_role_minutes_share",
+      "away_injury_estimated_minutes_share",
+      "away_injury_net_available",
+      "away_injury_report_complete"
+    ],
+    "diagnostic_slices": {
+      "early_season": "frozen reference flag",
+      "high_actual_total": "actual total >=250; postgame conditioning only",
+      "high_pregame_baseline": "shrunk pace/efficiency baseline >=240"
+    },
+    "constraints": "no manual-win record, no market-target fitting, no tail oversampling or posthoc score offset",
+    "gates": {
+      "mae_improvement_min": 0.02,
+      "rmse_degradation_max": 0.01,
+      "slice_degradation_max": 0.05,
+      "slice_min_samples": 100,
+      "paired_day_ci_upper_lt": 0
+    },
+    "selection": "one candidate versus original pipeline, also report current residual T1; no adaptive grid",
+    "failure": "retain current research result; new experiments require new prespecification",
+    "historical_audit": "not executed here; 2025-26 is previously studied, not pristine",
+    "formal_pregame_games_required": 200,
+    "production_promotion": false
+  }
+}

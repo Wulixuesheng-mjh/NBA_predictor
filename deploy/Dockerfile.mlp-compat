@@ -1,0 +1,14 @@
+FROM nba-predictor-backend:feedback-fixed-20261030
+USER root
+COPY ml/src/predictor.py /app/ml/src/predictor.py
+COPY ml/src/legacy_mlp_compatibility.py /app/ml/src/legacy_mlp_compatibility.py
+COPY ml/src/inference_snapshot.py /app/ml/src/inference_snapshot.py
+COPY ml/src/uncertainty.py /app/ml/src/uncertainty.py
+COPY ml/src/feedback.py /app/ml/src/feedback.py
+COPY backend/app/services/prediction_service.py /app/app/services/prediction_service.py
+COPY backend/app/models/prediction.py /app/app/models/prediction.py
+COPY backend/alembic/versions/010_mlp_compat_version.py /app/alembic/versions/010_mlp_compat_version.py
+COPY scripts/preflight_mlp_api.py /app/scripts/preflight_mlp_api.py
+COPY scripts/replay_prediction.py /app/scripts/replay_prediction.py
+USER appuser
+ENV PYTHONPATH=/app SCHEDULER_ENABLED=false

@@ -1,0 +1,43 @@
+{
+  "id": "mlp_constant_repair_20261110_v1",
+  "selection": "fixed evidence-based repair; no hyperparameter or model search",
+  "contract": {
+    "id": "legacy_mlp_1022_constant_ast_v1",
+    "model_version": "20261022_050952",
+    "input_dim": 166,
+    "input_stage": "legacy_raw_before_scaler",
+    "coordinates": [
+      17,
+      50
+    ],
+    "training_values": [
+      0.0,
+      0.0
+    ],
+    "source_cache_sha256": "cf0ab97b56dcd161440354abdd5a4a6a4cf46d4edf4788fa9c4110ea281d6805",
+    "artifact_sha256": {
+      "model.onnx": "dc26ed0ffdeae42920c115e3b501da7b8f0c52ea28db3f4b8f50b3f1ddad4e03",
+      "model.onnx.data": "42a2c8f86004394f8cbeec14026839fcd478023111038aaca1ca9e669b22f652",
+      "model.pt": "9a353c296265effa7b1be8ca78d0d0901cfd815be87fd4ee49e2c5231200560d",
+      "scaler.npz": "9a9d554dde697650f7ae9dcaa3de733411b51b50b50e772786570c28cfa51167",
+      "metadata.json": "8004f0a3c0081f418a219b80e5bd5efdb66003aaf1c1f7cbebc47627add84e64"
+    },
+    "applies_to": [
+      "win",
+      "spread",
+      "total"
+    ],
+    "precision_approved": false
+  },
+  "source_predictor_sha256": "52aaec35fab0d9b505b39835b8a8295c2eefb8bd2d83dc42cd0ad648c9558235",
+  "validation": [
+    "132 saved reconstructed inputs, all heads and XGB controls",
+    "221 older probes; remaining guard rejections explicitly reported",
+    "100 original training-cache inputs unchanged",
+    "ONNX/PyTorch and single/batch all heads",
+    "strict artifact/scaler/input contract negative tests"
+  ],
+  "labels": "retrospective diagnosis only, not real pregame accuracy or promotion evidence",
+  "weight_training": false,
+  "primary_promotion": false
+}

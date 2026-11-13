@@ -1,0 +1,17 @@
+{
+  "report": "docs/injury-chain-and-mlp-safety-2026-11-12.md",
+  "application_fix_deployed": true,
+  "safety_worker_started": true,
+  "safety_run": "mlp_repair_safety_20261112_v1",
+  "initial_real_samples": 0,
+  "minimum_samples": 200,
+  "minimum_nba_days": 20,
+  "model_promoted": false,
+  "training": false,
+  "next": [
+    "Check new immutable observations and data quality",
+    "Maintain frozen rules; no backfill or interim tuning",
+    "After fixed cohort settles, run three-head paired noninferiority and full V2 review"
+  ],
+  "test_database_stopped": true
+}

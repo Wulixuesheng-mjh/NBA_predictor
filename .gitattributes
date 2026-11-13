@@ -1,5 +1,5 @@
 * text=auto eol=lf
 *.ps1 text eol=crlf
 # Evidence and release hashes identify exact bytes; never normalize these files.
-reports/** -text
-releases/** -text
+reports/** -text whitespace=cr-at-eol
+releases/** -text whitespace=cr-at-eol

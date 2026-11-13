@@ -1,0 +1,21 @@
+{
+  "stage": "V2 read-only re-evaluation completed",
+  "score_snapshot_utc": "2026-11-10T08:03:51.073995+00:00",
+  "data_revision": [
+    {
+      "revision": 43091,
+      "reason": "verified-csv-stat-backfill"
+    }
+  ],
+  "production_selector_sha256": "9824b2248129c7c9a71348807660883ca2a620416725bf78290a1b626e42ff3a",
+  "production_changed": false,
+  "report": "docs/model-v2-reevaluation-2026-11-10.md",
+  "next": [
+    "Fix demonstrated manual-injury game binding and prediction persistence with zero-omission end-to-end cases",
+    "Keep repaired MLP behavior contract frozen; use separate real paired safety protocol",
+    "Continue diagnostic shadows without renaming past records as formal observations",
+    "Do not promote, retrain or expand parameter search based on this retrospective review"
+  ],
+  "formal_acceptance_started": false,
+  "promotion_allowed": false
+}

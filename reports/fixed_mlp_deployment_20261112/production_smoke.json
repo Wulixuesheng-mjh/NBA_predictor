@@ -1,0 +1,108 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-11-12T08:16:53.338682+00:00",
+  "schema": "010_mlp_compat_version",
+  "game_id": 32815,
+  "scheduled_start": "2026-11-13T00:00:00+00:00",
+  "prediction_ids": [
+    52,
+    53
+  ],
+  "as_of": "2026-11-12T08:13:51.546351+00:00",
+  "genuine_future_pregame": true,
+  "not_200_safety_cohort": true,
+  "mlp_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+  "xgb_version": "20261022_050952",
+  "model_release_matches_behavior": true,
+  "replayed_predictions": 2,
+  "xgb_same_input_unchanged": true,
+  "shadow_status": {
+    "purpose": "diagnostic_only",
+    "acceptance_run": false,
+    "runs": [
+      {
+        "name": "totals_213_20261029_tminus60",
+        "version": "totals_213_20261029",
+        "purpose": "diagnostic_only",
+        "acceptance_run": false,
+        "captured": 10,
+        "settled": 10,
+        "awaiting": 0,
+        "integrity_errors": 0,
+        "configuration_matches": true,
+        "enabled": true,
+        "metrics": {
+          "baseline": {
+            "mae": 9.349447631835938,
+            "rmse": 12.389284121126172,
+            "bias": -1.1764801025390625,
+            "p90_absolute_error": 21.411434936523438
+          },
+          "direct": {
+            "mae": 8.898301696777343,
+            "rmse": 10.975813257936709,
+            "bias": 0.8420211791992187,
+            "p90_absolute_error": 16.262391662597654
+          },
+          "residual": {
+            "mae": 8.77243459734945,
+            "rmse": 11.053227099793698,
+            "bias": 1.7298422031998597,
+            "p90_absolute_error": 16.980921477275963
+          }
+        },
+        "market_samples": 0,
+        "over_under": {
+          "baseline": {
+            "correct": 0,
+            "push": 0,
+            "no_direction": 0,
+            "eligible": 0
+          },
+          "direct": {
+            "correct": 0,
+            "push": 0,
+            "no_direction": 0,
+            "eligible": 0
+          },
+          "residual": {
+            "correct": 0,
+            "push": 0,
+            "no_direction": 0,
+            "eligible": 0
+          }
+        }
+      }
+    ]
+  },
+  "data_quality": {
+    "home_games_available": 10,
+    "away_games_available": 10,
+    "warnings": [
+      "Home latest game bdl-21718075 has incomplete team statistics",
+      "Home latest game bdl-21718075 has incomplete player statistics",
+      "Away latest game bdl-21718083 has incomplete team statistics",
+      "Away latest game bdl-21718083 has incomplete player statistics",
+      "Home injury net unavailable: no_eligible_report",
+      "Away injury net unavailable: no_eligible_report",
+      "Home net injury replacement features unavailable",
+      "Away net injury replacement features unavailable",
+      "\u5f53\u524d\u6d3b\u52a8\u6a21\u578b\u4f7f\u7528\u65e7\u7279\u5f81\u8bed\u4e49\uff1b\u5df2\u5e94\u7528\u53ef\u517c\u5bb9\u7684\u91cf\u7eb2\u8f6c\u6362\uff0c\u5efa\u8bae\u5b8c\u6210\u65b0\u7248\u672c\u5f71\u5b50\u9a8c\u6536"
+    ],
+    "mlp_input_compatibility": "legacy_mlp_1022_constant_ast_v1"
+  },
+  "predictions": {
+    "xgboost": {
+      "win_prob_home": 0.6351327300071716,
+      "predicted_spread": 3.5,
+      "predicted_total": 226.5
+    },
+    "mlp": {
+      "win_prob_home": 0.5523503422737122,
+      "predicted_spread": 5.0,
+      "predicted_total": 223.5
+    }
+  },
+  "active_sha256": "b24cdcb115d6202b1a06a41483ea56699b3ff7bbbdf404d558db643c090274ed",
+  "additional_persisted_by_verification": 0
+}

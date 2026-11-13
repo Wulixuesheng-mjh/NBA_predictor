@@ -1,0 +1,47 @@
+{
+  "locked_at": "2026-11-05T06:34:46.741140+00:00",
+  "protocol": {
+    "study": "causal_mlp_bias_20261105_v1",
+    "kind": "historical_rule_level_causal_additive_bias",
+    "source_hashes": {
+      "scripts/study_causal_mlp_bias.py": "3e5c33fd55060d5eccf008b3d571433444f47fb77a1da9261b53c5498db63817",
+      "scripts/run_expanded_model_comparison.py": "16b201c067835994daf94e70413cfc51c5020910764426baeb5725eff4163f36",
+      "scripts/run_total_only_mlp_study.py": "070b2a4c03c6aebde54c4bcc4dc24bf7147bdec67ecf92d4205c27663f02e075",
+      "ml/src/evaluation.py": "051bb2e2ba66dd50264ac8ec88feccbbf282a72947fa9a11cf1718495ef5d0d0"
+    },
+    "references": {
+      "/app/ml/saved_models/expanded_model_comparison_20261105_v1/development.json": "2b6fb7e1a97d56166ab20548fe3cb386e252c9d3ec6aeda84d451a5686998eaa",
+      "/app/ml/saved_models/total_only_mlp_20261105_v1/development.json": "7afc52c2ad54fe1d29df9d8cc6a879ff851e31ca04c7fc87d8dc0056ef4f0d00"
+    },
+    "bases": [
+      "mlp_shared_T1",
+      "mlp_total_direct_T1"
+    ],
+    "samples": 2631,
+    "rule": "one monthly fixed offset = mean of previous same-rule rolling OOS residuals",
+    "eligibility": "both full development seasons have negative mean bias before correction",
+    "minimum_residuals": 200,
+    "maximum_residuals": 1000,
+    "lag_days_before_month": 7,
+    "only_prior_months": true,
+    "offset_shrinkage": false,
+    "offset_cap": null,
+    "target": "actual minus uncorrected prediction; never recursively learn from corrected residuals",
+    "evaluation": "all original games retained, including warmup with zero correction; no model/threshold search",
+    "residual_scope": "same frozen learning rule across monthly versions; not production single-bundle residual certification",
+    "labels": "reconstructed historical NBA days, no claim of original source-publication timestamps",
+    "gates": {
+      "primary_comparator": "xgb_direct_T0",
+      "improvement_min": 0.02,
+      "rmse_degradation_max": 0.01,
+      "slice_min": 100,
+      "slice_degradation_max": 0.05,
+      "paired_day_ci_upper_lt": 0
+    },
+    "live_forecasts_used": false,
+    "apply_to_broken_1022_mlp": false,
+    "production_store_written": false,
+    "audit_used": false,
+    "production_promotion": false
+  }
+}

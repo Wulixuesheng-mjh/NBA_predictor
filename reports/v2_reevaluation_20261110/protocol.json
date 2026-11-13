@@ -1,0 +1,28 @@
+{
+  "rule": "V2 retrospective re-review, not automatic acceptance or prospective registration",
+  "inputs": {
+    "docs/model-admission-v2-proposal-2026-11-10.md": "4c813bb423f3c1d603c6056b80a4d8cc4a4c1c502c21db8d75c400bceef48690",
+    "reports/complete_history_20261104/development_direct.json": "9784446ad96d7e73f9bcafcf8aafbceea6f0afc001965f60a7ba2d2e8d71b7a3",
+    "reports/complete_history_20261104/development_residual.json": "f6540042c151fdb2f8ab15d38656c76dd456dc4e79b11eb12606507f90f2046e",
+    "reports/complete_history_20261104/audit_summary.json": "6a5568fd0e720bd080dbfa2bf44c781e5d7c2210c6c0a2f4a010434d232f9fe8",
+    "reports/totals_time_20261029/summary.json": "1a0fb2cc4426688943280c5cba6d86d310d76c8a05d43728711c007c6ea7fdf9",
+    "reports/expanded_model_comparison_20261105/development.json": "2b6fb7e1a97d56166ab20548fe3cb386e252c9d3ec6aeda84d451a5686998eaa",
+    "reports/forecast_season_anchor_20261105/development.json": "fa2aba332c70e9c409150398bd09786a8ae385051cef351516d25a05f820aab4",
+    "reports/mlp_constant_repair_20261110/workspace_snapshot_validation.json": "084277c1bffb8368be61a79c2749c9751ee881c875cdbf996dd87a387d8b0139",
+    "reports/mlp_preflight_20261110/api_database_preflight.json": "88426cebe0701840eee350d6280775cf8e6aca64653c0852029fef2bbb08bb39",
+    "reports/injury_and_gates_20261110/manual_trace.json": "4633efe4303aa8731959b0508e5bd136a2de7ba2b1499468e1aa06115ecdb240"
+  },
+  "comparison_selection": "previously locked T5 win, T4 spread, T1 residual total; no new search",
+  "draws": 4000,
+  "seed": 20261110,
+  "group": "NBA source day",
+  "formal_min": 200,
+  "minimum_days": 20,
+  "primary_ci_upper_lt": 0,
+  "rmse_ratio_max": 1.01,
+  "slice_ratio_max": 1.05,
+  "slice_min": 100,
+  "old_failures_not_overwritten": true,
+  "training": false,
+  "promotion": false
+}

@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "unique_games": 156,
+  "post_fit_only": true,
+  "all_three_raw_losses_independently_recomputed": true,
+  "xgb_unchanged_all_heads": true,
+  "extreme_results_retained": true,
+  "training": false,
+  "promotion": false
+}

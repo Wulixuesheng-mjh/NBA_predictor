@@ -1,0 +1,44 @@
+{
+  "repair_reconstructed": {
+    "samples": 132,
+    "days": 17,
+    "baseline_bias": -25.517512928355824,
+    "candidate_bias": -2.8476230736934776,
+    "absolute_bias_difference": -22.669889854662348,
+    "paired_day_95ci": [
+      -24.676040555673,
+      -20.400836934256688
+    ],
+    "directional_bias_screen_pass": true,
+    "real_formal_gate_pass": false
+  },
+  "live_total_shadows": {
+    "direct": {
+      "samples": 7,
+      "days": 3,
+      "baseline_bias": -0.8324759347098214,
+      "candidate_bias": 1.6481889997209822,
+      "absolute_bias_difference": 0.8157130650111608,
+      "paired_day_95ci": [
+        -4.252833048502605,
+        2.052217755998884
+      ],
+      "directional_bias_screen_pass": false,
+      "real_formal_gate_pass": false
+    },
+    "residual": {
+      "samples": 7,
+      "days": 3,
+      "baseline_bias": -0.8324759347098214,
+      "candidate_bias": 2.202562303896891,
+      "absolute_bias_difference": 1.3700863691870697,
+      "paired_day_95ci": [
+        -4.565366660975382,
+        2.4345448208621905
+      ],
+      "directional_bias_screen_pass": false,
+      "real_formal_gate_pass": false
+    }
+  },
+  "caveat": "very few live game days; descriptive intervals are not sufficient proof of population calibration"
+}

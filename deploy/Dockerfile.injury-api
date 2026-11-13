@@ -1,0 +1,2 @@
+FROM nba-predictor-backend@sha256:17f7cccf235b6566290f0dd0660bbc48d9363123a1991ba94627c24e812f1f7a
+COPY backend/app/api/injuries.py /app/app/api/injuries.py

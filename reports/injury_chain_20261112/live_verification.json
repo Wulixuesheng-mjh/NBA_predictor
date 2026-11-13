@@ -1,0 +1,34 @@
+{
+  "schema": "009_shadow_observations",
+  "legacy_injuries": [
+    {
+      "id": 35,
+      "game_id": null,
+      "published_at": null
+    },
+    {
+      "id": 36,
+      "game_id": null,
+      "published_at": null
+    }
+  ],
+  "prediction_rows": 51,
+  "future_exact_games": 20,
+  "active_sha256": "9824b2248129c7c9a71348807660883ca2a620416725bf78290a1b626e42ff3a",
+  "checked_at": "2026-11-12T02:28:45.302370+00:00",
+  "totals_shadow": {
+    "captured": 10,
+    "settled": 7,
+    "configuration_matches": true,
+    "integrity_errors": 0
+  },
+  "services_healthy": [
+    "backend",
+    "frontend",
+    "mlp-repair-safety",
+    "paired-models",
+    "win-shadow"
+  ],
+  "model_promoted": false,
+  "trained": false
+}

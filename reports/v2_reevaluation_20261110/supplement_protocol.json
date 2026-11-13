@@ -1,0 +1,9 @@
+{
+  "purpose": "show both named controls, not switch baselines to obtain a pass",
+  "original_locked_reference_sha256": "1e9ed59bf959915db931ab126868b7e0a8989031deef7fce6cec05841043e096",
+  "same_cache_control": "complete_history direct:T0",
+  "selection": "existing locked T5 win, T4 spread, T1 total plus already archived median total",
+  "no_retraining": true,
+  "no_promotion": true,
+  "manual_records": "earliest saved repair snapshot only; one game, never formal acceptance"
+}

@@ -1,0 +1,27 @@
+{
+  "saved_at_utc": "2026-11-09T08:43:54.295526+00:00",
+  "stage": "diagnostic_report_delivered_with_uncertainty",
+  "report": "docs/model-total-root-cause-findings-2026-11-09.md",
+  "stage_protocol": "stage_protocol.json",
+  "production_version": "20261022_050952",
+  "active_sha256": "9824b2248129c7c9a71348807660883ca2a620416725bf78290a1b626e42ff3a",
+  "data_revision": 43058,
+  "authentic_xgb": 5,
+  "authentic_paired": 0,
+  "reconstructed": 132,
+  "conclusions": {
+    "mlp": "two constant-coordinate BN shifts numerically reproduced",
+    "xgb": "no whole-cohort negative bias in reconstruction; insufficient true records to certify persistent live bias",
+    "input_drift": "three saved observations shift upward with current DB; per-revision causal attribution incomplete"
+  },
+  "repair_performed": false,
+  "trained": false,
+  "promoted": false,
+  "next_scope": [
+    "Report evidence before any repair",
+    "If a separate repair phase is authorized, fix only demonstrated legacy MLP compatibility mechanism with locked validation",
+    "Keep authentic data acquisition; no retrospective MLP ledger creation",
+    "For XGB source attribution use isolated old DB snapshots, not a uniform score offset"
+  ],
+  "audit": "completion_audit.json"
+}

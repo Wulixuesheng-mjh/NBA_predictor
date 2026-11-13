@@ -1,0 +1,24 @@
+{
+  "stage": "fixed_MLP_live_deployment_complete",
+  "report": "docs/fixed-mlp-production-deployment-2026-11-12.md",
+  "production_changed": true,
+  "release": "mlp_input_repair_20261112_release_v1",
+  "production_active_sha256": "b24cdcb115d6202b1a06a41483ea56699b3ff7bbbdf404d558db643c090274ed",
+  "model_dim": 166,
+  "primary": "xgboost",
+  "database_schema": "010_mlp_compat_version",
+  "frozen_volume": "nba-frozen-1022-models-v2",
+  "startup": "scripts/production_stack.ps1",
+  "real_verification_forecasts": [
+    52,
+    53
+  ],
+  "safety_cohort_forecasts": 0,
+  "remaining": [
+    "Observe genuine forecast settlement and guard failures",
+    "Keep old and repaired model metrics separated",
+    "Resolve recent box-score and eligible injury report gaps without backfilling timestamps"
+  ],
+  "do_not_reactivate_or_rerun_migration": true,
+  "model_search": false
+}

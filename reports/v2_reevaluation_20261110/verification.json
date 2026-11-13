@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "protocol_source_hashes": "PASS",
+  "old_artifacts": {
+    "mlp_constant_repair_20261110": {
+      "checked_files": 19,
+      "all_match": true,
+      "manifest_sha256": "94f5e1553038286552c43aaf616055b8c9a3636acbf02c399b6571a2e0fe3da6"
+    },
+    "mlp_preflight_20261110": {
+      "checked_files": 22,
+      "all_match": true,
+      "manifest_sha256": "563447d777b6ee5e348ad8568de7aa52fff014462caf8f768a1a219dd69830bd"
+    },
+    "complete_history_20261104": {
+      "checked_files": 13,
+      "all_match": true,
+      "manifest_sha256": "5c53952bad994e45e57954a187e92385a1615e5f233335f0ab116d52952773fb"
+    },
+    "expanded_model_comparison_20261105": {
+      "checked_files": 131,
+      "all_match": true,
+      "manifest_sha256": "2de1fda8fc18e15a3b5b55053fc0f581beebd61e5dc3e226265c15c6bca29603"
+    },
+    "total_distribution_20261105": {
+      "checked_files": 76,
+      "all_match": true,
+      "manifest_sha256": "eda012ccf1fcf2704f5a26142741dfe5178c64adc1d1eb697f64b593d07c2d37"
+    }
+  },
+  "syntax_files": [
+    "export_v2_evaluation_context.py",
+    "reevaluate_models_v2.py",
+    "supplement_v2_review.py",
+    "reevaluate_bias_v2.py",
+    "finalize_v2_reevaluation.py"
+  ],
+  "true_record_counts": {
+    "totals": 7,
+    "win_evidence": 4,
+    "paired_evidence": 2,
+    "manual_repair_unique_games": 1
+  },
+  "time_training_cutoffs_payload_integrity": "PASS",
+  "live_model_files_match": 10,
+  "active_selector_unchanged": "9824b2248129c7c9a71348807660883ca2a620416725bf78290a1b626e42ff3a",
+  "production_writes": 0,
+  "scope": "artifact and arithmetic evidence validation, not model certification"
+}

@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "rejected": [
+    "model_tamper",
+    "evidence_tamper"
+  ],
+  "selector_unchanged": true,
+  "unsafe_schema_shrink_rejected": true,
+  "schema_retained": "010_mlp_compat_version",
+  "width_retained": 128,
+  "production_changed": false
+}

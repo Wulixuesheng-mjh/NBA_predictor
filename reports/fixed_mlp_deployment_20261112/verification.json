@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "scope": "production_deployment",
+  "schema": "010_mlp_compat_version",
+  "active_sha256": "b24cdcb115d6202b1a06a41483ea56699b3ff7bbbdf404d558db643c090274ed",
+  "behavior_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+  "genuine_prediction_ids": [
+    52,
+    53
+  ],
+  "replay_pass": true,
+  "frontend_proxy_paths_pass": true,
+  "configuration_parse_pass": true,
+  "orchestration_tests": 3,
+  "old_protocols_unchanged": true,
+  "old_observers_frozen_independent_root": "/frozen_models",
+  "all_services_healthy": true,
+  "training": false,
+  "new_research_shadows_promoted": false
+}

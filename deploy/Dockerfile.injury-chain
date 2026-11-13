@@ -1,0 +1,8 @@
+FROM nba-mlp-preflight:20261110-final
+USER root
+COPY backend/app/api/injuries.py /app/app/api/injuries.py
+COPY backend/app/services/injury_service.py /app/app/services/injury_service.py
+COPY scripts/verify_injury_prediction_chain.py /app/scripts/verify_injury_prediction_chain.py
+COPY scripts/repaired_mlp_safety_worker.py /app/scripts/repaired_mlp_safety_worker.py
+COPY scripts/paired_models_worker.py /app/scripts/paired_models_worker.py
+USER appuser

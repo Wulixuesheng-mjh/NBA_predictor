@@ -1,0 +1,18 @@
+{
+  "report": "docs/fixed-mlp-release-acceptance-2026-11-12.md",
+  "core_acceptance": "PASS",
+  "package": "final/package",
+  "release": "mlp_input_repair_20261112_release_v1",
+  "guarded_image": "sha256:890f97dfbf1c9c8f3c75a00fe5eef8d0075f56c32475eec078146e4f17f5936f",
+  "production_changed": false,
+  "production_schema": "009_shadow_observations",
+  "model_selector_sha256": "9824b2248129c7c9a71348807660883ca2a620416725bf78290a1b626e42ff3a",
+  "remaining": [
+    "Isolate old diagnostic capture environments with pinned baseline and runtime; total scheduler requires explicit handling",
+    "Apply additive 010 migration; deploy compatible runtime while selector remains old",
+    "Install immutable package; gated atomic switch; verify actual API ledger and replay"
+  ],
+  "no_new_training": true,
+  "no_new200_wait": true,
+  "temporary_database_stopped": true
+}

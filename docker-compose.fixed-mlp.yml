@@ -1,0 +1,74 @@
+# Apply after release, injury-chain, paired-models and win-shadow configs.
+services:
+  backend:
+    image: nba-fixed-mlp-api@sha256:07a2dc74d674ed61d0d2f360238b3866f7e5f5df006f0050e090c5693795ba20
+    environment:
+      SCHEDULER_ENABLED: 'true'
+      SHADOW_CAPTURE_ENABLED: 'false'
+      LEGACY_TOTAL_STATUS_URL: http://total-observer:8010/status
+  win-shadow:
+    environment:
+      MODELS_DIR: /frozen_models
+    volumes: !override
+      - model_data:/app/ml/saved_models:ro
+      - frozen_1022:/frozen_models:ro
+      - type: volume
+        source: model_data
+        target: /app/ml/saved_models/win_observations/win_T5_20261104_tminus60_v1/records
+        volume:
+          subpath: win_observations/win_T5_20261104_tminus60_v1/records
+  paired-models:
+    environment:
+      MODELS_DIR: /frozen_models
+    volumes: !override
+      - model_data:/app/ml/saved_models:ro
+      - frozen_1022:/frozen_models:ro
+      - type: volume
+        source: model_data
+        target: /app/ml/saved_models/paired_model_observations/paired_1022_20261105_tminus60_v1/records
+        volume:
+          subpath: paired_model_observations/paired_1022_20261105_tminus60_v1/records
+  mlp-repair-safety:
+    environment:
+      MODELS_DIR: /frozen_models
+    volumes: !override
+      - model_data:/app/ml/saved_models:ro
+      - frozen_1022:/frozen_models:ro
+      - type: volume
+        source: model_data
+        target: /app/ml/saved_models/mlp_repair_safety/mlp_repair_safety_20261112_v1/records
+        volume:
+          subpath: mlp_repair_safety/mlp_repair_safety_20261112_v1/records
+  total-observer:
+    image: nba-injury-chain-backend@sha256:56b3d8778b471496c23e909a430709bd3b8dd66e509dd756f65cf0d6b4fe716d
+    pull_policy: never
+    container_name: nba-total-observer
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-nba_admin}:${DB_PASSWORD:-nba_predictor_2024}@postgres:5432/${DB_NAME:-nba_predictor}
+      MODEL_PATH: /frozen_models
+      MODELS_DIR: /frozen_models
+      PYTHONPATH: /app
+      SCHEDULER_ENABLED: 'false'
+    volumes:
+      - model_data:/app/ml/saved_models:ro
+      - frozen_1022:/frozen_models:ro
+      - ./scripts/legacy_total_observer.py:/app/scripts/legacy_total_observer.py:ro
+    entrypoint: [python, -m, uvicorn, scripts.legacy_total_observer:app, --host, 0.0.0.0, --port, '8010']
+    read_only: true
+    tmpfs: [/tmp]
+    restart: unless-stopped
+    networks: [nba-network]
+    healthcheck:
+      test: [CMD, curl, -f, http://localhost:8010/status]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits: {cpus: '0.75', memory: 768M}
+
+volumes:
+  frozen_1022:
+    name: nba-frozen-1022-models-v2
+    external: true

@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "scope": "synthetic isolated PostgreSQL API test",
+  "wrong_team_rejected": true,
+  "create_response_binding": true,
+  "list_binding": true,
+  "partial_out_read": true,
+  "unknown_not_healthy": true,
+  "complete_confirmation": true,
+  "both_models_persisted": true,
+  "inference_snapshots_saved": true,
+  "injury_features_present": true,
+  "delete_appends_partial": true,
+  "past_snapshot_unchanged": true,
+  "production_mutations": 0,
+  "real_acceptance_games": 0
+}

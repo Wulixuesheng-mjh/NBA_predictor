@@ -1,0 +1,1 @@
+{"kind": "win_only_diagnostic", "acceptance_run": false, "version": "win_T5_20261104", "captured": 7, "settled": 7, "integrity_errors": 0, "metrics": {"baseline": {"accuracy": 0.8571428571428571, "brier": 0.17665522327146022, "logloss": 0.5352892995862187}, "candidate": {"accuracy": 0.8571428571428571, "brier": 0.13395770765490972, "logloss": 0.43899777104950305}}}

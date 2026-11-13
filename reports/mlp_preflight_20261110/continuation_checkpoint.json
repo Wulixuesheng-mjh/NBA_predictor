@@ -1,0 +1,43 @@
+{
+  "status": "MLP_extended_engineering_preflight_passed_not_promoted",
+  "report": "docs/model-mlp-preflight-and-xgb-gates-2026-11-10.md",
+  "regression_tests": 165,
+  "candidate_image": "sha256:66b466f2442f1ab1ab1da0faa0864e21db2d136566babb3d423fa421faa9e850",
+  "pending_production_migration": "010_mlp_compat_version",
+  "production_migration": "009_shadow_observations",
+  "api_preflight": {
+    "status": "PASS",
+    "scope": "synthetic_API_and_database_preflight_not_real_predictions",
+    "migration": "010_mlp_compat_version",
+    "version_width": 128,
+    "health": true,
+    "pregame_api": true,
+    "both_models_persisted": true,
+    "full_MLP_version_stored": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+    "snapshots_replayed": 2,
+    "backdated_write_rejected": true,
+    "settlement_rows": 2,
+    "repeated_settlement_rows": 0,
+    "original_forecasts_immutable": true,
+    "repaired_residuals_separately_versioned": true,
+    "real_database_touched": false,
+    "formal_acceptance_added": 0,
+    "production_promoted": false
+  },
+  "rollback_preflight": {
+    "status": "PASS",
+    "old_code_with_widened_schema": true,
+    "full_version_retained": true,
+    "active_model": "20261022_050952",
+    "schema": "010_mlp_compat_version",
+    "real_production_changed": false
+  },
+  "production_changed": false,
+  "trained": false,
+  "model_search": false,
+  "formal_runs": 0,
+  "formal_forecasts": 0,
+  "temporary_database_stopped": true,
+  "XGB_blocks_MLP": false,
+  "next_scope": "Lock an independent real-time MLP repair protocol and existing release evidence; no training-internal historical scores or new search"
+}

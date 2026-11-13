@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "scope": "isolated actual CLI activate/rollback",
+  "production_changed": false
+}

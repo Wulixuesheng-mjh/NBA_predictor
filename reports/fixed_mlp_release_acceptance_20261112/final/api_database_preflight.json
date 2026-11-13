@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "scope": "synthetic_API_and_database_preflight_not_real_predictions",
+  "migration": "010_mlp_compat_version",
+  "version_width": 128,
+  "health": true,
+  "pregame_api": true,
+  "both_models_persisted": true,
+  "full_MLP_version_stored": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+  "snapshots_replayed": 2,
+  "backdated_write_rejected": true,
+  "settlement_rows": 2,
+  "repeated_settlement_rows": 0,
+  "original_forecasts_immutable": true,
+  "repaired_residuals_separately_versioned": true,
+  "real_database_touched": false,
+  "formal_acceptance_added": 0,
+  "production_promoted": false
+}

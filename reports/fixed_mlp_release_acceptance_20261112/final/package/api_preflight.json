@@ -1,0 +1,7 @@
+{
+  "full_version_retained": true,
+  "both_models_persisted": true,
+  "snapshots_replayed": true,
+  "backdated_write_rejected": true,
+  "candidate_manifest_sha256": "b24cdcb115d6202b1a06a41483ea56699b3ff7bbbdf404d558db643c090274ed"
+}

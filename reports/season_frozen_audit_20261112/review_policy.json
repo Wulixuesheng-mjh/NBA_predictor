@@ -1,0 +1,11 @@
+{
+  "kind": "A_fixed_bug_repair_review_using_current_season",
+  "request": "Use season-to-date games for prelaunch assessment; avoid blanket additional200-game barrier",
+  "additional200_before_repair_review": false,
+  "continuous_real_monitoring": true,
+  "history_and_real_records_separate": true,
+  "model_retraining": false,
+  "automatic_publisher_modified": false,
+  "production_promotion": false,
+  "scope": "fixed legacy_mlp_1022_constant_ast_v1 only; does not promote research shadows"
+}

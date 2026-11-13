@@ -1,0 +1,43 @@
+# Application correctness fix and separate frozen MLP safety observer.
+# Use after docker-compose.release.yml; never changes the production selector.
+services:
+  backend:
+    image: nba-fixed-mlp-api@sha256:07a2dc74d674ed61d0d2f360238b3866f7e5f5df006f0050e090c5693795ba20
+    build: !reset null
+    pull_policy: never
+  frontend:
+    image: nba-fixed-mlp-frontend@sha256:0a6d4cd8903dcf2345e23be30d5c2c98bb5f136ed45435af297747b90acad28a
+    build: !reset null
+    pull_policy: never
+  mlp-repair-safety:
+    image: nba-injury-chain@sha256:5c999720e14acfdbcfefaa0740a39c7fc9b434b669ce74b887cf5ecf80b4d588
+    pull_policy: never
+    container_name: nba-mlp-repair-safety
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-nba_admin}:${DB_PASSWORD:-nba_predictor_2024}@postgres:5432/${DB_NAME:-nba_predictor}
+      MODELS_DIR: /app/ml/saved_models
+      PYTHONPATH: /app
+      PYTHONUNBUFFERED: '1'
+      SCHEDULER_ENABLED: 'false'
+    volumes:
+      - model_data:/app/ml/saved_models:ro
+      - type: volume
+        source: model_data
+        target: /app/ml/saved_models/mlp_repair_safety/mlp_repair_safety_20261112_v1/records
+        volume:
+          subpath: mlp_repair_safety/mlp_repair_safety_20261112_v1/records
+    entrypoint: [python, /app/scripts/repaired_mlp_safety_worker.py]
+    command: [serve]
+    read_only: true
+    tmpfs: [/tmp]
+    restart: unless-stopped
+    networks: [nba-network]
+    healthcheck:
+      test: [CMD, python, /app/scripts/repaired_mlp_safety_worker.py, status]
+      interval: 60s
+      timeout: 45s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits: {cpus: '1.0', memory: 1G}

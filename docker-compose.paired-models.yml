@@ -1,0 +1,34 @@
+services:
+  paired-models:
+    image: nba-predictor-paired-worker@sha256:7ff52a4450cd01dada5a1a2babfb2de0fecfab9c25b38baa75cf130278537e08
+    pull_policy: never
+    container_name: nba-paired-models
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-nba_admin}:${DB_PASSWORD:-nba_predictor_2024}@postgres:5432/${DB_NAME:-nba_predictor}
+      MODELS_DIR: /app/ml/saved_models
+      PYTHONPATH: /app
+      PYTHONUNBUFFERED: '1'
+    volumes:
+      - model_data:/app/ml/saved_models:ro
+      - type: volume
+        source: model_data
+        target: /app/ml/saved_models/paired_model_observations/paired_1022_20261105_tminus60_v1/records
+        volume:
+          subpath: paired_model_observations/paired_1022_20261105_tminus60_v1/records
+    command: [serve]
+    read_only: true
+    tmpfs: [/tmp]
+    restart: unless-stopped
+    networks: [nba-network]
+    logging:
+      driver: json-file
+      options: {max-size: '10m', max-file: '3'}
+    healthcheck:
+      test: [CMD, python, /app/scripts/paired_models_worker.py, status]
+      interval: 60s
+      timeout: 45s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits: {cpus: '0.75', memory: 768M}

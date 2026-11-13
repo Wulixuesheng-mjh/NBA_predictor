@@ -1,0 +1,17 @@
+# Explicit release mode: do not load docker-compose.override.yml.
+# Model selectors remain gated; this deploys application code only.
+services:
+  backend:
+    image: nba-fixed-mlp-api@sha256:07a2dc74d674ed61d0d2f360238b3866f7e5f5df006f0050e090c5693795ba20
+    build: !reset null
+    pull_policy: never
+    environment:
+      PYTHONPATH: /app
+      SHADOW_CAPTURE_ENABLED: 'false'
+      LEGACY_TOTAL_STATUS_URL: http://total-observer:8010/status
+    volumes: !override
+      - model_data:/app/ml/saved_models
+  frontend:
+    image: nba-fixed-mlp-frontend@sha256:0a6d4cd8903dcf2345e23be30d5c2c98bb5f136ed45435af297747b90acad28a
+    build: !reset null
+    pull_policy: never

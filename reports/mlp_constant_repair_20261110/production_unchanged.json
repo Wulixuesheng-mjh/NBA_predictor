@@ -1,0 +1,1 @@
+{"active": {"version": "20261022_050952", "created_at": "2026-10-22T05:48:18.908353", "xgboost_version": "20261022_050952", "mlp_version": "20261022_050952", "feature_dim": 166, "n_samples": 30665, "training_data_until": "2026-10-21", "calibration_enabled": false}, "sha256": "9824b2248129c7c9a71348807660883ca2a620416725bf78290a1b626e42ff3a"}

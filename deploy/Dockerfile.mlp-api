@@ -1,0 +1,3 @@
+FROM nba-fixed-mlp-release:20261112-guarded
+COPY backend/app/api/predictions.py /app/app/api/predictions.py
+COPY backend/app/scheduler/scheduler.py /app/app/scheduler/scheduler.py

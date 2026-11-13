@@ -1,0 +1,4457 @@
+{
+  "lock": {
+    "created_at": "2026-10-29T06:29:24.586621+00:00",
+    "selection_source": "development MAE only",
+    "selected_by_mode": {
+      "direct": "direct:T5",
+      "residual": "residual:T4"
+    },
+    "overall": "residual:T4",
+    "source_sha256": {
+      "direct": "1e9ed59bf959915db931ab126868b7e0a8989031deef7fce6cec05841043e096",
+      "residual": "1f45146f42a7467ec553bc28ea0831ddfee285f397c8e765ebf3347c6610dcd2"
+    },
+    "protocol": {
+      "phase": "development",
+      "seasons": [
+        "2023-24",
+        "2024-25"
+      ],
+      "features": "full",
+      "monthly_fixed_model": true,
+      "inner_complete_day_validation_ratio": 0.15,
+      "full_past_refit": true,
+      "validation_weighted": false,
+      "audit_is_pristine_test": false,
+      "feature_dim": 213,
+      "mlp_input_normalization": "none",
+      "feature_cache_key": "3cf61fa525ab4784",
+      "injuries": "none",
+      "nba_source_day_grouping": true,
+      "slices_from_unmasked_features": true,
+      "total_strategy": "direct",
+      "policies": [
+        "T0",
+        "T1",
+        "T2",
+        "T3",
+        "T4",
+        "T5"
+      ],
+      "xgboost_params": {
+        "n_estimators": 400,
+        "max_depth": 5,
+        "learning_rate": 0.0153,
+        "subsample": 0.6378,
+        "colsample_bytree": 0.8974,
+        "reg_alpha": 0.3418,
+        "reg_lambda": 1.3977,
+        "min_child_weight": 4,
+        "gamma": 0.7319,
+        "random_state": 42,
+        "n_jobs": -1
+      }
+    },
+    "thresholds": {
+      "development_improvement": 0.02,
+      "rmse_max_change": 0.01,
+      "eligible_slice_min_samples": 100,
+      "slice_max_degradation": 0.05
+    },
+    "promote": false
+  },
+  "development": {
+    "candidates": {
+      "direct:T0": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.744492744707495,
+          "rmse": 18.501845253505692,
+          "bias": 0.6920893928306399,
+          "p90_absolute_error": 29.883094787597656
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 15.343292695930206,
+            "rmse": 19.035441307157374,
+            "bias": 6.290598765913263,
+            "p90_absolute_error": 31.279945373535156,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.526760864257813,
+            "rmse": 18.345711191868205,
+            "bias": -0.39804461079259074,
+            "p90_absolute_error": 29.61633911132812,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.930638490388688,
+            "rmse": 18.616926446201077,
+            "bias": 0.9435188443053002,
+            "p90_absolute_error": 30.286993408203124,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.3472494042438,
+            "rmse": 19.074034840989214,
+            "bias": 1.9525835894156194,
+            "p90_absolute_error": 30.47200164794923,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.283670176630435,
+            "rmse": 19.01816852668555,
+            "bias": 1.7971244480298914,
+            "p90_absolute_error": 30.368231201171884,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.0,
+          "loss_difference_95ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2024-04",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-03-31",
+            "samples": 1034,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-03-31",
+            "effective_samples": 1034.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1034,
+                "weight": 1034.0
+              }
+            }
+          },
+          {
+            "month": "2024-05",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-04-30",
+            "samples": 1191,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-04-30",
+            "effective_samples": 1191.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1191,
+                "weight": 1191.0
+              }
+            }
+          },
+          {
+            "month": "2024-06",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-05-30",
+            "samples": 1232,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-05-30",
+            "effective_samples": 1232.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1232,
+                "weight": 1232.0
+              }
+            }
+          },
+          {
+            "month": "2024-10",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-06-17",
+            "samples": 1237,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-06-17",
+            "effective_samples": 1237.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              }
+            }
+          },
+          {
+            "month": "2024-11",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-10-31",
+            "samples": 1308,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-10-31",
+            "effective_samples": 1308.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 71,
+                "weight": 71.0
+              }
+            }
+          },
+          {
+            "month": "2024-12",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-11-30",
+            "samples": 1530,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-11-30",
+            "effective_samples": 1530.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 293,
+                "weight": 293.0
+              }
+            }
+          },
+          {
+            "month": "2025-01",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-12-31",
+            "samples": 1721,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-12-31",
+            "effective_samples": 1721.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 484,
+                "weight": 484.0
+              }
+            }
+          },
+          {
+            "month": "2025-02",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-01-31",
+            "samples": 1947,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-01-31",
+            "effective_samples": 1947.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 710,
+                "weight": 710.0
+              }
+            }
+          },
+          {
+            "month": "2025-03",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-02-28",
+            "samples": 2122,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-02-28",
+            "effective_samples": 2122.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 885,
+                "weight": 885.0
+              }
+            }
+          },
+          {
+            "month": "2025-04",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-03-31",
+            "samples": 2357,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-03-31",
+            "effective_samples": 2357.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1120,
+                "weight": 1120.0
+              }
+            }
+          },
+          {
+            "month": "2025-05",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-04-30",
+            "samples": 2504,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-04-30",
+            "effective_samples": 2504.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1267,
+                "weight": 1267.0
+              }
+            }
+          },
+          {
+            "month": "2025-06",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-05-31",
+            "samples": 2543,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-05-31",
+            "effective_samples": 2543.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1306,
+                "weight": 1306.0
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "direct:T1": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.744492744707495,
+          "rmse": 18.501845253505692,
+          "bias": 0.6920893928306399,
+          "p90_absolute_error": 29.883094787597656
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 15.343292695930206,
+            "rmse": 19.035441307157374,
+            "bias": 6.290598765913263,
+            "p90_absolute_error": 31.279945373535156,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.526760864257813,
+            "rmse": 18.345711191868205,
+            "bias": -0.39804461079259074,
+            "p90_absolute_error": 29.61633911132812,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.930638490388688,
+            "rmse": 18.616926446201077,
+            "bias": 0.9435188443053002,
+            "p90_absolute_error": 30.286993408203124,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.3472494042438,
+            "rmse": 19.074034840989214,
+            "bias": 1.9525835894156194,
+            "p90_absolute_error": 30.47200164794923,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.283670176630435,
+            "rmse": 19.01816852668555,
+            "bias": 1.7971244480298914,
+            "p90_absolute_error": 30.368231201171884,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.0,
+          "loss_difference_95ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "fold_weights": [],
+        "duplicate_folds": [
+          {
+            "month": "2024-04",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-05",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-06",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-10",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-11",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-12",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-01",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-02",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-03",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-04",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-05",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-06",
+            "duplicate_of": "xgboost:T0"
+          }
+        ]
+      },
+      "direct:T2": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.744492744707495,
+          "rmse": 18.501845253505692,
+          "bias": 0.6920893928306399,
+          "p90_absolute_error": 29.883094787597656
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 15.343292695930206,
+            "rmse": 19.035441307157374,
+            "bias": 6.290598765913263,
+            "p90_absolute_error": 31.279945373535156,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.526760864257813,
+            "rmse": 18.345711191868205,
+            "bias": -0.39804461079259074,
+            "p90_absolute_error": 29.61633911132812,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.930638490388688,
+            "rmse": 18.616926446201077,
+            "bias": 0.9435188443053002,
+            "p90_absolute_error": 30.286993408203124,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.3472494042438,
+            "rmse": 19.074034840989214,
+            "bias": 1.9525835894156194,
+            "p90_absolute_error": 30.47200164794923,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.283670176630435,
+            "rmse": 19.01816852668555,
+            "bias": 1.7971244480298914,
+            "p90_absolute_error": 30.368231201171884,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.0,
+          "loss_difference_95ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "fold_weights": [],
+        "duplicate_folds": [
+          {
+            "month": "2024-04",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-05",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-06",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-10",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-11",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-12",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-01",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-02",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-03",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-04",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-05",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-06",
+            "duplicate_of": "xgboost:T0"
+          }
+        ]
+      },
+      "direct:T3": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.807257871200038,
+          "rmse": 18.515628044409574,
+          "bias": 0.4023455516644078,
+          "p90_absolute_error": 30.27850341796875
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 15.346925666533322,
+            "rmse": 19.021933776451263,
+            "bias": 7.135405023413968,
+            "p90_absolute_error": 30.669692993164062,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.9534666984312,
+            "rmse": 18.66232463134436,
+            "bias": -0.6583117085118447,
+            "p90_absolute_error": 30.781658935546876,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 15.021154049496062,
+            "rmse": 18.627393569181123,
+            "bias": 0.5631888982471436,
+            "p90_absolute_error": 30.806375122070307,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.432259379953578,
+            "rmse": 19.077634929613506,
+            "bias": 1.912722767263219,
+            "p90_absolute_error": 30.604226684570317,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.344739353345789,
+            "rmse": 18.991444816526585,
+            "bias": 1.7525437860903532,
+            "p90_absolute_error": 30.558157348632815,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": -0.004256852207755516,
+          "loss_difference_95ci": [
+            -0.06320540864464465,
+            0.19013942855749913
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2024-04",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-03-31",
+            "samples": 1034,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-03-31",
+            "effective_samples": 1006.1989784691864,
+            "by_season": {
+              "2023-24": {
+                "samples": 1034,
+                "weight": 1033.9999999999984
+              }
+            }
+          },
+          {
+            "month": "2024-05",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-04-30",
+            "samples": 1191,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-04-30",
+            "effective_samples": 1149.0401805117604,
+            "by_season": {
+              "2023-24": {
+                "samples": 1191,
+                "weight": 1191.0000000000014
+              }
+            }
+          },
+          {
+            "month": "2024-06",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-05-30",
+            "samples": 1232,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-05-30",
+            "effective_samples": 1183.1157298191424,
+            "by_season": {
+              "2023-24": {
+                "samples": 1232,
+                "weight": 1232.0000000000027
+              }
+            }
+          },
+          {
+            "month": "2024-10",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-06-17",
+            "samples": 1237,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-06-17",
+            "effective_samples": 1186.552138817978,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.000000000001
+              }
+            }
+          },
+          {
+            "month": "2024-11",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-10-31",
+            "samples": 1308,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-10-31",
+            "effective_samples": 1123.110667637944,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1129.715801007596
+              },
+              "2024-25": {
+                "samples": 71,
+                "weight": 178.28419899240026
+              }
+            }
+          },
+          {
+            "month": "2024-12",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-11-30",
+            "samples": 1530,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-11-30",
+            "effective_samples": 1156.1944647891867,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 905.4751317082574
+              },
+              "2024-25": {
+                "samples": 293,
+                "weight": 624.5248682917434
+              }
+            }
+          },
+          {
+            "month": "2025-01",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-12-31",
+            "samples": 1721,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-12-31",
+            "effective_samples": 1258.8046220999008,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 780.3209929830284
+              },
+              "2024-25": {
+                "samples": 484,
+                "weight": 940.6790070169712
+              }
+            }
+          },
+          {
+            "month": "2025-02",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2025-01-31",
+            "samples": 1947,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-01-31",
+            "effective_samples": 1404.9852925094997,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 673.1330012981217
+              },
+              "2024-25": {
+                "samples": 710,
+                "weight": 1273.8669987018834
+              }
+            }
+          },
+          {
+            "month": "2025-03",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2025-02-28",
+            "samples": 2122,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-02-28",
+            "effective_samples": 1523.9927722723037,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 608.4360822700905
+              },
+              "2024-25": {
+                "samples": 885,
+                "weight": 1513.5639177299122
+              }
+            }
+          },
+          {
+            "month": "2025-04",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2025-03-31",
+            "samples": 2357,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-03-31",
+            "effective_samples": 1685.1235493870063,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 537.5928881121744
+              },
+              "2024-25": {
+                "samples": 1120,
+                "weight": 1819.407111887828
+              }
+            }
+          },
+          {
+            "month": "2025-05",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2025-04-30",
+            "samples": 2504,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-04-30",
+            "effective_samples": 1784.5709058216346,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 500.0662260130821
+              },
+              "2024-25": {
+                "samples": 1267,
+                "weight": 2003.9337739869131
+              }
+            }
+          },
+          {
+            "month": "2025-06",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2025-05-31",
+            "samples": 2543,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-05-31",
+            "effective_samples": 1805.2986262049767,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 489.6258711358758
+              },
+              "2024-25": {
+                "samples": 1306,
+                "weight": 2053.374128864116
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "direct:T4": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.748376951997702,
+          "rmse": 18.525642287703185,
+          "bias": 0.4693010677448363,
+          "p90_absolute_error": 30.347183227539062
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 15.312691378306193,
+            "rmse": 19.090740267919795,
+            "bias": 6.337977030191077,
+            "p90_absolute_error": 31.252822875976562,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.708349707818801,
+            "rmse": 18.584406190611407,
+            "bias": -0.3902547528666835,
+            "p90_absolute_error": 30.933728027343747,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.980955148100715,
+            "rmse": 18.674301072381276,
+            "bias": 0.7154797088728644,
+            "p90_absolute_error": 31.08091125488281,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.343520123025645,
+            "rmse": 19.070074818561494,
+            "bias": 1.9244134322456692,
+            "p90_absolute_error": 30.493830871582034,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.283170829441236,
+            "rmse": 19.022149513259837,
+            "bias": 1.721640916907269,
+            "p90_absolute_error": 30.47852783203125,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": -0.00026343444684468175,
+          "loss_difference_95ci": [
+            -0.08817025582291016,
+            0.09873870873012314
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2024-04",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-03-31",
+            "samples": 1034,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-03-31",
+            "effective_samples": 1027.0828501582534,
+            "by_season": {
+              "2023-24": {
+                "samples": 1034,
+                "weight": 1033.9999999999993
+              }
+            }
+          },
+          {
+            "month": "2024-05",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-04-30",
+            "samples": 1191,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-04-30",
+            "effective_samples": 1180.4747713025208,
+            "by_season": {
+              "2023-24": {
+                "samples": 1191,
+                "weight": 1191.0000000000011
+              }
+            }
+          },
+          {
+            "month": "2024-06",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-05-30",
+            "samples": 1232,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-05-30",
+            "effective_samples": 1219.8054025653987,
+            "by_season": {
+              "2023-24": {
+                "samples": 1232,
+                "weight": 1232.0000000000018
+              }
+            }
+          },
+          {
+            "month": "2024-10",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-06-17",
+            "samples": 1237,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-06-17",
+            "effective_samples": 1224.456681472623,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0000000000005
+              }
+            }
+          },
+          {
+            "month": "2024-11",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-10-31",
+            "samples": 1308,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-10-31",
+            "effective_samples": 1270.4017858367793,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1194.507871897276
+              },
+              "2024-25": {
+                "samples": 71,
+                "weight": 113.49212810272097
+              }
+            }
+          },
+          {
+            "month": "2024-12",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-11-30",
+            "samples": 1530,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-11-30",
+            "effective_samples": 1435.2836352661639,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1090.3230649893212
+              },
+              "2024-25": {
+                "samples": 293,
+                "weight": 439.6769350106751
+              }
+            }
+          },
+          {
+            "month": "2025-01",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-12-31",
+            "samples": 1721,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-12-31",
+            "effective_samples": 1588.538733934992,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1021.6323961857611
+              },
+              "2024-25": {
+                "samples": 484,
+                "weight": 699.3676038142429
+              }
+            }
+          },
+          {
+            "month": "2025-02",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-01-31",
+            "samples": 1947,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-01-31",
+            "effective_samples": 1775.8830776041707,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 955.6219416452094
+              },
+              "2024-25": {
+                "samples": 710,
+                "weight": 991.3780583547937
+              }
+            }
+          },
+          {
+            "month": "2025-03",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-02-28",
+            "samples": 2122,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-02-28",
+            "effective_samples": 1922.8448973413092,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 912.2112042642891
+              },
+              "2024-25": {
+                "samples": 885,
+                "weight": 1209.7887957357075
+              }
+            }
+          },
+          {
+            "month": "2025-04",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-03-31",
+            "samples": 2357,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-03-31",
+            "effective_samples": 2120.8367323099337,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 861.2630908014952
+              },
+              "2024-25": {
+                "samples": 1120,
+                "weight": 1495.7369091985022
+              }
+            }
+          },
+          {
+            "month": "2025-05",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-04-30",
+            "samples": 2504,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-04-30",
+            "effective_samples": 2244.439152911515,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 832.7029406338567
+              },
+              "2024-25": {
+                "samples": 1267,
+                "weight": 1671.2970593661432
+              }
+            }
+          },
+          {
+            "month": "2025-06",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-05-31",
+            "samples": 2543,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-05-31",
+            "effective_samples": 2275.5661721263937,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 824.7924125453102
+              },
+              "2024-25": {
+                "samples": 1306,
+                "weight": 1718.2075874546879
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "direct:T5": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.725197734178527,
+          "rmse": 18.48316647117212,
+          "bias": 0.5652231805242774,
+          "p90_absolute_error": 30.207901000976562
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 15.222800289291934,
+            "rmse": 18.976422923798843,
+            "bias": 6.342067029102739,
+            "p90_absolute_error": 30.895286560058594,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.740073025611139,
+            "rmse": 18.568558501943013,
+            "bias": -0.5803455968056955,
+            "p90_absolute_error": 30.053561401367183,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.909407460565799,
+            "rmse": 18.571345583498843,
+            "bias": 0.8226608047573349,
+            "p90_absolute_error": 30.86664428710937,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.289054400678994,
+            "rmse": 19.021786607924383,
+            "bias": 1.8764667510986328,
+            "p90_absolute_error": 30.760217285156262,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.230223441745924,
+            "rmse": 18.96946689659303,
+            "bias": 1.726718803074049,
+            "p90_absolute_error": 30.65006103515626,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.0013086249125724208,
+          "loss_difference_95ci": [
+            -0.09504548344031243,
+            0.05881657688794914
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2024-04",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-03-31",
+            "samples": 1034,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-03-31",
+            "effective_samples": 1032.2618318377954,
+            "by_season": {
+              "2023-24": {
+                "samples": 1034,
+                "weight": 1033.9999999999986
+              }
+            }
+          },
+          {
+            "month": "2024-05",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-04-30",
+            "samples": 1191,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-04-30",
+            "effective_samples": 1188.3495593873133,
+            "by_season": {
+              "2023-24": {
+                "samples": 1191,
+                "weight": 1191.0000000000025
+              }
+            }
+          },
+          {
+            "month": "2024-06",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-05-30",
+            "samples": 1232,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-05-30",
+            "effective_samples": 1228.9389557117252,
+            "by_season": {
+              "2023-24": {
+                "samples": 1232,
+                "weight": 1232.0000000000036
+              }
+            }
+          },
+          {
+            "month": "2024-10",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-06-17",
+            "samples": 1237,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-06-17",
+            "effective_samples": 1233.8563183067015,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1236.9999999999977
+              }
+            }
+          },
+          {
+            "month": "2024-11",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-10-31",
+            "samples": 1308,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-10-31",
+            "effective_samples": 1299.5904607846162,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1217.944272076725
+              },
+              "2024-25": {
+                "samples": 71,
+                "weight": 90.0557279232792
+              }
+            }
+          },
+          {
+            "month": "2024-12",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-11-30",
+            "samples": 1530,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-11-30",
+            "effective_samples": 1507.629261102813,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1168.445151501426
+              },
+              "2024-25": {
+                "samples": 293,
+                "weight": 361.55484849857146
+              }
+            }
+          },
+          {
+            "month": "2025-01",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-12-31",
+            "samples": 1721,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-12-31",
+            "effective_samples": 1688.0262863696378,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1133.6538185538416
+              },
+              "2024-25": {
+                "samples": 484,
+                "weight": 587.3461814461597
+              }
+            }
+          },
+          {
+            "month": "2025-02",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-01-31",
+            "samples": 1947,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-01-31",
+            "effective_samples": 1902.2517523407162,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1098.561387946155
+              },
+              "2024-25": {
+                "samples": 710,
+                "weight": 848.4386120538476
+              }
+            }
+          },
+          {
+            "month": "2025-03",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-02-28",
+            "samples": 2122,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-02-28",
+            "effective_samples": 2068.31261563919,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1074.5944546039339
+              },
+              "2024-25": {
+                "samples": 885,
+                "weight": 1047.4055453960627
+              }
+            }
+          },
+          {
+            "month": "2025-04",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-03-31",
+            "samples": 2357,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-03-31",
+            "effective_samples": 2291.1846950278723,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1045.5623932683066
+              },
+              "2024-25": {
+                "samples": 1120,
+                "weight": 1311.4376067316882
+              }
+            }
+          },
+          {
+            "month": "2025-05",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-04-30",
+            "samples": 2504,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-04-30",
+            "effective_samples": 2430.40558924697,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1028.8572647691337
+              },
+              "2024-25": {
+                "samples": 1267,
+                "weight": 1475.1427352308679
+              }
+            }
+          },
+          {
+            "month": "2025-06",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-05-31",
+            "samples": 2543,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-05-31",
+            "effective_samples": 2466.9090557806408,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1024.2388236930994
+              },
+              "2024-25": {
+                "samples": 1306,
+                "weight": 1518.761176306906
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "residual:T0": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.708653694205477,
+          "rmse": 18.430109744403083,
+          "bias": 0.10501726192365693,
+          "p90_absolute_error": 30.113980293273926
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 15.03608881466719,
+            "rmse": 18.809198193390642,
+            "bias": 6.883530019546848,
+            "p90_absolute_error": 30.372104287147522,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.911642284426959,
+            "rmse": 18.683875764837413,
+            "bias": 1.099095402537815,
+            "p90_absolute_error": 30.336243486404417,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.829832434731577,
+            "rmse": 18.48041830559857,
+            "bias": 0.15862239760614183,
+            "p90_absolute_error": 30.545012712478634,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.375804592349121,
+            "rmse": 19.00713301106068,
+            "bias": 1.4908529938792512,
+            "p90_absolute_error": 30.58361742496491,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.297440434895131,
+            "rmse": 18.941087515162828,
+            "bias": 1.3513374726474285,
+            "p90_absolute_error": 30.54045810699463,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.002430673684239304,
+          "loss_difference_95ci": [
+            -0.18565587696884533,
+            0.11405764317195694
+          ]
+        },
+        "vs_same_weight_direct": {
+          "mae_improvement": 0.002430673684239304,
+          "loss_difference_95ci": [
+            -0.18565587696884533,
+            0.11405764317195694
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2024-04",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-03-31",
+            "samples": 1034,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-03-31",
+            "effective_samples": 1034.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1034,
+                "weight": 1034.0
+              }
+            }
+          },
+          {
+            "month": "2024-05",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-04-30",
+            "samples": 1191,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-04-30",
+            "effective_samples": 1191.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1191,
+                "weight": 1191.0
+              }
+            }
+          },
+          {
+            "month": "2024-06",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-05-30",
+            "samples": 1232,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-05-30",
+            "effective_samples": 1232.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1232,
+                "weight": 1232.0
+              }
+            }
+          },
+          {
+            "month": "2024-10",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-06-17",
+            "samples": 1237,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-06-17",
+            "effective_samples": 1237.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              }
+            }
+          },
+          {
+            "month": "2024-11",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-10-31",
+            "samples": 1308,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-10-31",
+            "effective_samples": 1308.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 71,
+                "weight": 71.0
+              }
+            }
+          },
+          {
+            "month": "2024-12",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-11-30",
+            "samples": 1530,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-11-30",
+            "effective_samples": 1530.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 293,
+                "weight": 293.0
+              }
+            }
+          },
+          {
+            "month": "2025-01",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2024-12-31",
+            "samples": 1721,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-12-31",
+            "effective_samples": 1721.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 484,
+                "weight": 484.0
+              }
+            }
+          },
+          {
+            "month": "2025-02",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-01-31",
+            "samples": 1947,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-01-31",
+            "effective_samples": 1947.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 710,
+                "weight": 710.0
+              }
+            }
+          },
+          {
+            "month": "2025-03",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-02-28",
+            "samples": 2122,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-02-28",
+            "effective_samples": 2122.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 885,
+                "weight": 885.0
+              }
+            }
+          },
+          {
+            "month": "2025-04",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-03-31",
+            "samples": 2357,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-03-31",
+            "effective_samples": 2357.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1120,
+                "weight": 1120.0
+              }
+            }
+          },
+          {
+            "month": "2025-05",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-04-30",
+            "samples": 2504,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-04-30",
+            "effective_samples": 2504.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1267,
+                "weight": 1267.0
+              }
+            }
+          },
+          {
+            "month": "2025-06",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-05-31",
+            "samples": 2543,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-05-31",
+            "effective_samples": 2543.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1306,
+                "weight": 1306.0
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "residual:T1": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.708653694205477,
+          "rmse": 18.430109744403083,
+          "bias": 0.10501726192365693,
+          "p90_absolute_error": 30.113980293273926
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 15.03608881466719,
+            "rmse": 18.809198193390642,
+            "bias": 6.883530019546848,
+            "p90_absolute_error": 30.372104287147522,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.911642284426959,
+            "rmse": 18.683875764837413,
+            "bias": 1.099095402537815,
+            "p90_absolute_error": 30.336243486404417,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.829832434731577,
+            "rmse": 18.48041830559857,
+            "bias": 0.15862239760614183,
+            "p90_absolute_error": 30.545012712478634,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.375804592349121,
+            "rmse": 19.00713301106068,
+            "bias": 1.4908529938792512,
+            "p90_absolute_error": 30.58361742496491,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.297440434895131,
+            "rmse": 18.941087515162828,
+            "bias": 1.3513374726474285,
+            "p90_absolute_error": 30.54045810699463,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.002430673684239304,
+          "loss_difference_95ci": [
+            -0.18565587696884533,
+            0.11405764317195694
+          ]
+        },
+        "vs_same_weight_direct": {
+          "mae_improvement": 0.002430673684239304,
+          "loss_difference_95ci": [
+            -0.18565587696884533,
+            0.11405764317195694
+          ]
+        },
+        "fold_weights": [],
+        "duplicate_folds": [
+          {
+            "month": "2024-04",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-05",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-06",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-10",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-11",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-12",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-01",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-02",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-03",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-04",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-05",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-06",
+            "duplicate_of": "xgboost:T0"
+          }
+        ]
+      },
+      "residual:T2": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.708653694205477,
+          "rmse": 18.430109744403083,
+          "bias": 0.10501726192365693,
+          "p90_absolute_error": 30.113980293273926
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 15.03608881466719,
+            "rmse": 18.809198193390642,
+            "bias": 6.883530019546848,
+            "p90_absolute_error": 30.372104287147522,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.911642284426959,
+            "rmse": 18.683875764837413,
+            "bias": 1.099095402537815,
+            "p90_absolute_error": 30.336243486404417,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.829832434731577,
+            "rmse": 18.48041830559857,
+            "bias": 0.15862239760614183,
+            "p90_absolute_error": 30.545012712478634,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.375804592349121,
+            "rmse": 19.00713301106068,
+            "bias": 1.4908529938792512,
+            "p90_absolute_error": 30.58361742496491,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.297440434895131,
+            "rmse": 18.941087515162828,
+            "bias": 1.3513374726474285,
+            "p90_absolute_error": 30.54045810699463,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.002430673684239304,
+          "loss_difference_95ci": [
+            -0.18565587696884533,
+            0.11405764317195694
+          ]
+        },
+        "vs_same_weight_direct": {
+          "mae_improvement": 0.002430673684239304,
+          "loss_difference_95ci": [
+            -0.18565587696884533,
+            0.11405764317195694
+          ]
+        },
+        "fold_weights": [],
+        "duplicate_folds": [
+          {
+            "month": "2024-04",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-05",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-06",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-10",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-11",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2024-12",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-01",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-02",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-03",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-04",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-05",
+            "duplicate_of": "xgboost:T0"
+          },
+          {
+            "month": "2025-06",
+            "duplicate_of": "xgboost:T0"
+          }
+        ]
+      },
+      "residual:T3": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.742014390511665,
+          "rmse": 18.422976612136633,
+          "bias": 0.008405446151694121,
+          "p90_absolute_error": 30.201356649398804
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 15.203482960597668,
+            "rmse": 18.967220476740643,
+            "bias": 8.025152124789914,
+            "p90_absolute_error": 30.152551651000977,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.836752159845444,
+            "rmse": 18.575385257767962,
+            "bias": 0.5488869111384115,
+            "p90_absolute_error": 30.12381339073181,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.821590944706767,
+            "rmse": 18.412197846642798,
+            "bias": -0.016776316004322955,
+            "p90_absolute_error": 30.573088455200196,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.251303420749668,
+            "rmse": 18.880407126665844,
+            "bias": 1.4277618457664452,
+            "p90_absolute_error": 29.913703560829173,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.181470671422456,
+            "rmse": 18.811448197270153,
+            "bias": 1.294318875051711,
+            "p90_absolute_error": 29.831759214401252,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.00016808677237944178,
+          "loss_difference_95ci": [
+            -0.15888187578233123,
+            0.15256712927733762
+          ]
+        },
+        "vs_same_weight_direct": {
+          "mae_improvement": 0.004406182512379362,
+          "loss_difference_95ci": [
+            -0.22540725993615718,
+            0.08501510114017279
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2024-04",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-03-31",
+            "samples": 1034,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-03-31",
+            "effective_samples": 1006.1989784691864,
+            "by_season": {
+              "2023-24": {
+                "samples": 1034,
+                "weight": 1033.9999999999984
+              }
+            }
+          },
+          {
+            "month": "2024-05",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-04-30",
+            "samples": 1191,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-04-30",
+            "effective_samples": 1149.0401805117604,
+            "by_season": {
+              "2023-24": {
+                "samples": 1191,
+                "weight": 1191.0000000000014
+              }
+            }
+          },
+          {
+            "month": "2024-06",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-05-30",
+            "samples": 1232,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-05-30",
+            "effective_samples": 1183.1157298191424,
+            "by_season": {
+              "2023-24": {
+                "samples": 1232,
+                "weight": 1232.0000000000027
+              }
+            }
+          },
+          {
+            "month": "2024-10",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-06-17",
+            "samples": 1237,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-06-17",
+            "effective_samples": 1186.552138817978,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.000000000001
+              }
+            }
+          },
+          {
+            "month": "2024-11",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-10-31",
+            "samples": 1308,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-10-31",
+            "effective_samples": 1123.110667637944,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1129.715801007596
+              },
+              "2024-25": {
+                "samples": 71,
+                "weight": 178.28419899240026
+              }
+            }
+          },
+          {
+            "month": "2024-12",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-11-30",
+            "samples": 1530,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-11-30",
+            "effective_samples": 1156.1944647891867,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 905.4751317082574
+              },
+              "2024-25": {
+                "samples": 293,
+                "weight": 624.5248682917434
+              }
+            }
+          },
+          {
+            "month": "2025-01",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2024-12-31",
+            "samples": 1721,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-12-31",
+            "effective_samples": 1258.8046220999008,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 780.3209929830284
+              },
+              "2024-25": {
+                "samples": 484,
+                "weight": 940.6790070169712
+              }
+            }
+          },
+          {
+            "month": "2025-02",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2025-01-31",
+            "samples": 1947,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-01-31",
+            "effective_samples": 1404.9852925094997,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 673.1330012981217
+              },
+              "2024-25": {
+                "samples": 710,
+                "weight": 1273.8669987018834
+              }
+            }
+          },
+          {
+            "month": "2025-03",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2025-02-28",
+            "samples": 2122,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-02-28",
+            "effective_samples": 1523.9927722723037,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 608.4360822700905
+              },
+              "2024-25": {
+                "samples": 885,
+                "weight": 1513.5639177299122
+              }
+            }
+          },
+          {
+            "month": "2025-04",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2025-03-31",
+            "samples": 2357,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-03-31",
+            "effective_samples": 1685.1235493870063,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 537.5928881121744
+              },
+              "2024-25": {
+                "samples": 1120,
+                "weight": 1819.407111887828
+              }
+            }
+          },
+          {
+            "month": "2025-05",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2025-04-30",
+            "samples": 2504,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-04-30",
+            "effective_samples": 1784.5709058216346,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 500.0662260130821
+              },
+              "2024-25": {
+                "samples": 1267,
+                "weight": 2003.9337739869131
+              }
+            }
+          },
+          {
+            "month": "2025-06",
+            "policy": "T3",
+            "half_life_days": 180,
+            "cutoff": "2025-05-31",
+            "samples": 2543,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-05-31",
+            "effective_samples": 1805.2986262049767,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 489.6258711358758
+              },
+              "2024-25": {
+                "samples": 1306,
+                "weight": 2053.374128864116
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "residual:T4": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.662797440074403,
+          "rmse": 18.396131456373524,
+          "bias": 0.01666100072554045,
+          "p90_absolute_error": 30.156123638153076
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 14.992049922717802,
+            "rmse": 18.77688800266176,
+            "bias": 7.228582019120993,
+            "p90_absolute_error": 30.02117943763733,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.736745616985905,
+            "rmse": 18.473054650323263,
+            "bias": 0.6507032285774907,
+            "p90_absolute_error": 30.475018548965455,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.792103041659486,
+            "rmse": 18.46159203031287,
+            "bias": 0.006640640883400366,
+            "p90_absolute_error": 30.859404277801513,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.252593791429494,
+            "rmse": 18.93912743635787,
+            "bias": 1.448636866275869,
+            "p90_absolute_error": 30.41025477945805,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.167540527420199,
+            "rmse": 18.872553211307903,
+            "bias": 1.302118456059176,
+            "p90_absolute_error": 30.380163800716403,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.005540733482500867,
+          "loss_difference_95ci": [
+            -0.23480942569756125,
+            0.0536639290175453
+          ]
+        },
+        "vs_same_weight_direct": {
+          "mae_improvement": 0.0058026393142675565,
+          "loss_difference_95ci": [
+            -0.22864293351151496,
+            0.04575556258866106
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2024-04",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-03-31",
+            "samples": 1034,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-03-31",
+            "effective_samples": 1027.0828501582534,
+            "by_season": {
+              "2023-24": {
+                "samples": 1034,
+                "weight": 1033.9999999999993
+              }
+            }
+          },
+          {
+            "month": "2024-05",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-04-30",
+            "samples": 1191,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-04-30",
+            "effective_samples": 1180.4747713025208,
+            "by_season": {
+              "2023-24": {
+                "samples": 1191,
+                "weight": 1191.0000000000011
+              }
+            }
+          },
+          {
+            "month": "2024-06",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-05-30",
+            "samples": 1232,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-05-30",
+            "effective_samples": 1219.8054025653987,
+            "by_season": {
+              "2023-24": {
+                "samples": 1232,
+                "weight": 1232.0000000000018
+              }
+            }
+          },
+          {
+            "month": "2024-10",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-06-17",
+            "samples": 1237,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-06-17",
+            "effective_samples": 1224.456681472623,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0000000000005
+              }
+            }
+          },
+          {
+            "month": "2024-11",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-10-31",
+            "samples": 1308,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-10-31",
+            "effective_samples": 1270.4017858367793,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1194.507871897276
+              },
+              "2024-25": {
+                "samples": 71,
+                "weight": 113.49212810272097
+              }
+            }
+          },
+          {
+            "month": "2024-12",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-11-30",
+            "samples": 1530,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-11-30",
+            "effective_samples": 1435.2836352661639,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1090.3230649893212
+              },
+              "2024-25": {
+                "samples": 293,
+                "weight": 439.6769350106751
+              }
+            }
+          },
+          {
+            "month": "2025-01",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2024-12-31",
+            "samples": 1721,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-12-31",
+            "effective_samples": 1588.538733934992,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1021.6323961857611
+              },
+              "2024-25": {
+                "samples": 484,
+                "weight": 699.3676038142429
+              }
+            }
+          },
+          {
+            "month": "2025-02",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-01-31",
+            "samples": 1947,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-01-31",
+            "effective_samples": 1775.8830776041707,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 955.6219416452094
+              },
+              "2024-25": {
+                "samples": 710,
+                "weight": 991.3780583547937
+              }
+            }
+          },
+          {
+            "month": "2025-03",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-02-28",
+            "samples": 2122,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-02-28",
+            "effective_samples": 1922.8448973413092,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 912.2112042642891
+              },
+              "2024-25": {
+                "samples": 885,
+                "weight": 1209.7887957357075
+              }
+            }
+          },
+          {
+            "month": "2025-04",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-03-31",
+            "samples": 2357,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-03-31",
+            "effective_samples": 2120.8367323099337,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 861.2630908014952
+              },
+              "2024-25": {
+                "samples": 1120,
+                "weight": 1495.7369091985022
+              }
+            }
+          },
+          {
+            "month": "2025-05",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-04-30",
+            "samples": 2504,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-04-30",
+            "effective_samples": 2244.439152911515,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 832.7029406338567
+              },
+              "2024-25": {
+                "samples": 1267,
+                "weight": 1671.2970593661432
+              }
+            }
+          },
+          {
+            "month": "2025-06",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-05-31",
+            "samples": 2543,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-05-31",
+            "effective_samples": 2275.5661721263937,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 824.7924125453102
+              },
+              "2024-25": {
+                "samples": 1306,
+                "weight": 1718.2075874546879
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "residual:T5": {
+        "samples": 1516,
+        "total": {
+          "mae": 14.665625418543737,
+          "rmse": 18.372530050122652,
+          "bias": 0.10570368468564859,
+          "p90_absolute_error": 29.81678855419159
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 14.977895333465323,
+            "rmse": 18.72727098252419,
+            "bias": 6.605898328484541,
+            "p90_absolute_error": 30.445706129074097,
+            "samples": 166
+          },
+          "early_season": {
+            "mae": 14.79490988148797,
+            "rmse": 18.485460468406625,
+            "bias": 0.948150895199468,
+            "p90_absolute_error": 30.114802932739256,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 14.737951471116888,
+            "rmse": 18.384723648650134,
+            "bias": 0.21288666329770903,
+            "p90_absolute_error": 30.372235727310176,
+            "samples": 867
+          },
+          "incomplete_injury_report": {
+            "mae": 15.32788614205935,
+            "rmse": 18.952802927854723,
+            "bias": 1.4996593072538034,
+            "p90_absolute_error": 30.22209905982018,
+            "samples": 552
+          },
+          "injury_net_unavailable": {
+            "mae": 15.247949189161476,
+            "rmse": 18.895080311862376,
+            "bias": 1.3644089563061361,
+            "p90_absolute_error": 30.17415330410004,
+            "samples": 575
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.005348934516046154,
+          "loss_difference_95ci": [
+            -0.2191314820425015,
+            0.057805326340032645
+          ]
+        },
+        "vs_same_weight_direct": {
+          "mae_improvement": 0.00404560378136843,
+          "loss_difference_95ci": [
+            -0.20051886328619695,
+            0.07237299657688216
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2024-04",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-03-31",
+            "samples": 1034,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-03-31",
+            "effective_samples": 1032.2618318377954,
+            "by_season": {
+              "2023-24": {
+                "samples": 1034,
+                "weight": 1033.9999999999986
+              }
+            }
+          },
+          {
+            "month": "2024-05",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-04-30",
+            "samples": 1191,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-04-30",
+            "effective_samples": 1188.3495593873133,
+            "by_season": {
+              "2023-24": {
+                "samples": 1191,
+                "weight": 1191.0000000000025
+              }
+            }
+          },
+          {
+            "month": "2024-06",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-05-30",
+            "samples": 1232,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-05-30",
+            "effective_samples": 1228.9389557117252,
+            "by_season": {
+              "2023-24": {
+                "samples": 1232,
+                "weight": 1232.0000000000036
+              }
+            }
+          },
+          {
+            "month": "2024-10",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-06-17",
+            "samples": 1237,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-06-17",
+            "effective_samples": 1233.8563183067015,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1236.9999999999977
+              }
+            }
+          },
+          {
+            "month": "2024-11",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-10-31",
+            "samples": 1308,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-10-31",
+            "effective_samples": 1299.5904607846162,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1217.944272076725
+              },
+              "2024-25": {
+                "samples": 71,
+                "weight": 90.0557279232792
+              }
+            }
+          },
+          {
+            "month": "2024-12",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-11-30",
+            "samples": 1530,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-11-30",
+            "effective_samples": 1507.629261102813,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1168.445151501426
+              },
+              "2024-25": {
+                "samples": 293,
+                "weight": 361.55484849857146
+              }
+            }
+          },
+          {
+            "month": "2025-01",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2024-12-31",
+            "samples": 1721,
+            "fit_from": "2023-11-03",
+            "fit_until": "2024-12-31",
+            "effective_samples": 1688.0262863696378,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1133.6538185538416
+              },
+              "2024-25": {
+                "samples": 484,
+                "weight": 587.3461814461597
+              }
+            }
+          },
+          {
+            "month": "2025-02",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-01-31",
+            "samples": 1947,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-01-31",
+            "effective_samples": 1902.2517523407162,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1098.561387946155
+              },
+              "2024-25": {
+                "samples": 710,
+                "weight": 848.4386120538476
+              }
+            }
+          },
+          {
+            "month": "2025-03",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-02-28",
+            "samples": 2122,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-02-28",
+            "effective_samples": 2068.31261563919,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1074.5944546039339
+              },
+              "2024-25": {
+                "samples": 885,
+                "weight": 1047.4055453960627
+              }
+            }
+          },
+          {
+            "month": "2025-04",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-03-31",
+            "samples": 2357,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-03-31",
+            "effective_samples": 2291.1846950278723,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1045.5623932683066
+              },
+              "2024-25": {
+                "samples": 1120,
+                "weight": 1311.4376067316882
+              }
+            }
+          },
+          {
+            "month": "2025-05",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-04-30",
+            "samples": 2504,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-04-30",
+            "effective_samples": 2430.40558924697,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1028.8572647691337
+              },
+              "2024-25": {
+                "samples": 1267,
+                "weight": 1475.1427352308679
+              }
+            }
+          },
+          {
+            "month": "2025-06",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-05-31",
+            "samples": 2543,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-05-31",
+            "effective_samples": 2466.9090557806408,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1024.2388236930994
+              },
+              "2024-25": {
+                "samples": 1306,
+                "weight": 1518.761176306906
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      }
+    },
+    "baseline": {
+      "mae": 15.241149046804786,
+      "rmse": 18.979764656655284,
+      "bias": 0.5874911688248526,
+      "p90_absolute_error": 31.397796630859375
+    }
+  },
+  "audit": {
+    "candidates": {
+      "direct:T0": {
+        "samples": 1321,
+        "total": {
+          "mae": 15.353785893846695,
+          "rmse": 19.265857608686744,
+          "bias": -0.49297980193745267,
+          "p90_absolute_error": 32.0921630859375
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 14.414085836971507,
+            "rmse": 18.157583736931745,
+            "bias": 5.374032413258272,
+            "p90_absolute_error": 31.165588378906314,
+            "samples": 85
+          },
+          "early_season": {
+            "mae": 15.166658069241432,
+            "rmse": 18.866604467830307,
+            "bias": -3.679871393019153,
+            "p90_absolute_error": 31.746203613281246,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 15.468012660778463,
+            "rmse": 19.40129144923426,
+            "bias": 0.1649922163284133,
+            "p90_absolute_error": 31.99290771484375,
+            "samples": 813
+          },
+          "incomplete_injury_report": {
+            "mae": 15.139205713291677,
+            "rmse": 19.02109337824244,
+            "bias": -0.3091177499759369,
+            "p90_absolute_error": 32.11487121582032,
+            "samples": 487
+          },
+          "injury_net_unavailable": {
+            "mae": 15.205226309159222,
+            "rmse": 19.10132841891203,
+            "bias": 0.04555991116692038,
+            "p90_absolute_error": 31.962594604492185,
+            "samples": 544
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.0,
+          "loss_difference_95ci": [
+            0.0,
+            0.0
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2025-10",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-06-22",
+            "samples": 2550,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-06-22",
+            "effective_samples": 2550.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              }
+            }
+          },
+          {
+            "month": "2025-11",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-10-31",
+            "samples": 2630,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-10-31",
+            "effective_samples": 2630.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 80,
+                "weight": 80.0
+              }
+            }
+          },
+          {
+            "month": "2025-12",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-11-30",
+            "samples": 2849,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-11-30",
+            "effective_samples": 2849.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 299,
+                "weight": 299.0
+              }
+            }
+          },
+          {
+            "month": "2026-01",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-12-31",
+            "samples": 3046,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-12-31",
+            "effective_samples": 3046.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 496,
+                "weight": 496.0
+              }
+            }
+          },
+          {
+            "month": "2026-02",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2026-01-31",
+            "samples": 3279,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-01-31",
+            "effective_samples": 3279.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 729,
+                "weight": 729.0
+              }
+            }
+          },
+          {
+            "month": "2026-03",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2026-02-28",
+            "samples": 3445,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-02-28",
+            "effective_samples": 3445.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 895,
+                "weight": 895.0
+              }
+            }
+          },
+          {
+            "month": "2026-04",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2026-03-31",
+            "samples": 3684,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-03-31",
+            "effective_samples": 3684.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 1134,
+                "weight": 1134.0
+              }
+            }
+          },
+          {
+            "month": "2026-05",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2026-04-30",
+            "samples": 3828,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-04-30",
+            "effective_samples": 3828.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 1278,
+                "weight": 1278.0
+              }
+            }
+          },
+          {
+            "month": "2026-06",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2026-05-30",
+            "samples": 3866,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-05-30",
+            "effective_samples": 3866.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 1316,
+                "weight": 1316.0
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "direct:T4": {
+        "samples": 1321,
+        "total": {
+          "mae": 15.500475875542618,
+          "rmse": 19.370992622702857,
+          "bias": -0.14849647908929078,
+          "p90_absolute_error": 32.520843505859375
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 14.758793370863971,
+            "rmse": 18.568339743632084,
+            "bias": 7.071989889705883,
+            "p90_absolute_error": 28.900073242187524,
+            "samples": 85
+          },
+          "early_season": {
+            "mae": 15.530497495589717,
+            "rmse": 19.346792965151632,
+            "bias": -3.961765609248992,
+            "p90_absolute_error": 31.956027221679687,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 15.542443888946947,
+            "rmse": 19.443137235056046,
+            "bias": 0.4676132483675911,
+            "p90_absolute_error": 31.904159545898455,
+            "samples": 813
+          },
+          "incomplete_injury_report": {
+            "mae": 15.307309912460296,
+            "rmse": 19.119287029505713,
+            "bias": 0.18783722863794597,
+            "p90_absolute_error": 32.559085083007815,
+            "samples": 487
+          },
+          "injury_net_unavailable": {
+            "mae": 15.385985879337087,
+            "rmse": 19.214303736614315,
+            "bias": 0.4880370532765108,
+            "p90_absolute_error": 32.53919372558594,
+            "samples": 544
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": -0.009553994220716058,
+          "loss_difference_95ci": [
+            0.021205984746853524,
+            0.2722793054211002
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2025-10",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-06-22",
+            "samples": 2550,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-06-22",
+            "effective_samples": 2280.6267877648665,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 823.193472461237
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1726.8065275387594
+              }
+            }
+          },
+          {
+            "month": "2025-11",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-10-31",
+            "samples": 2630,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-10-31",
+            "effective_samples": 2294.5413811142457,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 794.1766644388266
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1665.9381956366203
+              },
+              "2025-26": {
+                "samples": 80,
+                "weight": 169.8851399245577
+              }
+            }
+          },
+          {
+            "month": "2025-12",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-11-30",
+            "samples": 2849,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-11-30",
+            "effective_samples": 2374.8928051415614,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 726.7646942169341
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1524.5286314118607
+              },
+              "2025-26": {
+                "samples": 299,
+                "weight": 597.7066743712106
+              }
+            }
+          },
+          {
+            "month": "2026-01",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-12-31",
+            "samples": 3046,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-12-31",
+            "effective_samples": 2475.4508388543736,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 676.7496035861345
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1419.6123658364231
+              },
+              "2025-26": {
+                "samples": 496,
+                "weight": 949.6380305774402
+              }
+            }
+          },
+          {
+            "month": "2026-02",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2026-01-31",
+            "samples": 3279,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-01-31",
+            "effective_samples": 2614.3567398236883,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 627.1252378363571
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1315.5157207968618
+              },
+              "2025-26": {
+                "samples": 729,
+                "weight": 1336.3590413667841
+              }
+            }
+          },
+          {
+            "month": "2026-03",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2026-02-28",
+            "samples": 3445,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-02-28",
+            "effective_samples": 2720.358586716789,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 596.3742657167761
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1251.0096463919097
+              },
+              "2025-26": {
+                "samples": 895,
+                "weight": 1597.6160878913115
+              }
+            }
+          },
+          {
+            "month": "2026-04",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2026-03-31",
+            "samples": 3684,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-03-31",
+            "effective_samples": 2878.8305698104264,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 557.2106827810172
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1168.8565038832905
+              },
+              "2025-26": {
+                "samples": 1134,
+                "weight": 1957.9328133356921
+              }
+            }
+          },
+          {
+            "month": "2026-05",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2026-04-30",
+            "samples": 3828,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-04-30",
+            "effective_samples": 2976.5013069424895,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 536.0383916321053
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1124.4435538515293
+              },
+              "2025-26": {
+                "samples": 1278,
+                "weight": 2167.518054516363
+              }
+            }
+          },
+          {
+            "month": "2026-06",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2026-05-30",
+            "samples": 3866,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-05-30",
+            "effective_samples": 3000.2033690084368,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 530.3694861207485
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1112.5519349690983
+              },
+              "2025-26": {
+                "samples": 1316,
+                "weight": 2223.0785789101483
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "direct:T5": {
+        "samples": 1321,
+        "total": {
+          "mae": 15.438655856159219,
+          "rmse": 19.313291454582767,
+          "bias": -0.26190931737468065,
+          "p90_absolute_error": 32.109130859375
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 14.720423978917738,
+            "rmse": 18.51237497763518,
+            "bias": 6.9774204029756435,
+            "p90_absolute_error": 29.481082153320344,
+            "samples": 85
+          },
+          "early_season": {
+            "mae": 15.20892580093876,
+            "rmse": 18.955928950642573,
+            "bias": -3.7043672623172883,
+            "p90_absolute_error": 32.148645019531244,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 15.529115139631621,
+            "rmse": 19.41467704515632,
+            "bias": 0.29282680384787246,
+            "p90_absolute_error": 31.887844848632817,
+            "samples": 813
+          },
+          "incomplete_injury_report": {
+            "mae": 15.229815535966376,
+            "rmse": 19.140753145689256,
+            "bias": 0.035293234447189424,
+            "p90_absolute_error": 32.196447753906256,
+            "samples": 487
+          },
+          "injury_net_unavailable": {
+            "mae": 15.303118341109332,
+            "rmse": 19.203606574516904,
+            "bias": 0.3695840555078843,
+            "p90_absolute_error": 31.895835876464844,
+            "samples": 544
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": -0.005527624450366821,
+          "loss_difference_95ci": [
+            -0.005977052274562802,
+            0.1762296984666782
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2025-10",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-06-22",
+            "samples": 2550,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-06-22",
+            "effective_samples": 2473.3347433418935,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1023.3210194953983
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1526.6789805045937
+              }
+            }
+          },
+          {
+            "month": "2025-11",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-10-31",
+            "samples": 2630,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-10-31",
+            "effective_samples": 2537.4196552901926,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1007.7958834049709
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1503.517237036826
+              },
+              "2025-26": {
+                "samples": 80,
+                "weight": 118.68687955820467
+              }
+            }
+          },
+          {
+            "month": "2025-12",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-11-30",
+            "samples": 2849,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-11-30",
+            "effective_samples": 2717.4034214270678,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 969.6128692307157
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1446.5525074538432
+              },
+              "2025-26": {
+                "samples": 299,
+                "weight": 432.8346233154451
+              }
+            }
+          },
+          {
+            "month": "2026-01",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-12-31",
+            "samples": 3046,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-12-31",
+            "effective_samples": 2882.7161590829596,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 939.3129458356676
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1401.3484558641176
+              },
+              "2025-26": {
+                "samples": 496,
+                "weight": 705.3385983002146
+              }
+            }
+          },
+          {
+            "month": "2026-02",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2026-01-31",
+            "samples": 3279,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-01-31",
+            "effective_samples": 3081.263404226637,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 907.4354248409129
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1353.7908074564994
+              },
+              "2025-26": {
+                "samples": 729,
+                "weight": 1017.7737677025904
+              }
+            }
+          },
+          {
+            "month": "2026-03",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2026-02-28",
+            "samples": 3445,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-02-28",
+            "effective_samples": 3223.8365804579735,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 886.7472407874842
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1322.9263815945535
+              },
+              "2025-26": {
+                "samples": 895,
+                "weight": 1235.3263776179695
+              }
+            }
+          },
+          {
+            "month": "2026-04",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2026-03-31",
+            "samples": 3684,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-03-31",
+            "effective_samples": 3430.0185166921665,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 859.3173692368963
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1282.0041220724445
+              },
+              "2025-26": {
+                "samples": 1134,
+                "weight": 1542.6785086906655
+              }
+            }
+          },
+          {
+            "month": "2026-05",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2026-04-30",
+            "samples": 3828,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-04-30",
+            "effective_samples": 3554.5984466706655,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 843.9581929408322
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1259.0899718084056
+              },
+              "2025-26": {
+                "samples": 1278,
+                "weight": 1724.9518352507432
+              }
+            }
+          },
+          {
+            "month": "2026-06",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2026-05-30",
+            "samples": 3866,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-05-30",
+            "effective_samples": 3586.867419174842,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 839.8366484667514
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1252.941094578369
+              },
+              "2025-26": {
+                "samples": 1316,
+                "weight": 1773.222256954884
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "residual:T0": {
+        "samples": 1321,
+        "total": {
+          "mae": 15.197337629409601,
+          "rmse": 19.078284255473363,
+          "bias": 0.42853761470773,
+          "p90_absolute_error": 32.24990364164114
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 14.163096742770252,
+            "rmse": 18.00357164192728,
+            "bias": 6.193055640248692,
+            "p90_absolute_error": 32.734001731872645,
+            "samples": 85
+          },
+          "early_season": {
+            "mae": 14.932905483474174,
+            "rmse": 18.60575669775864,
+            "bias": -3.0355429520890596,
+            "p90_absolute_error": 31.885993286967278,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 15.281842082767515,
+            "rmse": 19.171637273093456,
+            "bias": 1.128031810341222,
+            "p90_absolute_error": 31.904067134857215,
+            "samples": 813
+          },
+          "incomplete_injury_report": {
+            "mae": 14.991699869484398,
+            "rmse": 18.842206245304787,
+            "bias": 0.6370720900384828,
+            "p90_absolute_error": 32.24874215126038,
+            "samples": 487
+          },
+          "injury_net_unavailable": {
+            "mae": 15.121491691695102,
+            "rmse": 18.95961272867509,
+            "bias": 1.0461488604864024,
+            "p90_absolute_error": 32.113047611713405,
+            "samples": 544
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.010189556212308076,
+          "loss_difference_95ci": [
+            -0.29301754618700043,
+            -0.02161579171766404
+          ]
+        },
+        "vs_same_weight_direct": {
+          "mae_improvement": 0.010189556212308076,
+          "loss_difference_95ci": [
+            -0.29301754618700043,
+            -0.02161579171766404
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2025-10",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-06-22",
+            "samples": 2550,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-06-22",
+            "effective_samples": 2550.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              }
+            }
+          },
+          {
+            "month": "2025-11",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-10-31",
+            "samples": 2630,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-10-31",
+            "effective_samples": 2630.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 80,
+                "weight": 80.0
+              }
+            }
+          },
+          {
+            "month": "2025-12",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-11-30",
+            "samples": 2849,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-11-30",
+            "effective_samples": 2849.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 299,
+                "weight": 299.0
+              }
+            }
+          },
+          {
+            "month": "2026-01",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2025-12-31",
+            "samples": 3046,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-12-31",
+            "effective_samples": 3046.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 496,
+                "weight": 496.0
+              }
+            }
+          },
+          {
+            "month": "2026-02",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2026-01-31",
+            "samples": 3279,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-01-31",
+            "effective_samples": 3279.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 729,
+                "weight": 729.0
+              }
+            }
+          },
+          {
+            "month": "2026-03",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2026-02-28",
+            "samples": 3445,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-02-28",
+            "effective_samples": 3445.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 895,
+                "weight": 895.0
+              }
+            }
+          },
+          {
+            "month": "2026-04",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2026-03-31",
+            "samples": 3684,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-03-31",
+            "effective_samples": 3684.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 1134,
+                "weight": 1134.0
+              }
+            }
+          },
+          {
+            "month": "2026-05",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2026-04-30",
+            "samples": 3828,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-04-30",
+            "effective_samples": 3828.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 1278,
+                "weight": 1278.0
+              }
+            }
+          },
+          {
+            "month": "2026-06",
+            "policy": "T0",
+            "half_life_days": null,
+            "cutoff": "2026-05-30",
+            "samples": 3866,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-05-30",
+            "effective_samples": 3866.0,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1237.0
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1313.0
+              },
+              "2025-26": {
+                "samples": 1316,
+                "weight": 1316.0
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "residual:T4": {
+        "samples": 1321,
+        "total": {
+          "mae": 15.190746674473475,
+          "rmse": 19.095691561914574,
+          "bias": 0.5330444833321566,
+          "p90_absolute_error": 32.42724061012268
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 14.568436364391271,
+            "rmse": 18.396407613645458,
+            "bias": 7.339786777952138,
+            "p90_absolute_error": 31.809282159805356,
+            "samples": 85
+          },
+          "early_season": {
+            "mae": 14.79227458380403,
+            "rmse": 18.591928258065582,
+            "bias": -3.356285658310498,
+            "p90_absolute_error": 32.40075585842132,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 15.203977012033098,
+            "rmse": 19.1402392667713,
+            "bias": 1.1895405287415632,
+            "p90_absolute_error": 31.712428379058853,
+            "samples": 813
+          },
+          "incomplete_injury_report": {
+            "mae": 15.001178939293236,
+            "rmse": 18.85220017322126,
+            "bias": 0.907915233272975,
+            "p90_absolute_error": 32.429112148284915,
+            "samples": 487
+          },
+          "injury_net_unavailable": {
+            "mae": 15.12350160844268,
+            "rmse": 18.99398147318145,
+            "bias": 1.263385765165474,
+            "p90_absolute_error": 32.25818643569946,
+            "samples": 544
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.010618828509166617,
+          "loss_difference_95ci": [
+            -0.3141118407907931,
+            -0.0012334805963958551
+          ]
+        },
+        "vs_same_weight_direct": {
+          "mae_improvement": 0.019981915623496948,
+          "loss_difference_95ci": [
+            -0.4398132691321219,
+            -0.16978873002094552
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2025-10",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-06-22",
+            "samples": 2550,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-06-22",
+            "effective_samples": 2280.6267877648665,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 823.193472461237
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1726.8065275387594
+              }
+            }
+          },
+          {
+            "month": "2025-11",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-10-31",
+            "samples": 2630,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-10-31",
+            "effective_samples": 2294.5413811142457,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 794.1766644388266
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1665.9381956366203
+              },
+              "2025-26": {
+                "samples": 80,
+                "weight": 169.8851399245577
+              }
+            }
+          },
+          {
+            "month": "2025-12",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-11-30",
+            "samples": 2849,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-11-30",
+            "effective_samples": 2374.8928051415614,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 726.7646942169341
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1524.5286314118607
+              },
+              "2025-26": {
+                "samples": 299,
+                "weight": 597.7066743712106
+              }
+            }
+          },
+          {
+            "month": "2026-01",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2025-12-31",
+            "samples": 3046,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-12-31",
+            "effective_samples": 2475.4508388543736,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 676.7496035861345
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1419.6123658364231
+              },
+              "2025-26": {
+                "samples": 496,
+                "weight": 949.6380305774402
+              }
+            }
+          },
+          {
+            "month": "2026-02",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2026-01-31",
+            "samples": 3279,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-01-31",
+            "effective_samples": 2614.3567398236883,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 627.1252378363571
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1315.5157207968618
+              },
+              "2025-26": {
+                "samples": 729,
+                "weight": 1336.3590413667841
+              }
+            }
+          },
+          {
+            "month": "2026-03",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2026-02-28",
+            "samples": 3445,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-02-28",
+            "effective_samples": 2720.358586716789,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 596.3742657167761
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1251.0096463919097
+              },
+              "2025-26": {
+                "samples": 895,
+                "weight": 1597.6160878913115
+              }
+            }
+          },
+          {
+            "month": "2026-04",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2026-03-31",
+            "samples": 3684,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-03-31",
+            "effective_samples": 2878.8305698104264,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 557.2106827810172
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1168.8565038832905
+              },
+              "2025-26": {
+                "samples": 1134,
+                "weight": 1957.9328133356921
+              }
+            }
+          },
+          {
+            "month": "2026-05",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2026-04-30",
+            "samples": 3828,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-04-30",
+            "effective_samples": 2976.5013069424895,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 536.0383916321053
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1124.4435538515293
+              },
+              "2025-26": {
+                "samples": 1278,
+                "weight": 2167.518054516363
+              }
+            }
+          },
+          {
+            "month": "2026-06",
+            "policy": "T4",
+            "half_life_days": 365,
+            "cutoff": "2026-05-30",
+            "samples": 3866,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-05-30",
+            "effective_samples": 3000.2033690084368,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 530.3694861207485
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1112.5519349690983
+              },
+              "2025-26": {
+                "samples": 1316,
+                "weight": 2223.0785789101483
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      },
+      "residual:T5": {
+        "samples": 1321,
+        "total": {
+          "mae": 15.178865349185312,
+          "rmse": 19.064907712711793,
+          "bias": 0.5142667335553277,
+          "p90_absolute_error": 32.21385836601257
+        },
+        "slices": {
+          "playoffs": {
+            "mae": 14.309763639113482,
+            "rmse": 18.051780328887077,
+            "bias": 6.619113577814663,
+            "p90_absolute_error": 31.197184085846015,
+            "samples": 85
+          },
+          "early_season": {
+            "mae": 14.937038426389618,
+            "rmse": 18.727689855300248,
+            "bias": -3.1632866810406406,
+            "p90_absolute_error": 31.805078458786006,
+            "samples": 155
+          },
+          "major_injury": {
+            "mae": 15.201401030857845,
+            "rmse": 19.10952288302618,
+            "bias": 1.1619886640656332,
+            "p90_absolute_error": 31.099213051795967,
+            "samples": 813
+          },
+          "incomplete_injury_report": {
+            "mae": 14.971106462719902,
+            "rmse": 18.83462440174296,
+            "bias": 0.8590829042752237,
+            "p90_absolute_error": 31.499118256568927,
+            "samples": 487
+          },
+          "injury_net_unavailable": {
+            "mae": 15.0844950385919,
+            "rmse": 18.964712361929486,
+            "bias": 1.2365578890072784,
+            "p90_absolute_error": 31.669599497318263,
+            "samples": 544
+          }
+        },
+        "vs_direct_T0": {
+          "mae_improvement": 0.011392665357635695,
+          "loss_difference_95ci": [
+            -0.32568363029301695,
+            -0.013100389975220195
+          ]
+        },
+        "vs_same_weight_direct": {
+          "mae_improvement": 0.0168272749515473,
+          "loss_difference_95ci": [
+            -0.395573736198141,
+            -0.11186435325908861
+          ]
+        },
+        "fold_weights": [
+          {
+            "month": "2025-10",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-06-22",
+            "samples": 2550,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-06-22",
+            "effective_samples": 2473.3347433418935,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1023.3210194953983
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1526.6789805045937
+              }
+            }
+          },
+          {
+            "month": "2025-11",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-10-31",
+            "samples": 2630,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-10-31",
+            "effective_samples": 2537.4196552901926,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 1007.7958834049709
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1503.517237036826
+              },
+              "2025-26": {
+                "samples": 80,
+                "weight": 118.68687955820467
+              }
+            }
+          },
+          {
+            "month": "2025-12",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-11-30",
+            "samples": 2849,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-11-30",
+            "effective_samples": 2717.4034214270678,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 969.6128692307157
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1446.5525074538432
+              },
+              "2025-26": {
+                "samples": 299,
+                "weight": 432.8346233154451
+              }
+            }
+          },
+          {
+            "month": "2026-01",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2025-12-31",
+            "samples": 3046,
+            "fit_from": "2023-11-03",
+            "fit_until": "2025-12-31",
+            "effective_samples": 2882.7161590829596,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 939.3129458356676
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1401.3484558641176
+              },
+              "2025-26": {
+                "samples": 496,
+                "weight": 705.3385983002146
+              }
+            }
+          },
+          {
+            "month": "2026-02",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2026-01-31",
+            "samples": 3279,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-01-31",
+            "effective_samples": 3081.263404226637,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 907.4354248409129
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1353.7908074564994
+              },
+              "2025-26": {
+                "samples": 729,
+                "weight": 1017.7737677025904
+              }
+            }
+          },
+          {
+            "month": "2026-03",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2026-02-28",
+            "samples": 3445,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-02-28",
+            "effective_samples": 3223.8365804579735,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 886.7472407874842
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1322.9263815945535
+              },
+              "2025-26": {
+                "samples": 895,
+                "weight": 1235.3263776179695
+              }
+            }
+          },
+          {
+            "month": "2026-04",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2026-03-31",
+            "samples": 3684,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-03-31",
+            "effective_samples": 3430.0185166921665,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 859.3173692368963
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1282.0041220724445
+              },
+              "2025-26": {
+                "samples": 1134,
+                "weight": 1542.6785086906655
+              }
+            }
+          },
+          {
+            "month": "2026-05",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2026-04-30",
+            "samples": 3828,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-04-30",
+            "effective_samples": 3554.5984466706655,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 843.9581929408322
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1259.0899718084056
+              },
+              "2025-26": {
+                "samples": 1278,
+                "weight": 1724.9518352507432
+              }
+            }
+          },
+          {
+            "month": "2026-06",
+            "policy": "T5",
+            "half_life_days": 730,
+            "cutoff": "2026-05-30",
+            "samples": 3866,
+            "fit_from": "2023-11-03",
+            "fit_until": "2026-05-30",
+            "effective_samples": 3586.867419174842,
+            "by_season": {
+              "2023-24": {
+                "samples": 1237,
+                "weight": 839.8366484667514
+              },
+              "2024-25": {
+                "samples": 1313,
+                "weight": 1252.941094578369
+              },
+              "2025-26": {
+                "samples": 1316,
+                "weight": 1773.222256954884
+              }
+            }
+          }
+        ],
+        "duplicate_folds": []
+      }
+    },
+    "baseline": {
+      "mae": 15.448615109532462,
+      "rmse": 19.4192967827191,
+      "bias": -0.29917281654005606,
+      "p90_absolute_error": 32.308349609375
+    }
+  },
+  "gates": {
+    "direct:T5": {
+      "eligible_for_shadow": false,
+      "rmse_gate": true,
+      "worst_slice_degradation": 0.014684082938142495,
+      "development": {
+        "mae_improvement": 0.0013086249125724208,
+        "loss_difference_95ci": [
+          -0.09504548344031243,
+          0.05881657688794914
+        ]
+      },
+      "audit": {
+        "mae_improvement": -0.005527624450366821,
+        "loss_difference_95ci": [
+          -0.005977052274562802,
+          0.1762296984666782
+        ]
+      },
+      "prospective_still_required": true
+    },
+    "residual:T4": {
+      "eligible_for_shadow": false,
+      "rmse_gate": true,
+      "worst_slice_degradation": 0.014455029217473214,
+      "development": {
+        "mae_improvement": 0.005540733482500867,
+        "loss_difference_95ci": [
+          -0.23480942569756125,
+          0.0536639290175453
+        ]
+      },
+      "audit": {
+        "mae_improvement": 0.010618828509166617,
+        "loss_difference_95ci": [
+          -0.3141118407907931,
+          -0.0012334805963958551
+        ]
+      },
+      "prospective_still_required": true
+    }
+  },
+  "decision": {
+    "promote": false,
+    "prospective_completed": 0,
+    "reason": "Offline evidence only; no production release or prospective acceptance"
+  }
+}

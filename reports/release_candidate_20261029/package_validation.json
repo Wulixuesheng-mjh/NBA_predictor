@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "version": "totals_213_20261029",
+  "role": "totals_only_diagnostic_shadow",
+  "created_at": "2026-10-29T07:54:07.207660+00:00",
+  "parity_samples": 125,
+  "feature_code_sha256": "44858817898d8d6c6eb94ae7a835b3884690ffc24913ceafe2854e4290b11d7a",
+  "models": {
+    "direct": {
+      "training_data_until": "2026-10-28",
+      "file_hashes_verified": true,
+      "preprocessing_verified": true,
+      "batch_single_max_error": 0.0,
+      "mlp_included": false,
+      "offline_release_gate_passed": false
+    },
+    "residual": {
+      "training_data_until": "2026-10-28",
+      "file_hashes_verified": true,
+      "preprocessing_verified": true,
+      "batch_single_max_error": 0.0,
+      "mlp_included": false,
+      "offline_release_gate_passed": false
+    }
+  },
+  "primary_promotion": false
+}

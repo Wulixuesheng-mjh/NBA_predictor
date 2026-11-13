@@ -1,0 +1,189 @@
+{
+  "release_gates": {
+    "win": {
+      "baseline": {
+        "accuracy": 0.6464379947229552,
+        "brier": 0.2207694647616489,
+        "logloss": 0.6313455511388436
+      },
+      "candidate": {
+        "accuracy": 0.6550131926121372,
+        "brier": 0.21530293448719315,
+        "logloss": 0.6198259500746066
+      },
+      "development_improvement": 0.024761260713104694,
+      "development_loss_difference_95ci": [
+        -0.008328090050636573,
+        -0.0025958722061708685
+      ],
+      "worst_eligible_slice_change": 0.0,
+      "rmse_gate": true,
+      "slices": {
+        "early_season": {
+          "samples": 155,
+          "change": -0.03653326918187838
+        },
+        "major_injury": {
+          "samples": 867,
+          "change": -0.0370287733403335
+        },
+        "incomplete_injury_report": {
+          "samples": 552,
+          "change": -0.010648542245504156
+        },
+        "injury_net_unavailable": {
+          "samples": 575,
+          "change": -0.009837343353351735
+        },
+        "regular": {
+          "samples": 1338,
+          "change": -0.02597429287082187
+        },
+        "playoffs": {
+          "samples": 166,
+          "change": -0.022022165237690294
+        },
+        "play_in": {
+          "samples": 12,
+          "change": 0.08359816980538026
+        }
+      },
+      "development_gate_pass": true,
+      "eligible_for_shadow": true,
+      "audit_improvement": 0.0018369563330529193,
+      "audit_metrics": {
+        "accuracy": 0.6729750189250567,
+        "brier": 0.21190697793174856,
+        "logloss": 0.6133849205022435
+      },
+      "audit_difference_95ci": [
+        -0.0032411462435036637,
+        0.0026172325452566148
+      ]
+    },
+    "spread": {
+      "baseline": {
+        "mae": 11.48896403888383,
+        "rmse": 14.668052055723168,
+        "bias": 0.044568233708003266,
+        "p90_absolute_error": 23.796667456626892
+      },
+      "candidate": {
+        "mae": 11.311425843029124,
+        "rmse": 14.493285364905315,
+        "bias": 0.05671492218602655,
+        "p90_absolute_error": 23.64039921760559
+      },
+      "development_improvement": 0.01545293337622411,
+      "development_loss_difference_95ci": [
+        -0.27888528018711417,
+        -0.073402267393646
+      ],
+      "worst_eligible_slice_change": 0.0,
+      "rmse_gate": true,
+      "slices": {
+        "early_season": {
+          "samples": 155,
+          "change": -0.04566871539951767
+        },
+        "major_injury": {
+          "samples": 867,
+          "change": -0.016470538004134894
+        },
+        "incomplete_injury_report": {
+          "samples": 552,
+          "change": -0.014352294282412248
+        },
+        "injury_net_unavailable": {
+          "samples": 575,
+          "change": -0.013462470789276315
+        },
+        "regular": {
+          "samples": 1338,
+          "change": -0.014251701259169858
+        },
+        "playoffs": {
+          "samples": 166,
+          "change": -0.02272560734232154
+        },
+        "play_in": {
+          "samples": 12,
+          "change": -0.03667165840797315
+        }
+      },
+      "development_gate_pass": false,
+      "eligible_for_shadow": false,
+      "audit_improvement": null
+    },
+    "total": {
+      "baseline": {
+        "mae": 14.744492744707495,
+        "rmse": 18.501845253505692,
+        "bias": 0.6920893928306399,
+        "p90_absolute_error": 29.883094787597656
+      },
+      "candidate": {
+        "mae": 14.5242458236131,
+        "rmse": 18.242145741801284,
+        "bias": -0.07240494845882255,
+        "p90_absolute_error": 29.819847583770752
+      },
+      "development_improvement": 0.014937571940103034,
+      "development_loss_difference_95ci": [
+        -0.37649733476350455,
+        -0.07117831225865413
+      ],
+      "worst_eligible_slice_change": 0.026248100386461415,
+      "rmse_gate": true,
+      "slices": {
+        "early_season": {
+          "samples": 155,
+          "change": 0.026248100386461415
+        },
+        "major_injury": {
+          "samples": 867,
+          "change": -0.02809680224519162
+        },
+        "incomplete_injury_report": {
+          "samples": 552,
+          "change": -0.01851210943268089
+        },
+        "injury_net_unavailable": {
+          "samples": 575,
+          "change": -0.019258257106415266
+        },
+        "regular": {
+          "samples": 1338,
+          "change": -0.010478513815685875
+        },
+        "playoffs": {
+          "samples": 166,
+          "change": -0.04774890082179817
+        },
+        "play_in": {
+          "samples": 12,
+          "change": -0.04515378954384375
+        }
+      },
+      "development_gate_pass": false,
+      "eligible_for_shadow": false,
+      "audit_improvement": null
+    }
+  },
+  "protocol": {
+    "allowed_targets": {
+      "win": "direct:xgboost:T5"
+    },
+    "development_lock_sha256": "31e6671f576f12ecef3194233849bacb34642fc00eb8e91997e4803751e74d4c",
+    "audit_reference_sha256": "93861d78b0919fc4d12400f8a96860630fe557bf330cd72bc6ad904ec131e4df",
+    "selection": "development only",
+    "executor_sha256": "17bdd9ca3725b8ed50623ccb83e0dcdc05cc4677a03978860c1af3809e691c6f",
+    "promotion": false
+  },
+  "audit_sha256": {
+    "direct:xgboost:T5": "8673dbc546a589fff9ed99bbe0622d6db3dd125eb9fc347fc899a38d24bfc15d"
+  },
+  "promotable_bundle": false,
+  "prospective_completed": 0,
+  "promotion": false
+}

@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "release": "mlp_input_repair_20261112_release_v1",
+  "isolated_only": true,
+  "package_hashes_verified": true,
+  "original_model_files_unchanged": true,
+  "behavior_version_preserved": true,
+  "all_heads_100_probe_parity": true,
+  "xgb_100_inputs_unchanged": true,
+  "old_loaded_predictor_stable_across_switch": true,
+  "atomic_reader_observations": 583,
+  "mixed_or_partial_manifests": 0,
+  "rejected_negative_cases": [
+    "feature_dim",
+    "mlp_input_compatibility",
+    "calibration_enabled",
+    "stale_selector"
+  ],
+  "baseline_selector_restored": true,
+  "fixed_saved_prediction_cli_replayed_after_rollback": true,
+  "real_production_changed": false
+}

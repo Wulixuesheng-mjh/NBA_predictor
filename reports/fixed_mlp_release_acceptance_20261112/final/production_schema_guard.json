@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "scope": "production read-only schema precheck",
+  "premature_activation_blocked": true,
+  "active_sha256": "9824b2248129c7c9a71348807660883ca2a620416725bf78290a1b626e42ff3a",
+  "production_changed": false
+}

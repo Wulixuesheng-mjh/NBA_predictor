@@ -1,0 +1,26 @@
+{
+  "release": "mlp_input_repair_20261112_release_v1",
+  "kind": "immutable fixed-input compatibility release; weights unchanged",
+  "archive": "artifacts.zip",
+  "archive_sha256": "148e5e4218a71cf382f1bee897b17c7a4ccf0bf684ff21221eb063df5489efa9",
+  "members": {
+    "mlp/20261022_050952/metadata.json": "8004f0a3c0081f418a219b80e5bd5efdb66003aaf1c1f7cbebc47627add84e64",
+    "mlp/20261022_050952/model.onnx": "dc26ed0ffdeae42920c115e3b501da7b8f0c52ea28db3f4b8f50b3f1ddad4e03",
+    "mlp/20261022_050952/model.onnx.data": "42a2c8f86004394f8cbeec14026839fcd478023111038aaca1ca9e669b22f652",
+    "mlp/20261022_050952/model.pt": "9a353c296265effa7b1be8ca78d0d0901cfd815be87fd4ee49e2c5231200560d",
+    "mlp/20261022_050952/scaler.npz": "9a9d554dde697650f7ae9dcaa3de733411b51b50b50e772786570c28cfa51167",
+    "repair_releases/mlp_input_repair_20261112_release_v1/api_preflight.json": "20e88164cf05ff7f26452207598879e413bb592ca7c6280aae280e2b101999ba",
+    "repair_releases/mlp_input_repair_20261112_release_v1/baseline.json": "9824b2248129c7c9a71348807660883ca2a620416725bf78290a1b626e42ff3a",
+    "repair_releases/mlp_input_repair_20261112_release_v1/candidate.json": "b24cdcb115d6202b1a06a41483ea56699b3ff7bbbdf404d558db643c090274ed",
+    "repair_releases/mlp_input_repair_20261112_release_v1/engineering.json": "f305a5a3f53498b995bbd58cba4dd54fe6da7c988b62c5c5bc7ee73d3265ee80",
+    "repair_releases/mlp_input_repair_20261112_release_v1/evidence.json": "e7e421941aab962c65379a98fed5a1abec7628b3512df3f480fa915cd82eca3b",
+    "repair_releases/mlp_input_repair_20261112_release_v1/season_results.json": "cc753365b4dfa6efef537902e9bcc0f92752ffd61191a6498309fb0e16c5c39d",
+    "xgboost/20261022_050952/metadata.json": "e737501ef4ac261b347faf064601cd4e972f5c5b7b26d36a91542a5a7b89d5bf",
+    "xgboost/20261022_050952/spread_model.json": "5e55f10a47384d1a9a8778f6f3601f3a6255f2e304cee06dbcf87c74b0fabf89",
+    "xgboost/20261022_050952/total_model.json": "63cb20e81a97911dc02492194c6b6d76d841cd19132f4e9e95ddfbe11295c64a",
+    "xgboost/20261022_050952/win_model.json": "cb7194b0a24f07c66ee6f6ebe93f5f8345f83bd718a2f9d21605d3042dac2d11"
+  },
+  "candidate_sha256": "b24cdcb115d6202b1a06a41483ea56699b3ff7bbbdf404d558db643c090274ed",
+  "training_data_until": "2026-10-21",
+  "auto_activate": false
+}

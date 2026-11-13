@@ -1,0 +1,1385 @@
+{
+  "locked_at": "2026-11-05T07:39:56.281949+00:00",
+  "protocol": {
+    "study": "forecast_season_anchor_20261105_v1",
+    "kind": "forecast_season_window_anchor_intervention",
+    "cache_key": "4e14a9886bed1bc1",
+    "versions": {
+      "torch": "2.13.0+cpu",
+      "numpy": "2.5.4",
+      "xgboost": "3.4.1"
+    },
+    "cache_sha256": "fca08d72c70946addc13ca6186fade3b625b4e859b7d46b0e6dbcf7cff81e59a",
+    "feature_names": [
+      "home_win_rate",
+      "home_avg_pts",
+      "home_avg_pts_allowed",
+      "home_avg_reb",
+      "home_avg_ast",
+      "home_avg_stl",
+      "home_avg_blk",
+      "home_fg_pct",
+      "home_fg3_pct",
+      "home_ft_pct",
+      "home_avg_ts_pct",
+      "home_avg_off_rtg",
+      "home_avg_def_rtg",
+      "home_avg_net_rtg",
+      "home_avg_pace",
+      "home_avg_tov_pct",
+      "home_avg_ftr",
+      "home_avg_ast_pct",
+      "home_trend_pts",
+      "home_trend_net",
+      "home_trend_off_rtg",
+      "home_trend_def_rtg",
+      "home_last5_vs_first5_pts_diff",
+      "home_last5_vs_first5_net_diff",
+      "home_win_rate_last5",
+      "home_pts_std",
+      "home_net_pts_std",
+      "home_total_trend",
+      "home_over_league_avg_ratio",
+      "home_avg_total_last3",
+      "home_layoff_days",
+      "home_is_season_opener",
+      "home_games_available",
+      "away_win_rate",
+      "away_avg_pts",
+      "away_avg_pts_allowed",
+      "away_avg_reb",
+      "away_avg_ast",
+      "away_avg_stl",
+      "away_avg_blk",
+      "away_fg_pct",
+      "away_fg3_pct",
+      "away_ft_pct",
+      "away_avg_ts_pct",
+      "away_avg_off_rtg",
+      "away_avg_def_rtg",
+      "away_avg_net_rtg",
+      "away_avg_pace",
+      "away_avg_tov_pct",
+      "away_avg_ftr",
+      "away_avg_ast_pct",
+      "away_trend_pts",
+      "away_trend_net",
+      "away_trend_off_rtg",
+      "away_trend_def_rtg",
+      "away_last5_vs_first5_pts_diff",
+      "away_last5_vs_first5_net_diff",
+      "away_win_rate_last5",
+      "away_pts_std",
+      "away_net_pts_std",
+      "away_total_trend",
+      "away_over_league_avg_ratio",
+      "away_avg_total_last3",
+      "away_layoff_days",
+      "away_is_season_opener",
+      "away_games_available",
+      "home_injury_firepower_loss",
+      "home_total_minutes_share_lost",
+      "home_key_player_out",
+      "home_defensive_anchor_out",
+      "home_players_out_count",
+      "home_questionable_count",
+      "home_injury_defense_lost",
+      "home_injury_probable_count",
+      "away_injury_firepower_loss",
+      "away_total_minutes_share_lost",
+      "away_key_player_out",
+      "away_defensive_anchor_out",
+      "away_players_out_count",
+      "away_questionable_count",
+      "away_injury_defense_lost",
+      "away_injury_probable_count",
+      "home_top_scorer_ppg",
+      "home_top_scorer_ppg_trend",
+      "home_scoring_concentration",
+      "home_avg_plus_minus",
+      "home_top_scorer_plus_minus",
+      "home_bench_scoring_pct",
+      "home_starter_minutes_share",
+      "away_top_scorer_ppg",
+      "away_top_scorer_ppg_trend",
+      "away_scoring_concentration",
+      "away_avg_plus_minus",
+      "away_top_scorer_plus_minus",
+      "away_bench_scoring_pct",
+      "away_starter_minutes_share",
+      "home_win_count",
+      "avg_point_diff",
+      "avg_total_pts",
+      "home_rest_days",
+      "away_rest_days",
+      "rest_days_diff",
+      "home_b2b",
+      "away_b2b",
+      "home_home_win_rate",
+      "away_away_win_rate",
+      "home_recent_home_win_rate",
+      "away_recent_away_win_rate",
+      "home_streak",
+      "away_streak",
+      "same_conference",
+      "same_division",
+      "season_series_games",
+      "home_season_series_wins",
+      "travel_distance_category",
+      "home_travel_fatigue",
+      "away_travel_fatigue",
+      "home_days_since_home",
+      "pace_diff",
+      "expected_pace",
+      "home_off_vs_away_def",
+      "away_off_vs_home_def",
+      "net_rtg_diff",
+      "total_rating_diff",
+      "ts_diff",
+      "tov_pct_diff",
+      "ftr_diff",
+      "expected_total",
+      "pace_product",
+      "combined_over_tendency",
+      "home_frontcourt_scoring",
+      "home_backcourt_scoring",
+      "away_frontcourt_scoring",
+      "away_backcourt_scoring",
+      "frontcourt_scoring_diff",
+      "backcourt_scoring_diff",
+      "home_bench_plus_minus_per_game",
+      "home_starters_vs_bench_scoring_ratio",
+      "home_sixth_man_scoring",
+      "home_rotation_depth",
+      "away_bench_plus_minus_per_game",
+      "away_starters_vs_bench_scoring_ratio",
+      "away_sixth_man_scoring",
+      "away_rotation_depth",
+      "home_lineup_stability",
+      "away_lineup_stability",
+      "home_opp_adj_pts",
+      "home_opp_adj_pts_allowed",
+      "home_opp_adj_net_rtg",
+      "home_opp_adj_off_rtg",
+      "home_opp_adj_def_rtg",
+      "home_sos_rating",
+      "away_opp_adj_pts",
+      "away_opp_adj_pts_allowed",
+      "away_opp_adj_net_rtg",
+      "away_opp_adj_off_rtg",
+      "away_opp_adj_def_rtg",
+      "away_sos_rating",
+      "home_roster_continuity",
+      "home_core_retention",
+      "home_roster_turnover_rate",
+      "home_minutes_continuity",
+      "away_roster_continuity",
+      "away_core_retention",
+      "away_roster_turnover_rate",
+      "away_minutes_continuity",
+      "home_avg_fg3a_rate",
+      "home_season_games_played",
+      "home_advanced_stats_coverage",
+      "away_avg_fg3a_rate",
+      "away_season_games_played",
+      "away_advanced_stats_coverage",
+      "home_roster_data_missing",
+      "away_roster_data_missing",
+      "home_prior_off_rtg",
+      "home_prior_def_rtg",
+      "home_prior_pace",
+      "home_bayes_off_rtg",
+      "home_bayes_def_rtg",
+      "home_bayes_pace",
+      "home_season_prior_missing",
+      "away_prior_off_rtg",
+      "away_prior_def_rtg",
+      "away_prior_pace",
+      "away_bayes_off_rtg",
+      "away_bayes_def_rtg",
+      "away_bayes_pace",
+      "away_season_prior_missing",
+      "shrunk_expected_total",
+      "home_injury_net_offense_delta",
+      "home_injury_net_defense_events_delta",
+      "home_injury_replacement_minutes",
+      "home_injury_newly_lost_minutes",
+      "home_injury_position_gap_minutes",
+      "home_injury_guard_gap_minutes",
+      "home_injury_forward_gap_minutes",
+      "home_injury_center_gap_minutes",
+      "home_injury_transferred_role_minutes_share",
+      "home_injury_estimated_minutes_share",
+      "home_injury_net_available",
+      "home_injury_report_complete",
+      "away_injury_net_offense_delta",
+      "away_injury_net_defense_events_delta",
+      "away_injury_replacement_minutes",
+      "away_injury_newly_lost_minutes",
+      "away_injury_position_gap_minutes",
+      "away_injury_guard_gap_minutes",
+      "away_injury_forward_gap_minutes",
+      "away_injury_center_gap_minutes",
+      "away_injury_transferred_role_minutes_share",
+      "away_injury_estimated_minutes_share",
+      "away_injury_net_available",
+      "away_injury_report_complete"
+    ],
+    "cohort_sha256": "4777de93e9b30011ae074be70e201e97beabd04f2450d44a0a3d55d097b05691",
+    "samples": 2631,
+    "source_hashes": {
+      "scripts/run_forecast_anchor_study.py": "f1387aa6c8e590d4bf3edd2858d2d26797f8505e045a95da15a3b9aac17d277d",
+      "ml/src/forecast_window.py": "6fb5c64ea4bf39c46e5782e72343dea83b8d0d735f4ca9aad022b13e8849c7f3",
+      "ml/src/training_policy.py": "5c94a0580ec57a6a1697c3d234cf0cf00d65fd4dd8bfd5eb840a8546af057c57",
+      "ml/src/config.py": "92cbd13ab105c2eeb848ebf81e73d773b1c6003901c5b25b58b73d294c441e62",
+      "ml/src/models/mlp_model.py": "d4184743fbddacce73b9b4e0f28b74b6f41033b09b6444f53ecbb12b4c074491",
+      "ml/src/models/xgboost_model.py": "ba8d66619d52f3f171aa3951edc04102dd5cbd33010e5dce0e494a8a275ab7d4",
+      "ml/src/evaluation.py": "051bb2e2ba66dd50264ac8ec88feccbbf282a72947fa9a11cf1718495ef5d0d0",
+      "scripts/run_expanded_model_comparison.py": "16b201c067835994daf94e70413cfc51c5020910764426baeb5725eff4163f36",
+      "scripts/run_total_only_mlp_study.py": "070b2a4c03c6aebde54c4bcc4dc24bf7147bdec67ecf92d4205c27663f02e075"
+    },
+    "references": {
+      "/app/ml/saved_models/total_only_mlp_20261105_v1/protocol.json": "a1b387e173f8db0cd0883e1ed6cf5a52b2ca48d1a6614091f7532a928479dc2c",
+      "/app/ml/saved_models/total_only_mlp_20261105_v1/development.json": "7afc52c2ad54fe1d29df9d8cc6a879ff851e31ca04c7fc87d8dc0056ef4f0d00",
+      "/app/ml/saved_models/expanded_model_comparison_20261105_v1/protocol.json": "9cc449c8fe41de0577d488af74d7303567549806dd891b2d58dd9282639bc2e7",
+      "/app/ml/saved_models/expanded_model_comparison_20261105_v1/development.json": "2b6fb7e1a97d56166ab20548fe3cb386e252c9d3ec6aeda84d451a5686998eaa"
+    },
+    "rules": [
+      "xgb_residual_T1",
+      "xgb_median_T1",
+      "mlp_shared_T1",
+      "mlp_total_direct_T1",
+      "mlp_total_residual_T1"
+    ],
+    "intervention": "T1 membership from explicit target season; age from explicit prior NBA cutoff day",
+    "cutoff": "first target NBA source day minus one day, not server date and not latest fitted game",
+    "fit_range": "actual selected game dates saved separately from information cutoff",
+    "model_parameters": "exactly prior frozen shared and total-only rules; no architecture or loss changes",
+    "legacy_policy_function_changed": false,
+    "live_records_used": false,
+    "calibration": "none",
+    "audit_used": false,
+    "reuse": "reuse old points/artifacts only if selected rows and weights are identical; retrain changed folds only",
+    "changes": [
+      {
+        "month": "2023-10",
+        "changed": true,
+        "test_games": 54,
+        "context": {
+          "forecast_day": "2023-10-24",
+          "forecast_season": "2023-24",
+          "cutoff_day": "2023-10-23"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2023-06-12",
+          "samples": 3734,
+          "fit_from": "2021-01-01",
+          "fit_until": "2023-06-12",
+          "effective_samples": 3734.0,
+          "by_season": {
+            "2020-21": {
+              "samples": 1091,
+              "weight": 1091.0
+            },
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2023-10-24",
+          "forecast_season": "2023-24",
+          "information_cutoff_day": "2023-10-23",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 2643,
+          "fit_from": "2021-10-19",
+          "fit_until": "2023-06-12",
+          "effective_samples": 2643.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            }
+          }
+        },
+        "old_mask_sha256": "c6a05a1b6f46764703068cdb4bb471a061ce732a3a1a733f9b2cecdca2437f3b",
+        "new_mask_sha256": "9568ac1f0b2516b5e9b97df019877dbb7a3079b9536f78c16965ae956066818e"
+      },
+      {
+        "month": "2023-11",
+        "changed": false,
+        "test_games": 219,
+        "context": {
+          "forecast_day": "2023-11-01",
+          "forecast_season": "2023-24",
+          "cutoff_day": "2023-10-31"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2023-10-31",
+          "samples": 2697,
+          "fit_from": "2021-10-19",
+          "fit_until": "2023-10-31",
+          "effective_samples": 2697.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 54,
+              "weight": 54.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2023-11-01",
+          "forecast_season": "2023-24",
+          "information_cutoff_day": "2023-10-31",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 2697,
+          "fit_from": "2021-10-19",
+          "fit_until": "2023-10-31",
+          "effective_samples": 2697.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 54,
+              "weight": 54.0
+            }
+          }
+        },
+        "old_mask_sha256": "10c7a52fca6cbecb2a6cb61e6f03068805d2737df65276b398a8ae32bfffe754",
+        "new_mask_sha256": "10c7a52fca6cbecb2a6cb61e6f03068805d2737df65276b398a8ae32bfffe754"
+      },
+      {
+        "month": "2023-12",
+        "changed": false,
+        "test_games": 207,
+        "context": {
+          "forecast_day": "2023-12-01",
+          "forecast_season": "2023-24",
+          "cutoff_day": "2023-11-30"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2023-11-30",
+          "samples": 2916,
+          "fit_from": "2021-10-19",
+          "fit_until": "2023-11-30",
+          "effective_samples": 2916.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 273,
+              "weight": 273.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2023-12-01",
+          "forecast_season": "2023-24",
+          "information_cutoff_day": "2023-11-30",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 2916,
+          "fit_from": "2021-10-19",
+          "fit_until": "2023-11-30",
+          "effective_samples": 2916.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 273,
+              "weight": 273.0
+            }
+          }
+        },
+        "old_mask_sha256": "1d451f7ef91a8ed282043dd86854526ac71d573123c2f9c215c3c1a02bb52e8a",
+        "new_mask_sha256": "1d451f7ef91a8ed282043dd86854526ac71d573123c2f9c215c3c1a02bb52e8a"
+      },
+      {
+        "month": "2024-01",
+        "changed": false,
+        "test_games": 231,
+        "context": {
+          "forecast_day": "2024-01-01",
+          "forecast_season": "2023-24",
+          "cutoff_day": "2023-12-31"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2023-12-31",
+          "samples": 3123,
+          "fit_from": "2021-10-19",
+          "fit_until": "2023-12-31",
+          "effective_samples": 3123.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 480,
+              "weight": 480.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2024-01-01",
+          "forecast_season": "2023-24",
+          "information_cutoff_day": "2023-12-31",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3123,
+          "fit_from": "2021-10-19",
+          "fit_until": "2023-12-31",
+          "effective_samples": 3123.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 480,
+              "weight": 480.0
+            }
+          }
+        },
+        "old_mask_sha256": "254195574aae94654d9e26fa7cca56ab192a73231a65149ebddfc0d0a6e814ec",
+        "new_mask_sha256": "254195574aae94654d9e26fa7cca56ab192a73231a65149ebddfc0d0a6e814ec"
+      },
+      {
+        "month": "2024-02",
+        "changed": false,
+        "test_games": 174,
+        "context": {
+          "forecast_day": "2024-02-01",
+          "forecast_season": "2023-24",
+          "cutoff_day": "2024-01-31"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2024-01-31",
+          "samples": 3354,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-01-31",
+          "effective_samples": 3354.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 711,
+              "weight": 711.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2024-02-01",
+          "forecast_season": "2023-24",
+          "information_cutoff_day": "2024-01-31",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3354,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-01-31",
+          "effective_samples": 3354.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 711,
+              "weight": 711.0
+            }
+          }
+        },
+        "old_mask_sha256": "85ce6ac748e3f21fcdedfd1fac248dc1aceb7f9cebc3b7831e4de4ddce0835fd",
+        "new_mask_sha256": "85ce6ac748e3f21fcdedfd1fac248dc1aceb7f9cebc3b7831e4de4ddce0835fd"
+      },
+      {
+        "month": "2024-03",
+        "changed": false,
+        "test_games": 230,
+        "context": {
+          "forecast_day": "2024-03-01",
+          "forecast_season": "2023-24",
+          "cutoff_day": "2024-02-29"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2024-02-29",
+          "samples": 3528,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-02-29",
+          "effective_samples": 3528.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 885,
+              "weight": 885.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2024-03-01",
+          "forecast_season": "2023-24",
+          "information_cutoff_day": "2024-02-29",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3528,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-02-29",
+          "effective_samples": 3528.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 885,
+              "weight": 885.0
+            }
+          }
+        },
+        "old_mask_sha256": "805289197d6067c44eb3500b9463d729a37ee6c26e6f60d209c0b23bd10bce5f",
+        "new_mask_sha256": "805289197d6067c44eb3500b9463d729a37ee6c26e6f60d209c0b23bd10bce5f"
+      },
+      {
+        "month": "2024-04",
+        "changed": false,
+        "test_games": 157,
+        "context": {
+          "forecast_day": "2024-04-01",
+          "forecast_season": "2023-24",
+          "cutoff_day": "2024-03-31"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2024-03-31",
+          "samples": 3758,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-03-31",
+          "effective_samples": 3758.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1115,
+              "weight": 1115.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2024-04-01",
+          "forecast_season": "2023-24",
+          "information_cutoff_day": "2024-03-31",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3758,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-03-31",
+          "effective_samples": 3758.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1115,
+              "weight": 1115.0
+            }
+          }
+        },
+        "old_mask_sha256": "a2c8b76ac8ca929beffff097d7132d2d72c070a7732873a0b1af09a065451f1f",
+        "new_mask_sha256": "a2c8b76ac8ca929beffff097d7132d2d72c070a7732873a0b1af09a065451f1f"
+      },
+      {
+        "month": "2024-05",
+        "changed": false,
+        "test_games": 41,
+        "context": {
+          "forecast_day": "2024-05-01",
+          "forecast_season": "2023-24",
+          "cutoff_day": "2024-04-30"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2024-04-30",
+          "samples": 3915,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-04-30",
+          "effective_samples": 3915.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1272,
+              "weight": 1272.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2024-05-01",
+          "forecast_season": "2023-24",
+          "information_cutoff_day": "2024-04-30",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3915,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-04-30",
+          "effective_samples": 3915.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1272,
+              "weight": 1272.0
+            }
+          }
+        },
+        "old_mask_sha256": "d73d2df060997bbbca75c1a2d7be1ea1c10b467164fc95a424ead34c0d6c68ec",
+        "new_mask_sha256": "d73d2df060997bbbca75c1a2d7be1ea1c10b467164fc95a424ead34c0d6c68ec"
+      },
+      {
+        "month": "2024-06",
+        "changed": false,
+        "test_games": 5,
+        "context": {
+          "forecast_day": "2024-06-06",
+          "forecast_season": "2023-24",
+          "cutoff_day": "2024-06-05"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2024-05-30",
+          "samples": 3956,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-05-30",
+          "effective_samples": 3956.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1313,
+              "weight": 1313.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2024-06-06",
+          "forecast_season": "2023-24",
+          "information_cutoff_day": "2024-06-05",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3956,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-05-30",
+          "effective_samples": 3956.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1313,
+              "weight": 1313.0
+            }
+          }
+        },
+        "old_mask_sha256": "147019e41791c4e4d91769ee70f426721a4ef5df9824475bbfd0f97a3104f7ee",
+        "new_mask_sha256": "147019e41791c4e4d91769ee70f426721a4ef5df9824475bbfd0f97a3104f7ee"
+      },
+      {
+        "month": "2024-10",
+        "changed": true,
+        "test_games": 71,
+        "context": {
+          "forecast_day": "2024-10-22",
+          "forecast_season": "2024-25",
+          "cutoff_day": "2024-10-21"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2024-06-17",
+          "samples": 3961,
+          "fit_from": "2021-10-19",
+          "fit_until": "2024-06-17",
+          "effective_samples": 3961.0,
+          "by_season": {
+            "2021-22": {
+              "samples": 1323,
+              "weight": 1323.0
+            },
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2024-10-22",
+          "forecast_season": "2024-25",
+          "information_cutoff_day": "2024-10-21",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 2638,
+          "fit_from": "2022-10-18",
+          "fit_until": "2024-06-17",
+          "effective_samples": 2638.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            }
+          }
+        },
+        "old_mask_sha256": "cf8f8af873e2d03de67c50c9ca55f5b8056f9c067833854f741b1189f8998328",
+        "new_mask_sha256": "12b5e0ba60db6d69217d830e575f9c9c8626604038ce8e0be5be21bc4f03b162"
+      },
+      {
+        "month": "2024-11",
+        "changed": false,
+        "test_games": 222,
+        "context": {
+          "forecast_day": "2024-11-01",
+          "forecast_season": "2024-25",
+          "cutoff_day": "2024-10-31"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2024-10-31",
+          "samples": 2709,
+          "fit_from": "2022-10-18",
+          "fit_until": "2024-10-31",
+          "effective_samples": 2709.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 71,
+              "weight": 71.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2024-11-01",
+          "forecast_season": "2024-25",
+          "information_cutoff_day": "2024-10-31",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 2709,
+          "fit_from": "2022-10-18",
+          "fit_until": "2024-10-31",
+          "effective_samples": 2709.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 71,
+              "weight": 71.0
+            }
+          }
+        },
+        "old_mask_sha256": "7936207e05d3806d7af8586939ffc484fde98a0456a77692b85624931c29d4e6",
+        "new_mask_sha256": "7936207e05d3806d7af8586939ffc484fde98a0456a77692b85624931c29d4e6"
+      },
+      {
+        "month": "2024-12",
+        "changed": false,
+        "test_games": 191,
+        "context": {
+          "forecast_day": "2024-12-01",
+          "forecast_season": "2024-25",
+          "cutoff_day": "2024-11-30"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2024-11-30",
+          "samples": 2931,
+          "fit_from": "2022-10-18",
+          "fit_until": "2024-11-30",
+          "effective_samples": 2931.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 293,
+              "weight": 293.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2024-12-01",
+          "forecast_season": "2024-25",
+          "information_cutoff_day": "2024-11-30",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 2931,
+          "fit_from": "2022-10-18",
+          "fit_until": "2024-11-30",
+          "effective_samples": 2931.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 293,
+              "weight": 293.0
+            }
+          }
+        },
+        "old_mask_sha256": "b56508f338dfafa1131b1e92fefd1d6a3c57f4019f235f1238e130f0f8c81d86",
+        "new_mask_sha256": "b56508f338dfafa1131b1e92fefd1d6a3c57f4019f235f1238e130f0f8c81d86"
+      },
+      {
+        "month": "2025-01",
+        "changed": false,
+        "test_games": 226,
+        "context": {
+          "forecast_day": "2025-01-01",
+          "forecast_season": "2024-25",
+          "cutoff_day": "2024-12-31"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2024-12-31",
+          "samples": 3122,
+          "fit_from": "2022-10-18",
+          "fit_until": "2024-12-31",
+          "effective_samples": 3122.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 484,
+              "weight": 484.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2025-01-01",
+          "forecast_season": "2024-25",
+          "information_cutoff_day": "2024-12-31",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3122,
+          "fit_from": "2022-10-18",
+          "fit_until": "2024-12-31",
+          "effective_samples": 3122.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 484,
+              "weight": 484.0
+            }
+          }
+        },
+        "old_mask_sha256": "c0bd59f3d2c657104b580bf8556813ce2a03653fb61b12645c7900f5d19a6e78",
+        "new_mask_sha256": "c0bd59f3d2c657104b580bf8556813ce2a03653fb61b12645c7900f5d19a6e78"
+      },
+      {
+        "month": "2025-02",
+        "changed": false,
+        "test_games": 175,
+        "context": {
+          "forecast_day": "2025-02-01",
+          "forecast_season": "2024-25",
+          "cutoff_day": "2025-01-31"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2025-01-31",
+          "samples": 3348,
+          "fit_from": "2022-10-18",
+          "fit_until": "2025-01-31",
+          "effective_samples": 3348.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 710,
+              "weight": 710.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2025-02-01",
+          "forecast_season": "2024-25",
+          "information_cutoff_day": "2025-01-31",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3348,
+          "fit_from": "2022-10-18",
+          "fit_until": "2025-01-31",
+          "effective_samples": 3348.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 710,
+              "weight": 710.0
+            }
+          }
+        },
+        "old_mask_sha256": "5678e7ba3a5fe7f68e1c2678af29a81d12c20a29d3546d1275114b62c1c872cc",
+        "new_mask_sha256": "5678e7ba3a5fe7f68e1c2678af29a81d12c20a29d3546d1275114b62c1c872cc"
+      },
+      {
+        "month": "2025-03",
+        "changed": false,
+        "test_games": 235,
+        "context": {
+          "forecast_day": "2025-03-01",
+          "forecast_season": "2024-25",
+          "cutoff_day": "2025-02-28"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2025-02-28",
+          "samples": 3523,
+          "fit_from": "2022-10-18",
+          "fit_until": "2025-02-28",
+          "effective_samples": 3523.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 885,
+              "weight": 885.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2025-03-01",
+          "forecast_season": "2024-25",
+          "information_cutoff_day": "2025-02-28",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3523,
+          "fit_from": "2022-10-18",
+          "fit_until": "2025-02-28",
+          "effective_samples": 3523.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 885,
+              "weight": 885.0
+            }
+          }
+        },
+        "old_mask_sha256": "77ba404f49ac9c438e9435c15c37e2c08c3fef528537b75a65d21650569edd09",
+        "new_mask_sha256": "77ba404f49ac9c438e9435c15c37e2c08c3fef528537b75a65d21650569edd09"
+      },
+      {
+        "month": "2025-04",
+        "changed": false,
+        "test_games": 147,
+        "context": {
+          "forecast_day": "2025-04-01",
+          "forecast_season": "2024-25",
+          "cutoff_day": "2025-03-31"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2025-03-31",
+          "samples": 3758,
+          "fit_from": "2022-10-18",
+          "fit_until": "2025-03-31",
+          "effective_samples": 3758.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 1120,
+              "weight": 1120.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2025-04-01",
+          "forecast_season": "2024-25",
+          "information_cutoff_day": "2025-03-31",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3758,
+          "fit_from": "2022-10-18",
+          "fit_until": "2025-03-31",
+          "effective_samples": 3758.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 1120,
+              "weight": 1120.0
+            }
+          }
+        },
+        "old_mask_sha256": "c47601aec2f9aa4a189ef9692c9f4f2b551ad2e2b703c1ab1189d3a75ef335ac",
+        "new_mask_sha256": "c47601aec2f9aa4a189ef9692c9f4f2b551ad2e2b703c1ab1189d3a75ef335ac"
+      },
+      {
+        "month": "2025-05",
+        "changed": false,
+        "test_games": 39,
+        "context": {
+          "forecast_day": "2025-05-01",
+          "forecast_season": "2024-25",
+          "cutoff_day": "2025-04-30"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2025-04-30",
+          "samples": 3905,
+          "fit_from": "2022-10-18",
+          "fit_until": "2025-04-30",
+          "effective_samples": 3905.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 1267,
+              "weight": 1267.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2025-05-01",
+          "forecast_season": "2024-25",
+          "information_cutoff_day": "2025-04-30",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3905,
+          "fit_from": "2022-10-18",
+          "fit_until": "2025-04-30",
+          "effective_samples": 3905.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 1267,
+              "weight": 1267.0
+            }
+          }
+        },
+        "old_mask_sha256": "aa656b664a3d6a4cb3fe3888e5dd50d6cdf03b0c327be56ff4f47647210d5c92",
+        "new_mask_sha256": "aa656b664a3d6a4cb3fe3888e5dd50d6cdf03b0c327be56ff4f47647210d5c92"
+      },
+      {
+        "month": "2025-06",
+        "changed": false,
+        "test_games": 7,
+        "context": {
+          "forecast_day": "2025-06-05",
+          "forecast_season": "2024-25",
+          "cutoff_day": "2025-06-04"
+        },
+        "old_window": {
+          "policy": "T1",
+          "half_life_days": null,
+          "cutoff": "2025-05-31",
+          "samples": 3944,
+          "fit_from": "2022-10-18",
+          "fit_until": "2025-05-31",
+          "effective_samples": 3944.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 1306,
+              "weight": 1306.0
+            }
+          }
+        },
+        "new_window": {
+          "policy": "T1",
+          "anchor": "explicit_forecast_season_v1",
+          "forecast_day": "2025-06-05",
+          "forecast_season": "2024-25",
+          "information_cutoff_day": "2025-06-04",
+          "completed_seasons": 2,
+          "half_life_days": null,
+          "samples": 3944,
+          "fit_from": "2022-10-18",
+          "fit_until": "2025-05-31",
+          "effective_samples": 3944.0,
+          "by_season": {
+            "2022-23": {
+              "samples": 1320,
+              "weight": 1320.0
+            },
+            "2023-24": {
+              "samples": 1318,
+              "weight": 1318.0
+            },
+            "2024-25": {
+              "samples": 1306,
+              "weight": 1306.0
+            }
+          }
+        },
+        "old_mask_sha256": "87a57a73fe9d8084cc59c327b02b6b3e5c05f853d05db8e749ad235d1f460e45",
+        "new_mask_sha256": "87a57a73fe9d8084cc59c327b02b6b3e5c05f853d05db8e749ad235d1f460e45"
+      }
+    ],
+    "metrics": "all common raw predictions; per-season early, opening-month, tail diagnostics",
+    "gates": {
+      "primary": "unchanged xgb_direct_T0",
+      "improvement_min": 0.02,
+      "rmse_degradation_max": 0.01,
+      "slice_min": 100,
+      "slice_degradation_max": 0.05,
+      "ci_upper_lt": 0
+    },
+    "previous_failures_preserved": true,
+    "production_promotion": false
+  }
+}

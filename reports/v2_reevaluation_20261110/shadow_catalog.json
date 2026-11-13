@@ -1,0 +1,10 @@
+{
+  "version": "totals_213_20261029",
+  "bundle": "diagnostics/release_totals_20261029",
+  "status": "diagnostic_shadow",
+  "manifest_sha256": {
+    "direct": "97896640c8a23505ee722db341bee228ed13e378bd4b87e76cefda8c46c149ac",
+    "residual": "9bb23155c6776ae504902fef6e7e9f87b71cef85fe54b19c86e37bc80089febf"
+  },
+  "primary_promotion": false
+}

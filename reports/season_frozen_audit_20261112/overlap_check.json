@@ -1,0 +1,14 @@
+{
+  "previous_cohort_overlap": 132,
+  "additional_games": 24,
+  "additional_days": [
+    "2026-11-09",
+    "2026-11-10",
+    "2026-11-11"
+  ],
+  "kind": "descriptive overlap check, not independent pre-registered test",
+  "total_mae": {
+    "baseline": 31.831687927246094,
+    "candidate": 11.687004725138346
+  }
+}

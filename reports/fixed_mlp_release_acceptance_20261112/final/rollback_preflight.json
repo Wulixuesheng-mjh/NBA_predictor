@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "old_code_with_widened_schema": true,
+  "full_version_retained": true,
+  "active_model": "20261022_050952",
+  "schema": "010_mlp_compat_version",
+  "real_production_changed": false
+}

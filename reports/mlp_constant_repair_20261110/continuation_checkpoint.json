@@ -1,0 +1,64 @@
+{
+  "status": "specific_MLP_repair_implemented_and_engineering_verified",
+  "report": "docs/model-mlp-constant-repair-2026-11-10.md",
+  "repair_id": "legacy_mlp_1022_constant_ast_v1",
+  "fixed_weight": true,
+  "model_search": false,
+  "training": false,
+  "production_promoted": false,
+  "XGB_investigation_blocks_repair": false,
+  "regression_tests": 163,
+  "metrics": {
+    "before": {
+      "total_bias": -25.517512928355824,
+      "total_mae": 27.61189131303267,
+      "total_rmse": 32.406740823718465,
+      "win_mean": 0.14985085346482016,
+      "spread_mean": -35.430811470205136
+    },
+    "after": {
+      "total_bias": -2.8476230736934776,
+      "total_mae": 15.53489673498905,
+      "total_rmse": 19.576391673080057,
+      "win_mean": 0.5261343446644869,
+      "spread_mean": 2.6622044344743094
+    }
+  },
+  "earlier_probe_limit": {
+    "samples": 221,
+    "before_rejected": 52,
+    "after_rejected": 1,
+    "newly_rejected": 0,
+    "remaining": [
+      {
+        "game": "22000073",
+        "day": "2021-01-01",
+        "before": [
+          1.0,
+          202.0390167236328,
+          -442.1978759765625
+        ],
+        "after": [
+          1.0,
+          258.88800048828125,
+          -343.33331298828125
+        ]
+      }
+    ]
+  },
+  "exact_snapshot_replays": 132,
+  "original_training_samples_unchanged": 100,
+  "pytorch_onnx": {
+    "samples": 132,
+    "max_difference": [
+      1.1920928955078125e-07,
+      4.291534423828125e-06,
+      1.52587890625e-05
+    ],
+    "eval_mode": true
+  },
+  "active_unchanged": "9824b2248129c7c9a71348807660883ca2a620416725bf78290a1b626e42ff3a",
+  "explicit_activation": "load_predictor(release_manifest=repair_manifest) or mlp_compatibility_path",
+  "future_release_scope": "Only this fixed repair; independent real-time protocol and existing release gates; do not overwrite old MLP observations",
+  "caveat": "132 reconstructed diagnostics are not authentic pregame accuracy; 1 older out-of-domain probe remains guarded"
+}

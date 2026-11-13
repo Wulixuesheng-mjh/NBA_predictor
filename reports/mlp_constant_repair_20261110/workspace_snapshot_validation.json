@@ -1,0 +1,3245 @@
+{
+  "status": "PASS",
+  "id": "legacy_mlp_1022_constant_ast_v1",
+  "weight_training": false,
+  "production_promoted": false,
+  "historical_pregame_accuracy": false,
+  "cohort": 132,
+  "metrics": {
+    "before": {
+      "total_bias": -25.517512928355824,
+      "total_mae": 27.61189131303267,
+      "total_rmse": 32.406740823718465,
+      "win_mean": 0.14985085346482016,
+      "spread_mean": -35.430811470205136
+    },
+    "after": {
+      "total_bias": -2.8476230736934776,
+      "total_mae": 15.53489673498905,
+      "total_rmse": 19.576391673080057,
+      "win_mean": 0.5261343446644869,
+      "spread_mean": 2.6622044344743094
+    }
+  },
+  "reference_probe_max_difference": 0.0,
+  "single_batch_max_difference": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "original_training_samples": 100,
+  "original_training_max_difference": 0.0,
+  "xgb_all_outputs_unchanged": true,
+  "prior_guard_rejects": 21,
+  "repair_guard_rejects": 0,
+  "all_mlp_heads_changed_max": [
+    0.6405426859855652,
+    53.61789035797119,
+    39.850799560546875
+  ],
+  "earlier_probes": {
+    "samples": 221,
+    "before_rejected": 52,
+    "after_rejected": 1,
+    "newly_rejected": 0,
+    "remaining": [
+      {
+        "game": "22000073",
+        "day": "2021-01-01",
+        "before": [
+          1.0,
+          202.0390167236328,
+          -442.1978759765625
+        ],
+        "after": [
+          1.0,
+          258.88800048828125,
+          -343.33331298828125
+        ]
+      }
+    ]
+  },
+  "coordinate_stress_samples": 5,
+  "coordinate_stress_invariant": true,
+  "pytorch_onnx": null,
+  "protocol_input_preserved": true,
+  "primary_unchanged": true,
+  "exact_processed_snapshot_replays": 132,
+  "artifact_sha256": {
+    "model.onnx": "dc26ed0ffdeae42920c115e3b501da7b8f0c52ea28db3f4b8f50b3f1ddad4e03",
+    "model.onnx.data": "42a2c8f86004394f8cbeec14026839fcd478023111038aaca1ca9e669b22f652",
+    "model.pt": "9a353c296265effa7b1be8ca78d0d0901cfd815be87fd4ee49e2c5231200560d",
+    "scaler.npz": "9a9d554dde697650f7ae9dcaa3de733411b51b50b50e772786570c28cfa51167",
+    "metadata.json": "8004f0a3c0081f418a219b80e5bd5efdb66003aaf1c1f7cbebc47627add84e64"
+  },
+  "per_game": [
+    {
+      "game_id": 31793,
+      "source_day": "2026-10-22",
+      "actual_total": 220,
+      "before": [
+        0.4641712009906769,
+        -4.517407417297363,
+        206.79254150390625
+      ],
+      "after": [
+        0.4664439558982849,
+        1.246199369430542,
+        218.33392333984375
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4664439558982849,
+        "win_prob_away": 0.5335560441017151,
+        "predicted_spread": 1.0,
+        "spread_confidence": 0.06711208820343018,
+        "predicted_total": 218.5,
+        "total_confidence": 0.06711208820343018
+      }
+    },
+    {
+      "game_id": 31794,
+      "source_day": "2026-10-22",
+      "actual_total": 180,
+      "before": [
+        0.48911306262016296,
+        -2.8883376121520996,
+        211.97280883789062
+      ],
+      "after": [
+        0.5094363689422607,
+        3.4857633113861084,
+        227.2910614013672
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5094363689422607,
+        "win_prob_away": 0.49056363105773926,
+        "predicted_spread": 3.5,
+        "spread_confidence": 0.018872737884521484,
+        "predicted_total": 227.5,
+        "total_confidence": 0.018872737884521484
+      }
+    },
+    {
+      "game_id": 31795,
+      "source_day": "2026-10-23",
+      "actual_total": 210,
+      "before": [
+        0.39340609312057495,
+        -9.546241760253906,
+        204.49276733398438
+      ],
+      "after": [
+        0.5528025031089783,
+        4.5954694747924805,
+        215.01913452148438
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5528025031089783,
+        "win_prob_away": 0.44719749689102173,
+        "predicted_spread": 4.5,
+        "spread_confidence": 0.10560500621795654,
+        "predicted_total": 215.0,
+        "total_confidence": 0.10560500621795654
+      }
+    },
+    {
+      "game_id": 31796,
+      "source_day": "2026-10-23",
+      "actual_total": 224,
+      "before": [
+        0.2482084333896637,
+        -13.789124488830566,
+        213.96539306640625
+      ],
+      "after": [
+        0.5323365926742554,
+        4.576268196105957,
+        219.03790283203125
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5323365926742554,
+        "win_prob_away": 0.46766340732574463,
+        "predicted_spread": 4.5,
+        "spread_confidence": 0.06467318534851074,
+        "predicted_total": 219.0,
+        "total_confidence": 0.06467318534851074
+      }
+    },
+    {
+      "game_id": 31797,
+      "source_day": "2026-10-23",
+      "actual_total": 209,
+      "before": [
+        0.5391933917999268,
+        -15.710180282592773,
+        192.552490234375
+      ],
+      "after": [
+        0.6361604332923889,
+        5.643986701965332,
+        219.5808868408203
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6361604332923889,
+        "win_prob_away": 0.3638395667076111,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.27232086658477783,
+        "predicted_total": 219.5,
+        "total_confidence": 0.27232086658477783
+      }
+    },
+    {
+      "game_id": 31798,
+      "source_day": "2026-10-23",
+      "actual_total": 226,
+      "before": [
+        0.23715654015541077,
+        -23.958023071289062,
+        207.4550323486328
+      ],
+      "after": [
+        0.6357665061950684,
+        4.194074630737305,
+        230.2596435546875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6357665061950684,
+        "win_prob_away": 0.36423349380493164,
+        "predicted_spread": 4.0,
+        "spread_confidence": 0.2715330123901367,
+        "predicted_total": 230.5,
+        "total_confidence": 0.2715330123901367
+      }
+    },
+    {
+      "game_id": 31799,
+      "source_day": "2026-10-23",
+      "actual_total": 208,
+      "before": [
+        0.4798455834388733,
+        -3.7096095085144043,
+        206.27734375
+      ],
+      "after": [
+        0.5406357645988464,
+        5.013937950134277,
+        217.57620239257812
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5406357645988464,
+        "win_prob_away": 0.45936423540115356,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.08127152919769287,
+        "predicted_total": 217.5,
+        "total_confidence": 0.08127152919769287
+      }
+    },
+    {
+      "game_id": 31800,
+      "source_day": "2026-10-23",
+      "actual_total": 214,
+      "before": [
+        0.15220218896865845,
+        -31.12390899658203,
+        199.3779754638672
+      ],
+      "after": [
+        0.3116268515586853,
+        -3.5765223503112793,
+        224.74691772460938
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.3116268515586853,
+        "win_prob_away": 0.6883731484413147,
+        "predicted_spread": -3.5,
+        "spread_confidence": 0.3767462968826294,
+        "predicted_total": 224.5,
+        "total_confidence": 0.3767462968826294
+      }
+    },
+    {
+      "game_id": 31801,
+      "source_day": "2026-10-23",
+      "actual_total": 239,
+      "before": [
+        0.3162901699542999,
+        -25.524106979370117,
+        186.77322387695312
+      ],
+      "after": [
+        0.5389878153800964,
+        2.2815158367156982,
+        226.6240234375
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5389878153800964,
+        "win_prob_away": 0.46101218461990356,
+        "predicted_spread": 2.5,
+        "spread_confidence": 0.07797563076019287,
+        "predicted_total": 226.5,
+        "total_confidence": 0.07797563076019287
+      }
+    },
+    {
+      "game_id": 31802,
+      "source_day": "2026-10-23",
+      "actual_total": 257,
+      "before": [
+        0.2148209810256958,
+        -26.483745574951172,
+        206.13717651367188
+      ],
+      "after": [
+        0.592832088470459,
+        3.020336389541626,
+        229.49911499023438
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.592832088470459,
+        "win_prob_away": 0.407167911529541,
+        "predicted_spread": 3.0,
+        "spread_confidence": 0.18566417694091797,
+        "predicted_total": 229.5,
+        "total_confidence": 0.18566417694091797
+      }
+    },
+    {
+      "game_id": 31803,
+      "source_day": "2026-10-23",
+      "actual_total": 239,
+      "before": [
+        0.10448792576789856,
+        -32.91536331176758,
+        207.01979064941406
+      ],
+      "after": [
+        0.39502090215682983,
+        -1.3367493152618408,
+        229.13328552246094
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.39502090215682983,
+        "win_prob_away": 0.6049790978431702,
+        "predicted_spread": -1.5,
+        "spread_confidence": 0.20995819568634033,
+        "predicted_total": 229.0,
+        "total_confidence": 0.20995819568634033
+      }
+    },
+    {
+      "game_id": 31804,
+      "source_day": "2026-10-23",
+      "actual_total": 219,
+      "before": [
+        0.1580631136894226,
+        -32.42510223388672,
+        202.72369384765625
+      ],
+      "after": [
+        0.617915153503418,
+        5.053709983825684,
+        232.54722595214844
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.617915153503418,
+        "win_prob_away": 0.38208484649658203,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.23583030700683594,
+        "predicted_total": 232.5,
+        "total_confidence": 0.23583030700683594
+      }
+    },
+    {
+      "game_id": 31805,
+      "source_day": "2026-10-23",
+      "actual_total": 242,
+      "before": [
+        0.07049918174743652,
+        -39.051231384277344,
+        208.37066650390625
+      ],
+      "after": [
+        0.5220685601234436,
+        3.1647391319274902,
+        220.79100036621094
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5220685601234436,
+        "win_prob_away": 0.4779314398765564,
+        "predicted_spread": 3.0,
+        "spread_confidence": 0.04413712024688721,
+        "predicted_total": 221.0,
+        "total_confidence": 0.04413712024688721
+      }
+    },
+    {
+      "game_id": 31806,
+      "source_day": "2026-10-23",
+      "actual_total": 248,
+      "before": [
+        0.22986379265785217,
+        -26.340978622436523,
+        197.6673583984375
+      ],
+      "after": [
+        0.39589983224868774,
+        -1.0097355842590332,
+        220.80389404296875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.39589983224868774,
+        "win_prob_away": 0.6041001677513123,
+        "predicted_spread": -1.0,
+        "spread_confidence": 0.2082003355026245,
+        "predicted_total": 221.0,
+        "total_confidence": 0.2082003355026245
+      }
+    },
+    {
+      "game_id": 31807,
+      "source_day": "2026-10-24",
+      "actual_total": 225,
+      "before": [
+        0.04106110334396362,
+        -51.8222541809082,
+        201.6687774658203
+      ],
+      "after": [
+        0.36135467886924744,
+        -4.248775005340576,
+        226.49119567871094
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.36135467886924744,
+        "win_prob_away": 0.6386452913284302,
+        "predicted_spread": -4.0,
+        "spread_confidence": 0.2772906422615051,
+        "predicted_total": 226.5,
+        "total_confidence": 0.2772906422615051
+      }
+    },
+    {
+      "game_id": 31808,
+      "source_day": "2026-10-24",
+      "actual_total": 246,
+      "before": [
+        0.29284000396728516,
+        -11.562544822692871,
+        215.81297302246094
+      ],
+      "after": [
+        0.6014833450317383,
+        4.8613128662109375,
+        216.83413696289062
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6014833450317383,
+        "win_prob_away": 0.3985166549682617,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.20296669006347656,
+        "predicted_total": 217.0,
+        "total_confidence": 0.20296669006347656
+      }
+    },
+    {
+      "game_id": 31809,
+      "source_day": "2026-10-24",
+      "actual_total": 243,
+      "before": [
+        0.07661011815071106,
+        -32.9787483215332,
+        213.2219696044922
+      ],
+      "after": [
+        0.5875838994979858,
+        4.856767654418945,
+        227.4441680908203
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5875838994979858,
+        "win_prob_away": 0.41241610050201416,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.17516779899597168,
+        "predicted_total": 227.5,
+        "total_confidence": 0.17516779899597168
+      }
+    },
+    {
+      "game_id": 31810,
+      "source_day": "2026-10-24",
+      "actual_total": 235,
+      "before": [
+        0.15196606516838074,
+        -28.802921295166016,
+        204.2235870361328
+      ],
+      "after": [
+        0.3863818347454071,
+        -1.726351022720337,
+        221.20281982421875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.3863818347454071,
+        "win_prob_away": 0.6136181354522705,
+        "predicted_spread": -1.5,
+        "spread_confidence": 0.2272363305091858,
+        "predicted_total": 221.0,
+        "total_confidence": 0.2272363305091858
+      }
+    },
+    {
+      "game_id": 31811,
+      "source_day": "2026-10-24",
+      "actual_total": 244,
+      "before": [
+        0.14402472972869873,
+        -29.64659881591797,
+        207.2423553466797
+      ],
+      "after": [
+        0.4170420467853546,
+        -0.5502753257751465,
+        227.65736389160156
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4170420467853546,
+        "win_prob_away": 0.5829579830169678,
+        "predicted_spread": -0.5,
+        "spread_confidence": 0.16591590642929077,
+        "predicted_total": 227.5,
+        "total_confidence": 0.16591590642929077
+      }
+    },
+    {
+      "game_id": 31812,
+      "source_day": "2026-10-24",
+      "actual_total": 228,
+      "before": [
+        0.20756852626800537,
+        -23.363386154174805,
+        192.7274932861328
+      ],
+      "after": [
+        0.3471372127532959,
+        -1.8668813705444336,
+        223.3272247314453
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.3471372127532959,
+        "win_prob_away": 0.6528627872467041,
+        "predicted_spread": -2.0,
+        "spread_confidence": 0.3057255744934082,
+        "predicted_total": 223.5,
+        "total_confidence": 0.3057255744934082
+      }
+    },
+    {
+      "game_id": 31813,
+      "source_day": "2026-10-24",
+      "actual_total": 276,
+      "before": [
+        0.13664212822914124,
+        -25.29038429260254,
+        213.9112091064453
+      ],
+      "after": [
+        0.7066733241081238,
+        7.432767868041992,
+        228.2412567138672
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7066733241081238,
+        "win_prob_away": 0.2933266758918762,
+        "predicted_spread": 7.5,
+        "spread_confidence": 0.41334664821624756,
+        "predicted_total": 228.0,
+        "total_confidence": 0.41334664821624756
+      }
+    },
+    {
+      "game_id": 31814,
+      "source_day": "2026-10-24",
+      "actual_total": 253,
+      "before": [
+        0.05979102849960327,
+        -36.484710693359375,
+        211.5035400390625
+      ],
+      "after": [
+        0.5580121278762817,
+        5.024858474731445,
+        220.48492431640625
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5580121278762817,
+        "win_prob_away": 0.44198787212371826,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.11602425575256348,
+        "predicted_total": 220.5,
+        "total_confidence": 0.11602425575256348
+      }
+    },
+    {
+      "game_id": 31815,
+      "source_day": "2026-10-25",
+      "actual_total": 255,
+      "before": [
+        0.1946812868118286,
+        -28.417545318603516,
+        193.77243041992188
+      ],
+      "after": [
+        0.38504528999328613,
+        -0.8663845062255859,
+        227.70831298828125
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.38504528999328613,
+        "win_prob_away": 0.6149547100067139,
+        "predicted_spread": -1.0,
+        "spread_confidence": 0.22990942001342773,
+        "predicted_total": 227.5,
+        "total_confidence": 0.22990942001342773
+      }
+    },
+    {
+      "game_id": 31816,
+      "source_day": "2026-10-25",
+      "actual_total": 245,
+      "before": [
+        0.09224215149879456,
+        -33.24370193481445,
+        209.8949737548828
+      ],
+      "after": [
+        0.28611302375793457,
+        -6.242433547973633,
+        221.59413146972656
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.28611302375793457,
+        "win_prob_away": 0.7138869762420654,
+        "predicted_spread": -6.0,
+        "spread_confidence": 0.42777395248413086,
+        "predicted_total": 221.5,
+        "total_confidence": 0.42777395248413086
+      }
+    },
+    {
+      "game_id": 31817,
+      "source_day": "2026-10-25",
+      "actual_total": 213,
+      "before": [
+        0.4316710829734802,
+        -13.448723793029785,
+        206.25942993164062
+      ],
+      "after": [
+        0.6963022947311401,
+        7.610331058502197,
+        212.59051513671875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6963022947311401,
+        "win_prob_away": 0.30369770526885986,
+        "predicted_spread": 7.5,
+        "spread_confidence": 0.3926045894622803,
+        "predicted_total": 212.5,
+        "total_confidence": 0.3926045894622803
+      }
+    },
+    {
+      "game_id": 31818,
+      "source_day": "2026-10-25",
+      "actual_total": 211,
+      "before": [
+        0.1767006814479828,
+        -21.80535888671875,
+        213.4163055419922
+      ],
+      "after": [
+        0.4711763262748718,
+        2.364090919494629,
+        218.3772430419922
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4711763262748718,
+        "win_prob_away": 0.5288236737251282,
+        "predicted_spread": 2.5,
+        "spread_confidence": 0.05764734745025635,
+        "predicted_total": 218.5,
+        "total_confidence": 0.05764734745025635
+      }
+    },
+    {
+      "game_id": 31819,
+      "source_day": "2026-10-25",
+      "actual_total": 209,
+      "before": [
+        0.0839742124080658,
+        -33.712745666503906,
+        211.52365112304688
+      ],
+      "after": [
+        0.6188001036643982,
+        6.02999210357666,
+        226.24920654296875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6188001036643982,
+        "win_prob_away": 0.3811998963356018,
+        "predicted_spread": 6.0,
+        "spread_confidence": 0.2376002073287964,
+        "predicted_total": 226.0,
+        "total_confidence": 0.2376002073287964
+      }
+    },
+    {
+      "game_id": 31820,
+      "source_day": "2026-10-25",
+      "actual_total": 199,
+      "before": [
+        0.19515061378479004,
+        -25.442956924438477,
+        204.00885009765625
+      ],
+      "after": [
+        0.323335736989975,
+        -4.9999895095825195,
+        219.91351318359375
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.323335736989975,
+        "win_prob_away": 0.6766642332077026,
+        "predicted_spread": -5.0,
+        "spread_confidence": 0.35332852602005005,
+        "predicted_total": 220.0,
+        "total_confidence": 0.35332852602005005
+      }
+    },
+    {
+      "game_id": 31821,
+      "source_day": "2026-10-25",
+      "actual_total": 235,
+      "before": [
+        0.08165144920349121,
+        -36.36415481567383,
+        209.0930938720703
+      ],
+      "after": [
+        0.5202437043190002,
+        1.891701579093933,
+        227.56326293945312
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5202437043190002,
+        "win_prob_away": 0.47975629568099976,
+        "predicted_spread": 2.0,
+        "spread_confidence": 0.04048740863800049,
+        "predicted_total": 227.5,
+        "total_confidence": 0.04048740863800049
+      }
+    },
+    {
+      "game_id": 31822,
+      "source_day": "2026-10-26",
+      "actual_total": 213,
+      "before": [
+        0.18053176999092102,
+        -32.80746078491211,
+        198.2097625732422
+      ],
+      "after": [
+        0.6525537967681885,
+        5.494899272918701,
+        228.3770751953125
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6525537967681885,
+        "win_prob_away": 0.3474462032318115,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.30510759353637695,
+        "predicted_total": 228.5,
+        "total_confidence": 0.30510759353637695
+      }
+    },
+    {
+      "game_id": 31823,
+      "source_day": "2026-10-26",
+      "actual_total": 252,
+      "before": [
+        0.2211015820503235,
+        -22.60627555847168,
+        205.03292846679688
+      ],
+      "after": [
+        0.5022373199462891,
+        3.017286777496338,
+        219.33351135253906
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5022373199462891,
+        "win_prob_away": 0.49776268005371094,
+        "predicted_spread": 3.0,
+        "spread_confidence": 0.004474639892578125,
+        "predicted_total": 219.5,
+        "total_confidence": 0.004474639892578125
+      }
+    },
+    {
+      "game_id": 31824,
+      "source_day": "2026-10-26",
+      "actual_total": 233,
+      "before": [
+        0.15925297141075134,
+        -24.650480270385742,
+        214.53042602539062
+      ],
+      "after": [
+        0.7301198840141296,
+        7.7094197273254395,
+        223.88804626464844
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7301198840141296,
+        "win_prob_away": 0.26988011598587036,
+        "predicted_spread": 7.5,
+        "spread_confidence": 0.4602397680282593,
+        "predicted_total": 224.0,
+        "total_confidence": 0.4602397680282593
+      }
+    },
+    {
+      "game_id": 31825,
+      "source_day": "2026-10-26",
+      "actual_total": 222,
+      "before": [
+        0.143477201461792,
+        -37.34659194946289,
+        196.39649963378906
+      ],
+      "after": [
+        0.5754129886627197,
+        2.448225975036621,
+        232.3427276611328
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5754129886627197,
+        "win_prob_away": 0.4245870113372803,
+        "predicted_spread": 2.5,
+        "spread_confidence": 0.15082597732543945,
+        "predicted_total": 232.5,
+        "total_confidence": 0.15082597732543945
+      }
+    },
+    {
+      "game_id": 31826,
+      "source_day": "2026-10-26",
+      "actual_total": 212,
+      "before": [
+        0.10179898142814636,
+        -35.13854217529297,
+        203.632568359375
+      ],
+      "after": [
+        0.5419588088989258,
+        1.4259862899780273,
+        229.69583129882812
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5419588088989258,
+        "win_prob_away": 0.4580411911010742,
+        "predicted_spread": 1.5,
+        "spread_confidence": 0.08391761779785156,
+        "predicted_total": 229.5,
+        "total_confidence": 0.08391761779785156
+      }
+    },
+    {
+      "game_id": 31827,
+      "source_day": "2026-10-26",
+      "actual_total": 239,
+      "before": [
+        0.3600195646286011,
+        -17.848899841308594,
+        206.50949096679688
+      ],
+      "after": [
+        0.5701799988746643,
+        4.610625267028809,
+        218.3253936767578
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5701799988746643,
+        "win_prob_away": 0.4298200011253357,
+        "predicted_spread": 4.5,
+        "spread_confidence": 0.1403599977493286,
+        "predicted_total": 218.5,
+        "total_confidence": 0.1403599977493286
+      }
+    },
+    {
+      "game_id": 31828,
+      "source_day": "2026-10-26",
+      "actual_total": 230,
+      "before": [
+        0.26145511865615845,
+        -22.609432220458984,
+        204.7974395751953
+      ],
+      "after": [
+        0.7056792974472046,
+        7.379485130310059,
+        218.67771911621094
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7056792974472046,
+        "win_prob_away": 0.2943207025527954,
+        "predicted_spread": 7.5,
+        "spread_confidence": 0.4113585948944092,
+        "predicted_total": 218.5,
+        "total_confidence": 0.4113585948944092
+      }
+    },
+    {
+      "game_id": 31829,
+      "source_day": "2026-10-26",
+      "actual_total": 215,
+      "before": [
+        0.06219261884689331,
+        -41.542396545410156,
+        203.60462951660156
+      ],
+      "after": [
+        0.38728851079940796,
+        -2.957275390625,
+        224.2389678955078
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.38728851079940796,
+        "win_prob_away": 0.612711489200592,
+        "predicted_spread": -3.0,
+        "spread_confidence": 0.22542297840118408,
+        "predicted_total": 224.0,
+        "total_confidence": 0.22542297840118408
+      }
+    },
+    {
+      "game_id": 31830,
+      "source_day": "2026-10-26",
+      "actual_total": 248,
+      "before": [
+        0.07613891363143921,
+        -34.808998107910156,
+        211.8427276611328
+      ],
+      "after": [
+        0.6141696572303772,
+        5.300486087799072,
+        223.52748107910156
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6141696572303772,
+        "win_prob_away": 0.3858303427696228,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.2283393144607544,
+        "predicted_total": 223.5,
+        "total_confidence": 0.2283393144607544
+      }
+    },
+    {
+      "game_id": 31831,
+      "source_day": "2026-10-27",
+      "actual_total": 249,
+      "before": [
+        0.3021228313446045,
+        -19.782644271850586,
+        211.61044311523438
+      ],
+      "after": [
+        0.743278443813324,
+        8.801368713378906,
+        220.9806671142578
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.743278443813324,
+        "win_prob_away": 0.256721556186676,
+        "predicted_spread": 9.0,
+        "spread_confidence": 0.48655688762664795,
+        "predicted_total": 221.0,
+        "total_confidence": 0.48655688762664795
+      }
+    },
+    {
+      "game_id": 31832,
+      "source_day": "2026-10-27",
+      "actual_total": 208,
+      "before": [
+        0.15640532970428467,
+        -27.926528930664062,
+        205.72109985351562
+      ],
+      "after": [
+        0.49976012110710144,
+        3.2113876342773438,
+        216.98287963867188
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.49976012110710144,
+        "win_prob_away": 0.5002398490905762,
+        "predicted_spread": 3.0,
+        "spread_confidence": 0.00047975778579711914,
+        "predicted_total": 217.0,
+        "total_confidence": 0.00047975778579711914
+      }
+    },
+    {
+      "game_id": 31833,
+      "source_day": "2026-10-27",
+      "actual_total": 233,
+      "before": [
+        0.18980324268341064,
+        -21.84093475341797,
+        214.90338134765625
+      ],
+      "after": [
+        0.7203431129455566,
+        7.981800079345703,
+        219.59414672851562
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7203431129455566,
+        "win_prob_away": 0.27965688705444336,
+        "predicted_spread": 8.0,
+        "spread_confidence": 0.4406862258911133,
+        "predicted_total": 219.5,
+        "total_confidence": 0.4406862258911133
+      }
+    },
+    {
+      "game_id": 31834,
+      "source_day": "2026-10-27",
+      "actual_total": 265,
+      "before": [
+        0.23879072070121765,
+        -20.555112838745117,
+        210.08641052246094
+      ],
+      "after": [
+        0.5838755965232849,
+        5.294379234313965,
+        222.71395874023438
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5838755965232849,
+        "win_prob_away": 0.4161244034767151,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.16775119304656982,
+        "predicted_total": 222.5,
+        "total_confidence": 0.16775119304656982
+      }
+    },
+    {
+      "game_id": 31836,
+      "source_day": "2026-10-28",
+      "actual_total": 246,
+      "before": [
+        0.04076233506202698,
+        -44.487770080566406,
+        211.62496948242188
+      ],
+      "after": [
+        0.4391842484474182,
+        0.4679985046386719,
+        228.2073516845703
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4391842484474182,
+        "win_prob_away": 0.5608157515525818,
+        "predicted_spread": 0.5,
+        "spread_confidence": 0.12163150310516357,
+        "predicted_total": 228.0,
+        "total_confidence": 0.12163150310516357
+      }
+    },
+    {
+      "game_id": 31837,
+      "source_day": "2026-10-28",
+      "actual_total": 232,
+      "before": [
+        0.16262668371200562,
+        -25.307971954345703,
+        212.3391571044922
+      ],
+      "after": [
+        0.7539713382720947,
+        8.824237823486328,
+        230.26622009277344
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7539713382720947,
+        "win_prob_away": 0.24602866172790527,
+        "predicted_spread": 9.0,
+        "spread_confidence": 0.5079426765441895,
+        "predicted_total": 230.5,
+        "total_confidence": 0.5079426765441895
+      }
+    },
+    {
+      "game_id": 31838,
+      "source_day": "2026-10-28",
+      "actual_total": 186,
+      "before": [
+        0.11257418990135193,
+        -35.058189392089844,
+        205.56161499023438
+      ],
+      "after": [
+        0.6128439903259277,
+        6.416598320007324,
+        219.8975830078125
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6128439903259277,
+        "win_prob_away": 0.38715600967407227,
+        "predicted_spread": 6.5,
+        "spread_confidence": 0.22568798065185547,
+        "predicted_total": 220.0,
+        "total_confidence": 0.22568798065185547
+      }
+    },
+    {
+      "game_id": 31839,
+      "source_day": "2026-10-28",
+      "actual_total": 223,
+      "before": [
+        0.19430667161941528,
+        -32.24196243286133,
+        195.63943481445312
+      ],
+      "after": [
+        0.46656590700149536,
+        2.3614606857299805,
+        220.8137664794922
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.46656590700149536,
+        "win_prob_away": 0.5334340929985046,
+        "predicted_spread": 2.5,
+        "spread_confidence": 0.06686818599700928,
+        "predicted_total": 221.0,
+        "total_confidence": 0.06686818599700928
+      }
+    },
+    {
+      "game_id": 31840,
+      "source_day": "2026-10-28",
+      "actual_total": 228,
+      "before": [
+        0.3480144143104553,
+        -20.744178771972656,
+        200.84506225585938
+      ],
+      "after": [
+        0.6793426871299744,
+        6.739717483520508,
+        215.491943359375
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6793426871299744,
+        "win_prob_away": 0.32065731287002563,
+        "predicted_spread": 6.5,
+        "spread_confidence": 0.35868537425994873,
+        "predicted_total": 215.5,
+        "total_confidence": 0.35868537425994873
+      }
+    },
+    {
+      "game_id": 31841,
+      "source_day": "2026-10-28",
+      "actual_total": 260,
+      "before": [
+        0.09842261672019958,
+        -39.1334114074707,
+        193.9870147705078
+      ],
+      "after": [
+        0.3194730281829834,
+        -3.2966089248657227,
+        221.04803466796875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.3194730281829834,
+        "win_prob_away": 0.6805269718170166,
+        "predicted_spread": -3.5,
+        "spread_confidence": 0.3610539436340332,
+        "predicted_total": 221.0,
+        "total_confidence": 0.3610539436340332
+      }
+    },
+    {
+      "game_id": 31842,
+      "source_day": "2026-10-28",
+      "actual_total": 232,
+      "before": [
+        0.15299060940742493,
+        -36.872283935546875,
+        192.16783142089844
+      ],
+      "after": [
+        0.3995954990386963,
+        -1.006514072418213,
+        225.7943572998047
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.3995954990386963,
+        "win_prob_away": 0.6004045009613037,
+        "predicted_spread": -1.0,
+        "spread_confidence": 0.20080900192260742,
+        "predicted_total": 226.0,
+        "total_confidence": 0.20080900192260742
+      }
+    },
+    {
+      "game_id": 31843,
+      "source_day": "2026-10-28",
+      "actual_total": 233,
+      "before": [
+        0.10763975977897644,
+        -31.896507263183594,
+        212.94232177734375
+      ],
+      "after": [
+        0.6526709198951721,
+        6.670913219451904,
+        224.52047729492188
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6526709198951721,
+        "win_prob_away": 0.3473290801048279,
+        "predicted_spread": 6.5,
+        "spread_confidence": 0.30534183979034424,
+        "predicted_total": 224.5,
+        "total_confidence": 0.30534183979034424
+      }
+    },
+    {
+      "game_id": 31844,
+      "source_day": "2026-10-28",
+      "actual_total": 195,
+      "before": [
+        0.26609688997268677,
+        -24.92403793334961,
+        200.7117462158203
+      ],
+      "after": [
+        0.43597206473350525,
+        1.1482722759246826,
+        227.43978881835938
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.43597206473350525,
+        "win_prob_away": 0.5640279054641724,
+        "predicted_spread": 1.0,
+        "spread_confidence": 0.1280558705329895,
+        "predicted_total": 227.5,
+        "total_confidence": 0.1280558705329895
+      }
+    },
+    {
+      "game_id": 31845,
+      "source_day": "2026-10-28",
+      "actual_total": 228,
+      "before": [
+        0.0944490134716034,
+        -40.91175842285156,
+        191.4269256591797
+      ],
+      "after": [
+        0.37835416197776794,
+        -1.8573296070098877,
+        220.05113220214844
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.37835416197776794,
+        "win_prob_away": 0.6216458082199097,
+        "predicted_spread": -2.0,
+        "spread_confidence": 0.2432916760444641,
+        "predicted_total": 220.0,
+        "total_confidence": 0.2432916760444641
+      }
+    },
+    {
+      "game_id": 31846,
+      "source_day": "2026-10-28",
+      "actual_total": 216,
+      "before": [
+        0.1965988576412201,
+        -29.48797607421875,
+        199.0015411376953
+      ],
+      "after": [
+        0.5177462697029114,
+        3.7250146865844727,
+        221.71376037597656
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5177462697029114,
+        "win_prob_away": 0.4822537302970886,
+        "predicted_spread": 3.5,
+        "spread_confidence": 0.035492539405822754,
+        "predicted_total": 221.5,
+        "total_confidence": 0.035492539405822754
+      }
+    },
+    {
+      "game_id": 31847,
+      "source_day": "2026-10-28",
+      "actual_total": 190,
+      "before": [
+        0.2070523202419281,
+        -31.75183868408203,
+        191.09765625
+      ],
+      "after": [
+        0.5335950255393982,
+        3.5660009384155273,
+        225.5471649169922
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5335950255393982,
+        "win_prob_away": 0.4664049744606018,
+        "predicted_spread": 3.5,
+        "spread_confidence": 0.06719005107879639,
+        "predicted_total": 225.5,
+        "total_confidence": 0.06719005107879639
+      }
+    },
+    {
+      "game_id": 31863,
+      "source_day": "2026-10-29",
+      "actual_total": 225,
+      "before": [
+        0.16265064477920532,
+        -35.042293548583984,
+        197.96109008789062
+      ],
+      "after": [
+        0.4812637269496918,
+        2.8719921112060547,
+        222.91592407226562
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4812637269496918,
+        "win_prob_away": 0.5187362432479858,
+        "predicted_spread": 3.0,
+        "spread_confidence": 0.037472546100616455,
+        "predicted_total": 223.0,
+        "total_confidence": 0.037472546100616455
+      }
+    },
+    {
+      "game_id": 31864,
+      "source_day": "2026-10-29",
+      "actual_total": 252,
+      "before": [
+        0.12393984198570251,
+        -33.05863571166992,
+        207.32101440429688
+      ],
+      "after": [
+        0.5043148994445801,
+        2.632084369659424,
+        227.2034912109375
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5043148994445801,
+        "win_prob_away": 0.4956851005554199,
+        "predicted_spread": 2.5,
+        "spread_confidence": 0.008629798889160156,
+        "predicted_total": 227.0,
+        "total_confidence": 0.008629798889160156
+      }
+    },
+    {
+      "game_id": 31865,
+      "source_day": "2026-10-29",
+      "actual_total": 227,
+      "before": [
+        0.0887112021446228,
+        -33.21818923950195,
+        210.68170166015625
+      ],
+      "after": [
+        0.674919843673706,
+        6.25167989730835,
+        228.95376586914062
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.674919843673706,
+        "win_prob_away": 0.32508015632629395,
+        "predicted_spread": 6.5,
+        "spread_confidence": 0.3498396873474121,
+        "predicted_total": 229.0,
+        "total_confidence": 0.3498396873474121
+      }
+    },
+    {
+      "game_id": 31868,
+      "source_day": "2026-10-30",
+      "actual_total": 174,
+      "before": [
+        0.08963268995285034,
+        -40.175537109375,
+        201.26324462890625
+      ],
+      "after": [
+        0.5207064747810364,
+        5.046655654907227,
+        221.46029663085938
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5207064747810364,
+        "win_prob_away": 0.4792935252189636,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.041412949562072754,
+        "predicted_total": 221.5,
+        "total_confidence": 0.041412949562072754
+      }
+    },
+    {
+      "game_id": 31869,
+      "source_day": "2026-10-30",
+      "actual_total": 236,
+      "before": [
+        0.18147969245910645,
+        -28.691255569458008,
+        210.3936309814453
+      ],
+      "after": [
+        0.7777606248855591,
+        8.695513725280762,
+        229.7254180908203
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7777606248855591,
+        "win_prob_away": 0.22223937511444092,
+        "predicted_spread": 8.5,
+        "spread_confidence": 0.5555212497711182,
+        "predicted_total": 229.5,
+        "total_confidence": 0.5555212497711182
+      }
+    },
+    {
+      "game_id": 31870,
+      "source_day": "2026-10-30",
+      "actual_total": 204,
+      "before": [
+        0.04482978582382202,
+        -47.03831100463867,
+        202.18798828125
+      ],
+      "after": [
+        0.2861112058162689,
+        -6.002373695373535,
+        220.12506103515625
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.2861112058162689,
+        "win_prob_away": 0.7138887643814087,
+        "predicted_spread": -6.0,
+        "spread_confidence": 0.42777758836746216,
+        "predicted_total": 220.0,
+        "total_confidence": 0.42777758836746216
+      }
+    },
+    {
+      "game_id": 31871,
+      "source_day": "2026-10-30",
+      "actual_total": 191,
+      "before": [
+        0.11497211456298828,
+        -35.55144119262695,
+        200.9615020751953
+      ],
+      "after": [
+        0.5140446424484253,
+        4.8947319984436035,
+        219.28494262695312
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5140446424484253,
+        "win_prob_away": 0.4859553575515747,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.028089284896850586,
+        "predicted_total": 219.5,
+        "total_confidence": 0.028089284896850586
+      }
+    },
+    {
+      "game_id": 31872,
+      "source_day": "2026-10-30",
+      "actual_total": 235,
+      "before": [
+        0.3494223356246948,
+        -23.618602752685547,
+        198.25039672851562
+      ],
+      "after": [
+        0.7095019817352295,
+        6.978114604949951,
+        218.00259399414062
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7095019817352295,
+        "win_prob_away": 0.2904980182647705,
+        "predicted_spread": 7.0,
+        "spread_confidence": 0.419003963470459,
+        "predicted_total": 218.0,
+        "total_confidence": 0.419003963470459
+      }
+    },
+    {
+      "game_id": 31873,
+      "source_day": "2026-10-30",
+      "actual_total": 270,
+      "before": [
+        0.09646576642990112,
+        -43.96239471435547,
+        196.1735382080078
+      ],
+      "after": [
+        0.5560504198074341,
+        1.9022094011306763,
+        229.51531982421875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5560504198074341,
+        "win_prob_away": 0.4439495801925659,
+        "predicted_spread": 2.0,
+        "spread_confidence": 0.11210083961486816,
+        "predicted_total": 229.5,
+        "total_confidence": 0.11210083961486816
+      }
+    },
+    {
+      "game_id": 31874,
+      "source_day": "2026-10-30",
+      "actual_total": 227,
+      "before": [
+        0.10224616527557373,
+        -42.20964431762695,
+        192.96083068847656
+      ],
+      "after": [
+        0.4060807228088379,
+        -0.6169857978820801,
+        221.8517608642578
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4060807228088379,
+        "win_prob_away": 0.5939192771911621,
+        "predicted_spread": -0.5,
+        "spread_confidence": 0.18783855438232422,
+        "predicted_total": 222.0,
+        "total_confidence": 0.18783855438232422
+      }
+    },
+    {
+      "game_id": 31875,
+      "source_day": "2026-10-30",
+      "actual_total": 228,
+      "before": [
+        0.08606013655662537,
+        -38.20356750488281,
+        207.98316955566406
+      ],
+      "after": [
+        0.5381673574447632,
+        4.422088623046875,
+        222.1642303466797
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5381673574447632,
+        "win_prob_away": 0.4618326425552368,
+        "predicted_spread": 4.5,
+        "spread_confidence": 0.07633471488952637,
+        "predicted_total": 222.0,
+        "total_confidence": 0.07633471488952637
+      }
+    },
+    {
+      "game_id": 31876,
+      "source_day": "2026-10-30",
+      "actual_total": 207,
+      "before": [
+        0.17125731706619263,
+        -35.17611312866211,
+        191.65756225585938
+      ],
+      "after": [
+        0.43245816230773926,
+        -0.20595097541809082,
+        227.97706604003906
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.43245816230773926,
+        "win_prob_away": 0.5675418376922607,
+        "predicted_spread": 0.0,
+        "spread_confidence": 0.13508367538452148,
+        "predicted_total": 228.0,
+        "total_confidence": 0.13508367538452148
+      }
+    },
+    {
+      "game_id": 31877,
+      "source_day": "2026-10-30",
+      "actual_total": 247,
+      "before": [
+        0.1641310155391693,
+        -28.45549774169922,
+        206.00588989257812
+      ],
+      "after": [
+        0.5019908547401428,
+        1.509303092956543,
+        226.9624481201172
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5019908547401428,
+        "win_prob_away": 0.4980091452598572,
+        "predicted_spread": 1.5,
+        "spread_confidence": 0.0039817094802856445,
+        "predicted_total": 227.0,
+        "total_confidence": 0.0039817094802856445
+      }
+    },
+    {
+      "game_id": 31879,
+      "source_day": "2026-10-31",
+      "actual_total": 202,
+      "before": [
+        0.1377210021018982,
+        -37.47246170043945,
+        195.91232299804688
+      ],
+      "after": [
+        0.42328572273254395,
+        -0.6311051845550537,
+        224.00990295410156
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.42328572273254395,
+        "win_prob_away": 0.576714277267456,
+        "predicted_spread": -0.5,
+        "spread_confidence": 0.1534285545349121,
+        "predicted_total": 224.0,
+        "total_confidence": 0.1534285545349121
+      }
+    },
+    {
+      "game_id": 31880,
+      "source_day": "2026-10-31",
+      "actual_total": 213,
+      "before": [
+        0.08088913559913635,
+        -46.221527099609375,
+        190.14996337890625
+      ],
+      "after": [
+        0.35839539766311646,
+        -2.6987619400024414,
+        215.7526397705078
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.35839539766311646,
+        "win_prob_away": 0.6416046023368835,
+        "predicted_spread": -2.5,
+        "spread_confidence": 0.2832092046737671,
+        "predicted_total": 216.0,
+        "total_confidence": 0.2832092046737671
+      }
+    },
+    {
+      "game_id": 31881,
+      "source_day": "2026-10-31",
+      "actual_total": 220,
+      "before": [
+        0.053016483783721924,
+        -43.65205383300781,
+        204.05520629882812
+      ],
+      "after": [
+        0.4547252357006073,
+        0.7952754497528076,
+        224.30630493164062
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4547252357006073,
+        "win_prob_away": 0.5452747344970703,
+        "predicted_spread": 1.0,
+        "spread_confidence": 0.0905495285987854,
+        "predicted_total": 224.5,
+        "total_confidence": 0.0905495285987854
+      }
+    },
+    {
+      "game_id": 31882,
+      "source_day": "2026-10-31",
+      "actual_total": 241,
+      "before": [
+        0.1665765941143036,
+        -35.591949462890625,
+        201.41201782226562
+      ],
+      "after": [
+        0.5621649622917175,
+        4.285467624664307,
+        223.50912475585938
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5621649622917175,
+        "win_prob_away": 0.43783503770828247,
+        "predicted_spread": 4.5,
+        "spread_confidence": 0.12432992458343506,
+        "predicted_total": 223.5,
+        "total_confidence": 0.12432992458343506
+      }
+    },
+    {
+      "game_id": 31883,
+      "source_day": "2026-10-31",
+      "actual_total": 247,
+      "before": [
+        0.11172369122505188,
+        -39.87653350830078,
+        196.67306518554688
+      ],
+      "after": [
+        0.4105546474456787,
+        -0.7770144939422607,
+        225.75836181640625
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4105546474456787,
+        "win_prob_away": 0.5894453525543213,
+        "predicted_spread": -1.0,
+        "spread_confidence": 0.17889070510864258,
+        "predicted_total": 226.0,
+        "total_confidence": 0.17889070510864258
+      }
+    },
+    {
+      "game_id": 31884,
+      "source_day": "2026-10-31",
+      "actual_total": 232,
+      "before": [
+        0.1316589117050171,
+        -33.805381774902344,
+        202.33160400390625
+      ],
+      "after": [
+        0.6742475628852844,
+        6.810485363006592,
+        225.82200622558594
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6742475628852844,
+        "win_prob_away": 0.3257524371147156,
+        "predicted_spread": 7.0,
+        "spread_confidence": 0.34849512577056885,
+        "predicted_total": 226.0,
+        "total_confidence": 0.34849512577056885
+      }
+    },
+    {
+      "game_id": 31885,
+      "source_day": "2026-10-31",
+      "actual_total": 217,
+      "before": [
+        0.24621859192848206,
+        -27.88535499572754,
+        195.68218994140625
+      ],
+      "after": [
+        0.6206107139587402,
+        6.124488353729248,
+        220.09271240234375
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6206107139587402,
+        "win_prob_away": 0.37938928604125977,
+        "predicted_spread": 6.0,
+        "spread_confidence": 0.24122142791748047,
+        "predicted_total": 220.0,
+        "total_confidence": 0.24122142791748047
+      }
+    },
+    {
+      "game_id": 31887,
+      "source_day": "2026-11-01",
+      "actual_total": 205,
+      "before": [
+        0.10162851214408875,
+        -38.30549621582031,
+        197.22528076171875
+      ],
+      "after": [
+        0.42164936661720276,
+        -0.2352898120880127,
+        220.4432830810547
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.42164936661720276,
+        "win_prob_away": 0.5783506631851196,
+        "predicted_spread": 0.0,
+        "spread_confidence": 0.15670126676559448,
+        "predicted_total": 220.5,
+        "total_confidence": 0.15670126676559448
+      }
+    },
+    {
+      "game_id": 31888,
+      "source_day": "2026-11-01",
+      "actual_total": 188,
+      "before": [
+        0.19361478090286255,
+        -35.736534118652344,
+        195.957763671875
+      ],
+      "after": [
+        0.5788411498069763,
+        4.761905670166016,
+        223.90512084960938
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5788411498069763,
+        "win_prob_away": 0.4211588501930237,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.15768229961395264,
+        "predicted_total": 224.0,
+        "total_confidence": 0.15768229961395264
+      }
+    },
+    {
+      "game_id": 31889,
+      "source_day": "2026-11-01",
+      "actual_total": 236,
+      "before": [
+        0.10441085696220398,
+        -43.69571304321289,
+        195.0935821533203
+      ],
+      "after": [
+        0.592130184173584,
+        5.426023483276367,
+        223.5115966796875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.592130184173584,
+        "win_prob_away": 0.407869815826416,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.18426036834716797,
+        "predicted_total": 223.5,
+        "total_confidence": 0.18426036834716797
+      }
+    },
+    {
+      "game_id": 31890,
+      "source_day": "2026-11-01",
+      "actual_total": 256,
+      "before": [
+        0.11931365728378296,
+        -34.145843505859375,
+        203.650146484375
+      ],
+      "after": [
+        0.5557143092155457,
+        5.562273025512695,
+        221.57681274414062
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5557143092155457,
+        "win_prob_away": 0.44428569078445435,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.11142861843109131,
+        "predicted_total": 221.5,
+        "total_confidence": 0.11142861843109131
+      }
+    },
+    {
+      "game_id": 32735,
+      "source_day": "2026-11-02",
+      "actual_total": 229,
+      "before": [
+        0.21638906002044678,
+        -31.687397003173828,
+        195.80551147460938
+      ],
+      "after": [
+        0.5919729471206665,
+        4.780168056488037,
+        223.19386291503906
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5919729471206665,
+        "win_prob_away": 0.4080270528793335,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.183945894241333,
+        "predicted_total": 223.0,
+        "total_confidence": 0.183945894241333
+      }
+    },
+    {
+      "game_id": 32736,
+      "source_day": "2026-11-02",
+      "actual_total": 215,
+      "before": [
+        0.05421409010887146,
+        -51.73023986816406,
+        188.61766052246094
+      ],
+      "after": [
+        0.34518730640411377,
+        -2.5084543228149414,
+        213.09193420410156
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.34518730640411377,
+        "win_prob_away": 0.6548126935958862,
+        "predicted_spread": -2.5,
+        "spread_confidence": 0.30962538719177246,
+        "predicted_total": 213.0,
+        "total_confidence": 0.30962538719177246
+      }
+    },
+    {
+      "game_id": 32737,
+      "source_day": "2026-11-02",
+      "actual_total": 212,
+      "before": [
+        0.09274205565452576,
+        -47.18960952758789,
+        193.95059204101562
+      ],
+      "after": [
+        0.5227383971214294,
+        3.1096291542053223,
+        224.2544708251953
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5227383971214294,
+        "win_prob_away": 0.47726160287857056,
+        "predicted_spread": 3.0,
+        "spread_confidence": 0.04547679424285889,
+        "predicted_total": 224.5,
+        "total_confidence": 0.04547679424285889
+      }
+    },
+    {
+      "game_id": 32738,
+      "source_day": "2026-11-02",
+      "actual_total": 193,
+      "before": [
+        0.1823374330997467,
+        -33.51140213012695,
+        199.77853393554688
+      ],
+      "after": [
+        0.679744303226471,
+        6.534765243530273,
+        213.54627990722656
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.679744303226471,
+        "win_prob_away": 0.32025569677352905,
+        "predicted_spread": 6.5,
+        "spread_confidence": 0.3594886064529419,
+        "predicted_total": 213.5,
+        "total_confidence": 0.3594886064529419
+      }
+    },
+    {
+      "game_id": 32739,
+      "source_day": "2026-11-02",
+      "actual_total": 197,
+      "before": [
+        0.11242234706878662,
+        -39.747039794921875,
+        199.93795776367188
+      ],
+      "after": [
+        0.4809521436691284,
+        2.525350332260132,
+        219.72409057617188
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4809521436691284,
+        "win_prob_away": 0.5190478563308716,
+        "predicted_spread": 2.5,
+        "spread_confidence": 0.038095712661743164,
+        "predicted_total": 219.5,
+        "total_confidence": 0.038095712661743164
+      }
+    },
+    {
+      "game_id": 32740,
+      "source_day": "2026-11-02",
+      "actual_total": 233,
+      "before": [
+        0.12735584378242493,
+        -37.07419204711914,
+        202.36341857910156
+      ],
+      "after": [
+        0.5702033042907715,
+        5.192548751831055,
+        226.14561462402344
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5702033042907715,
+        "win_prob_away": 0.4297966957092285,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.14040660858154297,
+        "predicted_total": 226.0,
+        "total_confidence": 0.14040660858154297
+      }
+    },
+    {
+      "game_id": 32741,
+      "source_day": "2026-11-02",
+      "actual_total": 215,
+      "before": [
+        0.13216820359230042,
+        -35.398399353027344,
+        205.53179931640625
+      ],
+      "after": [
+        0.6980463266372681,
+        7.028144836425781,
+        227.74832153320312
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6980463266372681,
+        "win_prob_away": 0.30195367336273193,
+        "predicted_spread": 7.0,
+        "spread_confidence": 0.39609265327453613,
+        "predicted_total": 227.5,
+        "total_confidence": 0.39609265327453613
+      }
+    },
+    {
+      "game_id": 32742,
+      "source_day": "2026-11-02",
+      "actual_total": 269,
+      "before": [
+        0.13001498579978943,
+        -38.235530853271484,
+        200.349365234375
+      ],
+      "after": [
+        0.5270516872406006,
+        2.7687251567840576,
+        224.66468811035156
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5270516872406006,
+        "win_prob_away": 0.4729483127593994,
+        "predicted_spread": 3.0,
+        "spread_confidence": 0.05410337448120117,
+        "predicted_total": 224.5,
+        "total_confidence": 0.05410337448120117
+      }
+    },
+    {
+      "game_id": 32743,
+      "source_day": "2026-11-02",
+      "actual_total": 212,
+      "before": [
+        0.1637236475944519,
+        -32.73904800415039,
+        204.4368133544922
+      ],
+      "after": [
+        0.7157336473464966,
+        7.993546485900879,
+        226.2604522705078
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7157336473464966,
+        "win_prob_away": 0.2842663526535034,
+        "predicted_spread": 8.0,
+        "spread_confidence": 0.43146729469299316,
+        "predicted_total": 226.5,
+        "total_confidence": 0.43146729469299316
+      }
+    },
+    {
+      "game_id": 32744,
+      "source_day": "2026-11-02",
+      "actual_total": 202,
+      "before": [
+        0.10532063245773315,
+        -40.74211883544922,
+        194.02032470703125
+      ],
+      "after": [
+        0.6054131984710693,
+        5.830410480499268,
+        226.28369140625
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6054131984710693,
+        "win_prob_away": 0.39458680152893066,
+        "predicted_spread": 6.0,
+        "spread_confidence": 0.21082639694213867,
+        "predicted_total": 226.5,
+        "total_confidence": 0.21082639694213867
+      }
+    },
+    {
+      "game_id": 32745,
+      "source_day": "2026-11-02",
+      "actual_total": 216,
+      "before": [
+        0.1360045075416565,
+        -34.75950622558594,
+        206.1086883544922
+      ],
+      "after": [
+        0.7765471935272217,
+        8.755058288574219,
+        223.54910278320312
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7765471935272217,
+        "win_prob_away": 0.22345280647277832,
+        "predicted_spread": 9.0,
+        "spread_confidence": 0.5530943870544434,
+        "predicted_total": 223.5,
+        "total_confidence": 0.5530943870544434
+      }
+    },
+    {
+      "game_id": 32746,
+      "source_day": "2026-11-02",
+      "actual_total": 228,
+      "before": [
+        0.17876821756362915,
+        -32.793540954589844,
+        199.90574645996094
+      ],
+      "after": [
+        0.5763766765594482,
+        5.599895000457764,
+        223.10202026367188
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5763766765594482,
+        "win_prob_away": 0.42362332344055176,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.15275335311889648,
+        "predicted_total": 223.0,
+        "total_confidence": 0.15275335311889648
+      }
+    },
+    {
+      "game_id": 32747,
+      "source_day": "2026-11-02",
+      "actual_total": 229,
+      "before": [
+        0.21867352724075317,
+        -34.757164001464844,
+        193.72805786132812
+      ],
+      "after": [
+        0.6260565519332886,
+        6.322549343109131,
+        224.4344024658203
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6260565519332886,
+        "win_prob_away": 0.3739434480667114,
+        "predicted_spread": 6.5,
+        "spread_confidence": 0.25211310386657715,
+        "predicted_total": 224.5,
+        "total_confidence": 0.25211310386657715
+      }
+    },
+    {
+      "game_id": 32748,
+      "source_day": "2026-11-02",
+      "actual_total": 243,
+      "before": [
+        0.07290378212928772,
+        -47.60000991821289,
+        194.3177032470703
+      ],
+      "after": [
+        0.3871024549007416,
+        -1.89292573928833,
+        220.03305053710938
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.3871024549007416,
+        "win_prob_away": 0.612897515296936,
+        "predicted_spread": -2.0,
+        "spread_confidence": 0.22579509019851685,
+        "predicted_total": 220.0,
+        "total_confidence": 0.22579509019851685
+      }
+    },
+    {
+      "game_id": 32749,
+      "source_day": "2026-11-02",
+      "actual_total": 255,
+      "before": [
+        0.045883774757385254,
+        -46.50234603881836,
+        208.36062622070312
+      ],
+      "after": [
+        0.42070266604423523,
+        -1.6659564971923828,
+        228.560302734375
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.42070266604423523,
+        "win_prob_away": 0.5792973041534424,
+        "predicted_spread": -1.5,
+        "spread_confidence": 0.15859466791152954,
+        "predicted_total": 228.5,
+        "total_confidence": 0.15859466791152954
+      }
+    },
+    {
+      "game_id": 32750,
+      "source_day": "2026-11-04",
+      "actual_total": 218,
+      "before": [
+        0.12008479237556458,
+        -41.13230514526367,
+        194.9773712158203
+      ],
+      "after": [
+        0.622371256351471,
+        6.0471882820129395,
+        221.60569763183594
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.622371256351471,
+        "win_prob_away": 0.37762874364852905,
+        "predicted_spread": 6.0,
+        "spread_confidence": 0.2447425127029419,
+        "predicted_total": 221.5,
+        "total_confidence": 0.2447425127029419
+      }
+    },
+    {
+      "game_id": 32751,
+      "source_day": "2026-11-04",
+      "actual_total": 225,
+      "before": [
+        0.0645209550857544,
+        -45.44758605957031,
+        199.20477294921875
+      ],
+      "after": [
+        0.5597816705703735,
+        5.557764053344727,
+        221.24423217773438
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5597816705703735,
+        "win_prob_away": 0.44021832942962646,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.11956334114074707,
+        "predicted_total": 221.0,
+        "total_confidence": 0.11956334114074707
+      }
+    },
+    {
+      "game_id": 32752,
+      "source_day": "2026-11-04",
+      "actual_total": 211,
+      "before": [
+        0.13630130887031555,
+        -36.616432189941406,
+        203.07675170898438
+      ],
+      "after": [
+        0.6880930662155151,
+        6.516421794891357,
+        222.00502014160156
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6880930662155151,
+        "win_prob_away": 0.31190693378448486,
+        "predicted_spread": 6.5,
+        "spread_confidence": 0.3761861324310303,
+        "predicted_total": 222.0,
+        "total_confidence": 0.3761861324310303
+      }
+    },
+    {
+      "game_id": 32753,
+      "source_day": "2026-11-04",
+      "actual_total": 218,
+      "before": [
+        0.08333578705787659,
+        -45.80998229980469,
+        194.62631225585938
+      ],
+      "after": [
+        0.48067960143089294,
+        2.625610589981079,
+        215.87611389160156
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.48067960143089294,
+        "win_prob_away": 0.5193203687667847,
+        "predicted_spread": 2.5,
+        "spread_confidence": 0.03864079713821411,
+        "predicted_total": 216.0,
+        "total_confidence": 0.03864079713821411
+      }
+    },
+    {
+      "game_id": 32754,
+      "source_day": "2026-11-04",
+      "actual_total": 240,
+      "before": [
+        0.1701246201992035,
+        -37.285823822021484,
+        199.0054931640625
+      ],
+      "after": [
+        0.7153068780899048,
+        7.809034824371338,
+        219.5447998046875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7153068780899048,
+        "win_prob_away": 0.2846931219100952,
+        "predicted_spread": 8.0,
+        "spread_confidence": 0.43061375617980957,
+        "predicted_total": 219.5,
+        "total_confidence": 0.43061375617980957
+      }
+    },
+    {
+      "game_id": 32755,
+      "source_day": "2026-11-04",
+      "actual_total": 210,
+      "before": [
+        0.1012505292892456,
+        -42.44672393798828,
+        201.67906188964844
+      ],
+      "after": [
+        0.5309439301490784,
+        4.18671178817749,
+        223.67999267578125
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5309439301490784,
+        "win_prob_away": 0.46905606985092163,
+        "predicted_spread": 4.0,
+        "spread_confidence": 0.06188786029815674,
+        "predicted_total": 223.5,
+        "total_confidence": 0.06188786029815674
+      }
+    },
+    {
+      "game_id": 32756,
+      "source_day": "2026-11-04",
+      "actual_total": 233,
+      "before": [
+        0.13276472687721252,
+        -35.35039520263672,
+        203.93357849121094
+      ],
+      "after": [
+        0.7012619376182556,
+        6.652373313903809,
+        233.78175354003906
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.7012619376182556,
+        "win_prob_away": 0.2987380623817444,
+        "predicted_spread": 6.5,
+        "spread_confidence": 0.40252387523651123,
+        "predicted_total": 234.0,
+        "total_confidence": 0.40252387523651123
+      }
+    },
+    {
+      "game_id": 32757,
+      "source_day": "2026-11-04",
+      "actual_total": 240,
+      "before": [
+        0.0772685706615448,
+        -39.17538070678711,
+        208.4344024658203
+      ],
+      "after": [
+        0.6390972137451172,
+        6.222872257232666,
+        221.8325958251953
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6390972137451172,
+        "win_prob_away": 0.3609027862548828,
+        "predicted_spread": 6.0,
+        "spread_confidence": 0.2781944274902344,
+        "predicted_total": 222.0,
+        "total_confidence": 0.2781944274902344
+      }
+    },
+    {
+      "game_id": 32758,
+      "source_day": "2026-11-04",
+      "actual_total": 224,
+      "before": [
+        0.1141410768032074,
+        -40.45570373535156,
+        193.89805603027344
+      ],
+      "after": [
+        0.6967843770980835,
+        7.0660271644592285,
+        226.63938903808594
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6967843770980835,
+        "win_prob_away": 0.3032156229019165,
+        "predicted_spread": 7.0,
+        "spread_confidence": 0.393568754196167,
+        "predicted_total": 226.5,
+        "total_confidence": 0.393568754196167
+      }
+    },
+    {
+      "game_id": 32759,
+      "source_day": "2026-11-04",
+      "actual_total": 237,
+      "before": [
+        0.07638761401176453,
+        -43.49201965332031,
+        200.99598693847656
+      ],
+      "after": [
+        0.4947853982448578,
+        2.968900203704834,
+        225.69894409179688
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4947853982448578,
+        "win_prob_away": 0.5052145719528198,
+        "predicted_spread": 3.0,
+        "spread_confidence": 0.010429203510284424,
+        "predicted_total": 225.5,
+        "total_confidence": 0.010429203510284424
+      }
+    },
+    {
+      "game_id": 32760,
+      "source_day": "2026-11-04",
+      "actual_total": 251,
+      "before": [
+        0.1062508225440979,
+        -39.76247787475586,
+        198.64283752441406
+      ],
+      "after": [
+        0.3723847270011902,
+        -1.8146827220916748,
+        221.96002197265625
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.3723847270011902,
+        "win_prob_away": 0.6276152729988098,
+        "predicted_spread": -2.0,
+        "spread_confidence": 0.25523054599761963,
+        "predicted_total": 222.0,
+        "total_confidence": 0.25523054599761963
+      }
+    },
+    {
+      "game_id": 32761,
+      "source_day": "2026-11-04",
+      "actual_total": 223,
+      "before": [
+        0.18520709872245789,
+        -32.88710403442383,
+        200.1827850341797
+      ],
+      "after": [
+        0.6600304841995239,
+        5.669468879699707,
+        221.4177703857422
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6600304841995239,
+        "win_prob_away": 0.3399695158004761,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.32006096839904785,
+        "predicted_total": 221.5,
+        "total_confidence": 0.32006096839904785
+      }
+    },
+    {
+      "game_id": 32762,
+      "source_day": "2026-11-04",
+      "actual_total": 219,
+      "before": [
+        0.07520672678947449,
+        -43.572975158691406,
+        196.212158203125
+      ],
+      "after": [
+        0.33131229877471924,
+        -4.224523067474365,
+        230.56024169921875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.33131229877471924,
+        "win_prob_away": 0.6686877012252808,
+        "predicted_spread": -4.0,
+        "spread_confidence": 0.3373754024505615,
+        "predicted_total": 230.5,
+        "total_confidence": 0.3373754024505615
+      }
+    },
+    {
+      "game_id": 32763,
+      "source_day": "2026-11-04",
+      "actual_total": 233,
+      "before": [
+        0.04994425177574158,
+        -49.913299560546875,
+        201.37815856933594
+      ],
+      "after": [
+        0.35293930768966675,
+        -3.614616870880127,
+        230.26177978515625
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.35293930768966675,
+        "win_prob_away": 0.6470606923103333,
+        "predicted_spread": -3.5,
+        "spread_confidence": 0.2941213846206665,
+        "predicted_total": 230.5,
+        "total_confidence": 0.2941213846206665
+      }
+    },
+    {
+      "game_id": 32764,
+      "source_day": "2026-11-05",
+      "actual_total": 221,
+      "before": [
+        0.08108580112457275,
+        -44.59016036987305,
+        199.56198120117188
+      ],
+      "after": [
+        0.4332551956176758,
+        1.851415991783142,
+        221.1585235595703
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.4332551956176758,
+        "win_prob_away": 0.5667448043823242,
+        "predicted_spread": 2.0,
+        "spread_confidence": 0.13348960876464844,
+        "predicted_total": 221.0,
+        "total_confidence": 0.13348960876464844
+      }
+    },
+    {
+      "game_id": 32765,
+      "source_day": "2026-11-05",
+      "actual_total": 220,
+      "before": [
+        0.05250886082649231,
+        -49.70685577392578,
+        198.45440673828125
+      ],
+      "after": [
+        0.568657636642456,
+        3.3964290618896484,
+        227.98779296875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.568657636642456,
+        "win_prob_away": 0.43134236335754395,
+        "predicted_spread": 3.5,
+        "spread_confidence": 0.1373152732849121,
+        "predicted_total": 228.0,
+        "total_confidence": 0.1373152732849121
+      }
+    },
+    {
+      "game_id": 32767,
+      "source_day": "2026-11-06",
+      "actual_total": 271,
+      "before": [
+        0.13514116406440735,
+        -41.43019104003906,
+        192.25538635253906
+      ],
+      "after": [
+        0.6043115854263306,
+        5.40000057220459,
+        223.34854125976562
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6043115854263306,
+        "win_prob_away": 0.39568841457366943,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.20862317085266113,
+        "predicted_total": 223.5,
+        "total_confidence": 0.20862317085266113
+      }
+    },
+    {
+      "game_id": 32768,
+      "source_day": "2026-11-06",
+      "actual_total": 199,
+      "before": [
+        0.03755989670753479,
+        -56.08845901489258,
+        190.79942321777344
+      ],
+      "after": [
+        0.30860793590545654,
+        -4.853696823120117,
+        216.77220153808594
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.30860793590545654,
+        "win_prob_away": 0.6913920640945435,
+        "predicted_spread": -5.0,
+        "spread_confidence": 0.3827841281890869,
+        "predicted_total": 217.0,
+        "total_confidence": 0.3827841281890869
+      }
+    },
+    {
+      "game_id": 32769,
+      "source_day": "2026-11-06",
+      "actual_total": 214,
+      "before": [
+        0.07819578051567078,
+        -43.93253707885742,
+        199.41717529296875
+      ],
+      "after": [
+        0.5833006501197815,
+        4.693055152893066,
+        226.16339111328125
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5833006501197815,
+        "win_prob_away": 0.4166993498802185,
+        "predicted_spread": 4.5,
+        "spread_confidence": 0.166601300239563,
+        "predicted_total": 226.0,
+        "total_confidence": 0.166601300239563
+      }
+    },
+    {
+      "game_id": 32770,
+      "source_day": "2026-11-06",
+      "actual_total": 212,
+      "before": [
+        0.12619644403457642,
+        -39.162662506103516,
+        199.37669372558594
+      ],
+      "after": [
+        0.629603922367096,
+        5.698381423950195,
+        226.8766326904297
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.629603922367096,
+        "win_prob_away": 0.37039607763290405,
+        "predicted_spread": 5.5,
+        "spread_confidence": 0.2592078447341919,
+        "predicted_total": 227.0,
+        "total_confidence": 0.2592078447341919
+      }
+    },
+    {
+      "game_id": 32771,
+      "source_day": "2026-11-06",
+      "actual_total": 225,
+      "before": [
+        0.13250505924224854,
+        -40.62367248535156,
+        192.90548706054688
+      ],
+      "after": [
+        0.5241404175758362,
+        4.011418342590332,
+        220.8350067138672
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5241404175758362,
+        "win_prob_away": 0.4758595824241638,
+        "predicted_spread": 4.0,
+        "spread_confidence": 0.04828083515167236,
+        "predicted_total": 221.0,
+        "total_confidence": 0.04828083515167236
+      }
+    },
+    {
+      "game_id": 32772,
+      "source_day": "2026-11-06",
+      "actual_total": 228,
+      "before": [
+        0.05782166123390198,
+        -50.716861724853516,
+        195.02944946289062
+      ],
+      "after": [
+        0.34296101331710815,
+        -3.1359872817993164,
+        227.50709533691406
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.34296101331710815,
+        "win_prob_away": 0.6570389866828918,
+        "predicted_spread": -3.0,
+        "spread_confidence": 0.3140779733657837,
+        "predicted_total": 227.5,
+        "total_confidence": 0.3140779733657837
+      }
+    },
+    {
+      "game_id": 32773,
+      "source_day": "2026-11-06",
+      "actual_total": 224,
+      "before": [
+        0.05796408653259277,
+        -44.387535095214844,
+        199.90850830078125
+      ],
+      "after": [
+        0.49686339497566223,
+        1.184272289276123,
+        228.44178771972656
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.49686339497566223,
+        "win_prob_away": 0.5031366348266602,
+        "predicted_spread": 1.0,
+        "spread_confidence": 0.006273210048675537,
+        "predicted_total": 228.5,
+        "total_confidence": 0.006273210048675537
+      }
+    },
+    {
+      "game_id": 32774,
+      "source_day": "2026-11-06",
+      "actual_total": 242,
+      "before": [
+        0.1418675184249878,
+        -38.2061767578125,
+        195.20970153808594
+      ],
+      "after": [
+        0.5951902270317078,
+        5.055220603942871,
+        225.63185119628906
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.5951902270317078,
+        "win_prob_away": 0.40480977296829224,
+        "predicted_spread": 5.0,
+        "spread_confidence": 0.19038045406341553,
+        "predicted_total": 225.5,
+        "total_confidence": 0.19038045406341553
+      }
+    },
+    {
+      "game_id": 32775,
+      "source_day": "2026-11-06",
+      "actual_total": 233,
+      "before": [
+        0.0484563410282135,
+        -53.608642578125,
+        188.84771728515625
+      ],
+      "after": [
+        0.20374655723571777,
+        -11.916770935058594,
+        227.79405212402344
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.20374655723571777,
+        "win_prob_away": 0.7962534427642822,
+        "predicted_spread": -12.0,
+        "spread_confidence": 0.5925068855285645,
+        "predicted_total": 228.0,
+        "total_confidence": 0.5925068855285645
+      }
+    },
+    {
+      "game_id": 32777,
+      "source_day": "2026-11-07",
+      "actual_total": 216,
+      "before": [
+        0.06463155150413513,
+        -50.83991622924805,
+        190.50241088867188
+      ],
+      "after": [
+        0.36710846424102783,
+        -1.9744210243225098,
+        226.73374938964844
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.36710846424102783,
+        "win_prob_away": 0.6328915357589722,
+        "predicted_spread": -2.0,
+        "spread_confidence": 0.26578307151794434,
+        "predicted_total": 226.5,
+        "total_confidence": 0.26578307151794434
+      }
+    },
+    {
+      "game_id": 32778,
+      "source_day": "2026-11-07",
+      "actual_total": 245,
+      "before": [
+        0.16719943284988403,
+        -42.28189468383789,
+        191.31689453125
+      ],
+      "after": [
+        0.6456354856491089,
+        5.893173694610596,
+        221.8658905029297
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6456354856491089,
+        "win_prob_away": 0.3543645143508911,
+        "predicted_spread": 6.0,
+        "spread_confidence": 0.2912709712982178,
+        "predicted_total": 222.0,
+        "total_confidence": 0.2912709712982178
+      }
+    },
+    {
+      "game_id": 32779,
+      "source_day": "2026-11-07",
+      "actual_total": 206,
+      "before": [
+        0.07126793265342712,
+        -49.228843688964844,
+        192.66600036621094
+      ],
+      "after": [
+        0.44554680585861206,
+        0.7875242233276367,
+        221.00083923339844
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.44554680585861206,
+        "win_prob_away": 0.5544531941413879,
+        "predicted_spread": 1.0,
+        "spread_confidence": 0.10890638828277588,
+        "predicted_total": 221.0,
+        "total_confidence": 0.10890638828277588
+      }
+    },
+    {
+      "game_id": 32780,
+      "source_day": "2026-11-07",
+      "actual_total": 189,
+      "before": [
+        0.11575579643249512,
+        -37.63369369506836,
+        204.03733825683594
+      ],
+      "after": [
+        0.6417765617370605,
+        5.905353546142578,
+        222.47853088378906
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6417765617370605,
+        "win_prob_away": 0.35822343826293945,
+        "predicted_spread": 6.0,
+        "spread_confidence": 0.2835531234741211,
+        "predicted_total": 222.5,
+        "total_confidence": 0.2835531234741211
+      }
+    },
+    {
+      "game_id": 32781,
+      "source_day": "2026-11-07",
+      "actual_total": 245,
+      "before": [
+        0.14754319190979004,
+        -43.24407958984375,
+        190.23220825195312
+      ],
+      "after": [
+        0.631528377532959,
+        5.8824896812438965,
+        222.7164306640625
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.631528377532959,
+        "win_prob_away": 0.368471622467041,
+        "predicted_spread": 6.0,
+        "spread_confidence": 0.26305675506591797,
+        "predicted_total": 222.5,
+        "total_confidence": 0.26305675506591797
+      }
+    },
+    {
+      "game_id": 32782,
+      "source_day": "2026-11-07",
+      "actual_total": 201,
+      "before": [
+        0.03594276309013367,
+        -53.69740676879883,
+        198.21627807617188
+      ],
+      "after": [
+        0.28467822074890137,
+        -5.664461612701416,
+        228.13560485839844
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.28467822074890137,
+        "win_prob_away": 0.7153217792510986,
+        "predicted_spread": -5.5,
+        "spread_confidence": 0.43064355850219727,
+        "predicted_total": 228.0,
+        "total_confidence": 0.43064355850219727
+      }
+    },
+    {
+      "game_id": 32783,
+      "source_day": "2026-11-07",
+      "actual_total": 228,
+      "before": [
+        0.055649906396865845,
+        -51.22007369995117,
+        192.33644104003906
+      ],
+      "after": [
+        0.3609587848186493,
+        -3.3312463760375977,
+        223.05419921875
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.3609587848186493,
+        "win_prob_away": 0.6390411853790283,
+        "predicted_spread": -3.5,
+        "spread_confidence": 0.2780824303627014,
+        "predicted_total": 223.0,
+        "total_confidence": 0.2780824303627014
+      }
+    },
+    {
+      "game_id": 32784,
+      "source_day": "2026-11-08",
+      "actual_total": 248,
+      "before": [
+        0.034111082553863525,
+        -54.6939811706543,
+        194.16836547851562
+      ],
+      "after": [
+        0.3036271929740906,
+        -4.610269069671631,
+        228.2861328125
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.3036271929740906,
+        "win_prob_away": 0.6963728070259094,
+        "predicted_spread": -4.5,
+        "spread_confidence": 0.39274561405181885,
+        "predicted_total": 228.5,
+        "total_confidence": 0.39274561405181885
+      }
+    },
+    {
+      "game_id": 32785,
+      "source_day": "2026-11-08",
+      "actual_total": 237,
+      "before": [
+        0.1102944016456604,
+        -41.609352111816406,
+        193.6932830810547
+      ],
+      "after": [
+        0.504584789276123,
+        3.264057159423828,
+        223.74034118652344
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.504584789276123,
+        "win_prob_away": 0.49541521072387695,
+        "predicted_spread": 3.5,
+        "spread_confidence": 0.009169578552246094,
+        "predicted_total": 223.5,
+        "total_confidence": 0.009169578552246094
+      }
+    },
+    {
+      "game_id": 32786,
+      "source_day": "2026-11-08",
+      "actual_total": 215,
+      "before": [
+        0.19749712944030762,
+        -36.30922317504883,
+        197.42431640625
+      ],
+      "after": [
+        0.6890221238136292,
+        6.856357097625732,
+        219.54783630371094
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6890221238136292,
+        "win_prob_away": 0.31097787618637085,
+        "predicted_spread": 7.0,
+        "spread_confidence": 0.3780442476272583,
+        "predicted_total": 219.5,
+        "total_confidence": 0.3780442476272583
+      }
+    },
+    {
+      "game_id": 32787,
+      "source_day": "2026-11-08",
+      "actual_total": 223,
+      "before": [
+        0.09148615598678589,
+        -42.98184585571289,
+        199.91624450683594
+      ],
+      "after": [
+        0.6956206560134888,
+        6.923623561859131,
+        220.43911743164062
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.6956206560134888,
+        "win_prob_away": 0.30437934398651123,
+        "predicted_spread": 7.0,
+        "spread_confidence": 0.39124131202697754,
+        "predicted_total": 220.5,
+        "total_confidence": 0.39124131202697754
+      }
+    },
+    {
+      "game_id": 32788,
+      "source_day": "2026-11-08",
+      "actual_total": 214,
+      "before": [
+        0.02580997347831726,
+        -62.233917236328125,
+        190.5091552734375
+      ],
+      "after": [
+        0.24628666043281555,
+        -8.616026878356934,
+        223.2011260986328
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.24628666043281555,
+        "win_prob_away": 0.7537133693695068,
+        "predicted_spread": -8.5,
+        "spread_confidence": 0.5074266791343689,
+        "predicted_total": 223.0,
+        "total_confidence": 0.5074266791343689
+      }
+    },
+    {
+      "game_id": 32789,
+      "source_day": "2026-11-08",
+      "actual_total": 262,
+      "before": [
+        0.08901455998420715,
+        -44.26743698120117,
+        197.26385498046875
+      ],
+      "after": [
+        0.47217482328414917,
+        0.14694428443908691,
+        229.8483428955078
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.47217482328414917,
+        "win_prob_away": 0.5278251767158508,
+        "predicted_spread": 0.0,
+        "spread_confidence": 0.05565035343170166,
+        "predicted_total": 230.0,
+        "total_confidence": 0.05565035343170166
+      }
+    },
+    {
+      "game_id": 32790,
+      "source_day": "2026-11-08",
+      "actual_total": 222,
+      "before": [
+        0.042002201080322266,
+        -52.913326263427734,
+        198.15235900878906
+      ],
+      "after": [
+        0.41446393728256226,
+        -0.6822290420532227,
+        228.6244354248047
+      ],
+      "final": {
+        "model_version": "20261022_050952+legacy_mlp_1022_constant_ast_v1",
+        "win_prob_home": 0.41446393728256226,
+        "win_prob_away": 0.5855360627174377,
+        "predicted_spread": -0.5,
+        "spread_confidence": 0.1710721254348755,
+        "predicted_total": 228.5,
+        "total_confidence": 0.1710721254348755
+      }
+    }
+  ]
+}

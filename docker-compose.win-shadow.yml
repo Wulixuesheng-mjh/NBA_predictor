@@ -1,0 +1,38 @@
+services:
+  win-shadow:
+    image: nba-predictor-win-worker@sha256:dcd7badd35d0384b91cd034dcdaa3f50cf206d02331ef30761f721c207fcf216
+    pull_policy: never
+    container_name: nba-win-shadow
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-nba_admin}:${DB_PASSWORD:-nba_predictor_2024}@postgres:5432/${DB_NAME:-nba_predictor}
+      MODELS_DIR: /app/ml/saved_models
+      PYTHONPATH: /app
+      PYTHONUNBUFFERED: '1'
+    volumes:
+      - model_data:/app/ml/saved_models:ro
+      - type: volume
+        source: model_data
+        target: /app/ml/saved_models/win_observations/win_T5_20261104_tminus60_v1/records
+        volume:
+          subpath: win_observations/win_T5_20261104_tminus60_v1/records
+    command: [serve, --run, win_T5_20261104_tminus60_v1]
+    read_only: true
+    tmpfs: [/tmp]
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+    healthcheck:
+      test: [CMD, python, /app/scripts/win_shadow_worker.py, status, --run, win_T5_20261104_tminus60_v1]
+      interval: 60s
+      timeout: 45s
+      retries: 3
+      start_period: 20s
+    networks: [nba-network]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 768M
